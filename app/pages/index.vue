@@ -1,13 +1,10 @@
 <script setup lang="ts">
-const { version, major, minor, patch, prerelease } = useVersion();
+import PageRoot from "~/components/primitives/composing/PageRoot.vue";
+import AppVersion from "~/components/primitives/AppVersion.vue";
 </script>
 
 <template>
-  <div class="text-sm text-muted-foreground">
-    <p>v{{ version }}</p>
-    <p>Major: {{ major }}</p>
-    <p>Minor: {{ minor }}</p>
-    <p>Patch: {{ patch }}</p>
-    <p>Prerelease: {{ prerelease || "-" }}</p>
-  </div>
+  <PageRoot class="text-sm text-muted-foreground">
+    <AppVersion />
+  </PageRoot>
 </template>
