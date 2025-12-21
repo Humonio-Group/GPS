@@ -10,9 +10,7 @@ function main() {
     const versionRegex = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/;
     const match = version.match(versionRegex);
 
-    if (!match) {
-      throw new Error(`Invalid version format: ${version}`);
-    }
+    if (!match) throw new Error(`Invalid version format: ${version}`);
 
     const composableContent = `import type { Version } from "~/types/misc/version";
 
