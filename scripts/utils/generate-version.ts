@@ -3,12 +3,10 @@ import { resolve } from "node:path";
 
 function main() {
   try {
-    // Lire le package.json
     const packageJsonPath = resolve(process.cwd(), "package.json");
     const packageJson = JSON.parse(readFileSync(packageJsonPath, "utf-8"));
     const version = packageJson.version;
 
-    // Parser la version (format: major.minor.patch[-prerelease])
     const versionRegex = /^(\d+)\.(\d+)\.(\d+)(?:-(.+))?$/;
     const match = version.match(versionRegex);
 
@@ -16,9 +14,6 @@ function main() {
       throw new Error(`Invalid version format: ${version}`);
     }
 
-    const [, major, minor, patch, prerelease] = match;
-
-    // Générer le contenu du composable
     const composableContent = `import type { Version } from "~/types/misc/version";
 
 const VERSION = "${version}" as const;
@@ -46,7 +41,6 @@ export const useVersion = (): Version => {
 };
 `;
 
-    // Écrire le composable
     const composablePath = resolve(process.cwd(), "app/composables/useVersion.ts");
     writeFileSync(composablePath, composableContent, "utf-8");
 
