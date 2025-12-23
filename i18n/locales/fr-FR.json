@@ -1,1 +1,24 @@
-{}
+{
+  "navigation": {
+    "home": "Accueil",
+    "my-courses": "Mes cours",
+    "actions": {
+      "notifications": "Notifications",
+      "getting-help": {
+        "help-center": "Centre d'aide",
+        "support": "Support",
+        "ai": {
+          "label": "Intelligence Artificielle",
+          "intelligence": "Humonio Intelligence",
+          "ai-assistant": "Qigu AI Assistant"
+        },
+        "other-resources": "Autres ressources"
+      }
+    },
+    "user-menu": {
+      "profile": "Mon profil",
+      "settings": "Paramètres",
+      "log-out": "Déconnexion"
+    }
+  }
+}
