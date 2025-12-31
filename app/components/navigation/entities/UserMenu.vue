@@ -3,6 +3,7 @@ import { ChevronsUpDown, LogOut, User, Settings } from "lucide-vue-next";
 import { useSidebar } from "~/components/ui/sidebar";
 
 const { isMobile } = useSidebar();
+const { user } = storeToRefs(useUserStore());
 </script>
 
 <template>
@@ -11,15 +12,21 @@ const { isMobile } = useSidebar();
       <UiSidebarMenuItem>
         <UiDropdownMenuTrigger as-child>
           <UiSidebarMenuButton size="lg">
-            <span class="shrink-0 grid place-items-center size-8 rounded-md text-xs font-medium text-sidebar-primary-foreground bg-sidebar-primary">
-              LM
-            </span> <!-- todo: user avatar - loic -->
+            <UiAvatar class="rounded-md text-sidebar-primary-foreground bg-sidebar-primary">
+              <UiAvatarImage
+                v-if="user!.avatar"
+                :src="user!.avatar"
+              />
+              <UiAvatarFallback class="text-xs font-medium">
+                {{ user!.name.first[0] }}{{ user!.name.last[0] }}
+              </UiAvatarFallback>
+            </UiAvatar>
 
             <div class="flex flex-col">
               <p class="text-sm font-medium truncate">
-                Loïc MAES
-              </p> <!-- todo: user full name - loic -->
-              <span class="text-xs text-muted-foreground leading-none truncate">loic@humonio.com</span> <!-- todo: user email - loic -->
+                {{ user!.name.full }}
+              </p>
+              <span class="text-xs text-muted-foreground leading-none truncate">{{ user!.contact.email }}</span>
             </div>
 
             <ChevronsUpDown class="ml-auto" />
@@ -32,15 +39,21 @@ const { isMobile } = useSidebar();
         :align="isMobile ? 'center' : 'end'"
       >
         <UiDropdownMenuGroup class="py-1 pl-1 pr-2 flex items-center gap-2">
-          <span class="shrink-0 grid place-items-center size-8 rounded-md text-xs font-medium text-sidebar-primary-foreground bg-sidebar-primary">
-            LM
-          </span> <!-- todo: user avatar - loic -->
+          <UiAvatar class="rounded-md text-sidebar-primary-foreground bg-sidebar-primary">
+            <UiAvatarImage
+              v-if="user!.avatar"
+              :src="user!.avatar"
+            />
+            <UiAvatarFallback class="text-xs font-medium">
+              {{ user!.name.first[0] }}{{ user!.name.last[0] }}
+            </UiAvatarFallback>
+          </UiAvatar>
 
           <div class="flex flex-col">
             <p class="text-sm font-medium truncate">
-              Loïc MAES
-            </p> <!-- todo: user full name - loic -->
-            <span class="text-xs text-muted-foreground leading-none truncate">loic@humonio.com</span> <!-- todo: user email - loic -->
+              {{ user!.name.full }}
+            </p>
+            <span class="text-xs text-muted-foreground leading-none truncate">{{ user!.contact.email }}</span>
           </div>
         </UiDropdownMenuGroup>
 
