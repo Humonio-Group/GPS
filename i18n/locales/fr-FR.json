@@ -1,7 +1,13 @@
 {
   "navigation": {
     "home": "Accueil",
-    "my-courses": "Mes cours",
+    "my-courses": "Mes formations",
+    "course": {
+      "overview": "Vue d'ensemble",
+      "peoples": "Personnes",
+      "actions": "Actions",
+      "results": "Résultats"
+    },
     "actions": {
       "notifications": "Notifications",
       "getting-help": {
@@ -19,6 +25,30 @@
       "profile": "Mon profil",
       "settings": "Paramètres",
       "log-out": "Déconnexion"
+    }
+  },
+  "courses": {
+    "specimen": {
+      "overview": {
+        "contents-progress": "{current}/{max} contenus"
+      },
+
+      "results": {
+        "stats": {
+          "time-elapsed": "Temps passé",
+          "progress": "Progression"
+        },
+        "badges": {
+          "title": "Mes badges",
+          "description": "Ci-dessous, l'ensemble des badges que vous avez débloquez en progressant sur \"{course}\".",
+          "all-badges": "Tous les badges",
+          "no-badges": "Vous n'avez encore débloqué aucun badges. Clique sur \"Tous les badges\" pour en voir la liste complète."
+        },
+        "certifications": {
+          "title": "Mes certifications",
+          "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
+        }
+      }
     }
   }
 }
