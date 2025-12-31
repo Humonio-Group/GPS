@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { CircleHelp } from "lucide-vue-next";
+import { CircleHelp, Headphones, LibraryBig, SquareArrowOutUpRight } from "lucide-vue-next";
 </script>
 
 <template>
@@ -19,9 +19,11 @@ import { CircleHelp } from "lucide-vue-next";
     >
       <UiDropdownMenuGroup>
         <UiDropdownMenuItem>
+          <CircleHelp />
           {{ $t("navigation.actions.getting-help.help-center") }}
         </UiDropdownMenuItem>
         <UiDropdownMenuItem>
+          <Headphones />
           {{ $t("navigation.actions.getting-help.support") }}
         </UiDropdownMenuItem>
       </UiDropdownMenuGroup>
@@ -34,15 +36,18 @@ import { CircleHelp } from "lucide-vue-next";
 
         <UiDropdownMenuItem>
           {{ $t("navigation.actions.getting-help.ai.intelligence") }}
+          <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
         </UiDropdownMenuItem>
         <UiDropdownMenuItem>
           {{ $t("navigation.actions.getting-help.ai.ai-assistant") }}
+          <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
         </UiDropdownMenuItem>
       </UiDropdownMenuGroup>
 
       <UiDropdownMenuSeparator />
       <UiDropdownMenuGroup>
         <UiDropdownMenuItem>
+          <LibraryBig />
           {{ $t("navigation.actions.getting-help.other-resources") }}
         </UiDropdownMenuItem>
       </UiDropdownMenuGroup>
