@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "@pinia/nuxt",
   ],
+  ssr: false,
   devtools: { enabled: true },
   css: ["./tailwind.css"],
   colorMode: {
@@ -18,6 +19,19 @@ export default defineNuxtConfig({
     classSuffix: "",
     preference: "system",
     fallback: "light",
+  },
+  runtimeConfig: {
+    public: {
+      api: {
+        1: "",
+        2: "",
+        key: "",
+      },
+      platform: "",
+      urls: {
+        auth: "",
+      },
+    },
   },
   compatibilityDate: "2025-07-15",
   vite: {
