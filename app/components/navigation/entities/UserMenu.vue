@@ -31,7 +31,7 @@ const { isMobile } = useSidebar();
         :side="isMobile ? 'top' : 'right'"
         :align="isMobile ? 'center' : 'end'"
       >
-        <UiDropdownMenuGroup class="py-1 pr-2 flex items-center gap-2">
+        <UiDropdownMenuGroup class="py-1 pl-1 pr-2 flex items-center gap-2">
           <span class="shrink-0 grid place-items-center size-8 rounded-md text-xs font-medium text-sidebar-primary-foreground bg-sidebar-primary">
             LM
           </span> <!-- todo: user avatar - loic -->
