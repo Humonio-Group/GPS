@@ -3,6 +3,7 @@ import { ChevronsUpDown } from "lucide-vue-next";
 import { useSidebar } from "~/components/ui/sidebar";
 
 const { isMobile } = useSidebar();
+const { company } = storeToRefs(useCompanyStore());
 </script>
 
 <template>
@@ -11,13 +12,19 @@ const { isMobile } = useSidebar();
       <UiSidebarMenuItem>
         <UiDropdownMenuTrigger as-child>
           <UiSidebarMenuButton size="lg">
-            <span class="shrink-0 grid place-items-center size-8 rounded-md text-xs font-medium text-sidebar-primary-foreground bg-sidebar-primary">
-              TH
-            </span> <!-- todo: workspace icon - loic -->
+            <UiAvatar class="rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+              <UiAvatarImage
+                v-if="company!.icon"
+                :src="company!.icon"
+              />
+              <UiAvatarFallback class="text-xs font-medium">
+                {{ company!.name.substring(0, 2) }}
+              </UiAvatarFallback>
+            </UiAvatar>
 
             <div class="flex flex-col truncate">
               <p class="font-semibold">
-                Think <!-- todo: workspace name - loic -->
+                {{ company!.name }}
               </p>
               <span class="text-xs text-muted-foreground leading-none">
                 Gratuit <!-- todo: workspace plan - loic -->
