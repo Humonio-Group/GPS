@@ -8,7 +8,7 @@ const props = defineProps<PageRootProps>();
 <template>
   <main
     :data-page-name="name || 'home'"
-    :class="cn('', props.class)"
+    :class="cn('@container', props.class)"
   >
     <div
       v-if="wrapper"
