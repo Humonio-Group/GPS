@@ -1,4 +1,23 @@
 {
+  "labels": {
+    "time": {
+      "long": {
+        "months": "{value} mois | {value} mois",
+        "days": "{value} jour | {value} jours",
+        "hours": "{value} heure | {value} heures",
+        "minutes": "{value} minute | {value} minutes"
+      },
+      "short": {
+        "months": "{value}m",
+        "days": "{value}j",
+        "hours": "{value}h",
+        "minutes": "{value}min"
+      }
+    },
+    "ends-in": "Fin dans {time}",
+    "now": "Maintenant",
+    "search": "Rechercher..."
+  },
   "navigation": {
     "home": "Accueil",
     "my-courses": "Mes formations",
@@ -28,6 +47,13 @@
     }
   },
   "courses": {
+    "home": {
+      "title": "Mes formations",
+      "empty": {
+        "title": "Oh non...",
+        "description": "Vous n'avez aucune formation en cours pour le moment."
+      }
+    },
     "specimen": {
       "overview": {
         "contents-progress": "{current}/{max} contenus"
