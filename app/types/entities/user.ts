@@ -18,4 +18,9 @@ export interface User {
   social: {
     linkedin: string;
   };
+  dates: {
+    creation: Date;
+    lastConnection: Date;
+    update: Date;
+  };
 }

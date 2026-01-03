@@ -46,6 +46,11 @@ export const useUserStore = defineStore("user", {
           social: {
             linkedin: _user.value.data.attributes.linkedin,
           },
+          dates: {
+            creation: new Date(_user.value.data.attributes.dates.creation),
+            update: new Date(_user.value.data.attributes.dates.update),
+            lastConnection: new Date(_user.value.data.attributes.dates.lastConnection),
+          },
         };
       }
       catch (e) {

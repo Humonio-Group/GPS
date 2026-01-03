@@ -4,6 +4,8 @@ import { useSidebar } from "~/components/ui/sidebar";
 
 const { isMobile } = useSidebar();
 const { user } = storeToRefs(useUserStore());
+
+const { alias } = useWorkspaceUtils();
 </script>
 
 <template>
@@ -60,9 +62,11 @@ const { user } = storeToRefs(useUserStore());
         <UiDropdownMenuSeparator />
 
         <UiDropdownMenuGroup>
-          <UiDropdownMenuItem>
-            <User />
-            {{ $t("navigation.user-menu.profile") }}
+          <UiDropdownMenuItem as-child>
+            <NuxtLinkLocale :to="`/${alias}/profile`">
+              <User />
+              {{ $t("navigation.user-menu.profile") }}
+            </NuxtLinkLocale>
           </UiDropdownMenuItem>
           <UiDropdownMenuItem>
             <Settings />
