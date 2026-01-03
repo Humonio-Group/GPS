@@ -10,6 +10,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxtjs/google-fonts",
     "@pinia/nuxt",
+    "@nuxt/scripts",
   ],
   ssr: false,
   devtools: { enabled: true },

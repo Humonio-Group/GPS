@@ -25,11 +25,13 @@
   "dependencies": {
     "@nuxt/eslint": "1.12.1",
     "@nuxt/image": "2.0.0",
+    "@nuxt/scripts": "0.13.2",
     "@nuxtjs/color-mode": "4.0.0",
     "@nuxtjs/google-fonts": "3.2.0",
     "@nuxtjs/i18n": "10.2.1",
     "@pinia/nuxt": "0.11.3",
     "@tailwindcss/vite": "^4.1.18",
+    "@unhead/vue": "^2.0.3",
     "@vueuse/core": "^14.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

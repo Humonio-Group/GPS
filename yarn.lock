@@ -1438,6 +1438,28 @@
     pkg-types "^2.3.0"
     std-env "^3.10.0"
 
+"@nuxt/scripts@0.13.2":
+  version "0.13.2"
+  resolved "https://registry.yarnpkg.com/@nuxt/scripts/-/scripts-0.13.2.tgz#d3ab4f60b8db7f9a6ccbeef77bfb862ee4a288f7"
+  integrity sha512-aZYm60B08RoRnFVu+RiyN8UQ/xB3IWs05sh1pQ35CJ+zbWT725SZTgMI12kEXzqxAAHpiuv1ctBpLlFg+4jiew==
+  dependencies:
+    "@nuxt/kit" "^4.2.2"
+    "@vueuse/core" "^14.1.0"
+    consola "^3.4.2"
+    defu "^6.1.4"
+    h3 "^1.15.4"
+    magic-string "^0.30.21"
+    ofetch "^1.5.1"
+    ohash "^2.0.11"
+    pathe "^2.0.3"
+    pkg-types "^2.3.0"
+    sirv "^3.0.2"
+    std-env "^3.10.0"
+    ufo "^1.6.1"
+    unplugin "^2.3.11"
+    unstorage "^1.17.3"
+    valibot "^1.2.0"
+
 "@nuxt/telemetry@^2.6.6":
   version "2.6.6"
   resolved "https://registry.yarnpkg.com/@nuxt/telemetry/-/telemetry-2.6.6.tgz#5e663041eccbc900a743cbe82bac5b91f9a8263a"
@@ -2670,6 +2692,14 @@
   dependencies:
     hookable "^5.5.3"
     unhead "2.0.19"
+
+"@unhead/vue@^2.0.3":
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/@unhead/vue/-/vue-2.1.1.tgz#4de064a1892f56cde38137a9a53b940abdce3bb7"
+  integrity sha512-WYa8ORhfv7lWDSoNpkMKhbW1Dbsux/3HqMcVkZS3xZ2/c/VrcChLj+IMadpCd1WNR0srITfRJhBYZ1i9hON5Qw==
+  dependencies:
+    hookable "^5.5.3"
+    unhead "2.1.1"
 
 "@unrs/resolver-binding-android-arm-eabi@1.11.1":
   version "1.11.1"
@@ -7649,6 +7679,13 @@ unhead@2.0.19:
   dependencies:
     hookable "^5.5.3"
 
+unhead@2.1.1:
+  version "2.1.1"
+  resolved "https://registry.yarnpkg.com/unhead/-/unhead-2.1.1.tgz#81f1cd59db2be6c910c862dab2938b7798b33c24"
+  integrity sha512-NOt8n2KybAOxSLfNXegAVai4SGU8bPKqWnqCzNAvnRH2i8mW+0bbFjN/L75LBgCSTiOjJSpANe5w2V34Grr7Cw==
+  dependencies:
+    hookable "^5.5.3"
+
 unicorn-magic@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/unicorn-magic/-/unicorn-magic-0.3.0.tgz#4efd45c85a69e0dd576d25532fbfa22aa5c8a104"
@@ -7843,6 +7880,11 @@ util-deprecate@^1.0.2, util-deprecate@~1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/util-deprecate/-/util-deprecate-1.0.2.tgz#450d4dc9fa70de732762fbd2d4a28981419a0ccf"
   integrity sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==
+
+valibot@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/valibot/-/valibot-1.2.0.tgz#8fc720d9e4082ba16e30a914064a39619b2f1d6f"
+  integrity sha512-mm1rxUsmOxzrwnX5arGS+U4T25RdvpPjPN4yR0u9pUBov9+zGVtO84tif1eY4r6zWxVxu3KzIyknJy3rxfRZZg==
 
 varint@^6.0.0:
   version "6.0.0"
