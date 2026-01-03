@@ -1,10 +1,15 @@
 <script setup lang="ts">
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 
-const { locale } = useI18n();
+const { locale, t } = useI18n();
 
 const store = useUserStore();
 const { user } = storeToRefs(store);
+const { company } = storeToRefs(useCompanyStore());
+
+useHead({
+  title: `${t("profile.title")} - ${company.value!.name}`,
+});
 
 const df = new Intl.DateTimeFormat(locale.value, {
   dateStyle: "medium",

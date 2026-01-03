@@ -64,6 +64,7 @@
     "title": "Accueil"
   },
   "profile": {
+    "title": "Mon profile",
     "first-name": "Prénom",
     "last-name": "Nom",
     "email": "Adresse e-mail",
