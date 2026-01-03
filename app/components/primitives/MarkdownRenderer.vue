@@ -7,23 +7,18 @@ interface MarkdownRendererProps {
   class?: string;
 }
 
-const props = defineProps<MarkdownRendererProps>();
+const props = withDefaults(defineProps<MarkdownRendererProps>(), {
+  useMarkdown: false,
+});
+
 const { render } = useMarkdown();
 
-const html = computed(() => render(props.content || ""));
+const html = computed(() => props.useMarkdown ? render(props.content || "") : props.content);
 </script>
 
 <template>
-  <ClientOnly>
-    <div
-      :class="cn('html-wrapper', props.class)"
-      v-html="props.useMarkdown ? html : (content || '')"
-    />
-  </ClientOnly>
+  <div
+    :class="cn('html-wrapper', props.class)"
+    v-html="html"
+  />
 </template>
-
-<style lang="scss">
-.html-wrapper {
-
-}
-</style>
