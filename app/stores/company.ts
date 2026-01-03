@@ -39,6 +39,26 @@ export const useCompanyStore = defineStore("company", {
           icon: company.attributes.icon.thumbnail,
           logo: company.attributes.logo.thumbnail,
         };
+
+        const style = document.createElement("style");
+        style.id = "company-theme";
+
+        let cssRules = "";
+
+        if (this.company.colors.first)
+          cssRules += `:root { --primary: #${this.company.colors.first}; }\n`;
+
+        if (this.company.colors.second)
+          cssRules += `.dark { --primary: #${this.company.colors.second}; }\n`;
+
+        if (cssRules) {
+          const existingStyle = document.getElementById("company-theme");
+          if (existingStyle)
+            existingStyle.remove();
+
+          style.textContent = cssRules;
+          document.head.appendChild(style);
+        }
       }
       catch (error) {
         console.error(error);
