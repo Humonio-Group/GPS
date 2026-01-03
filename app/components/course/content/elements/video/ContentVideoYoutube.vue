@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { toast } from "vue-sonner";
 import type { Content } from "~/types/entities/course";
 
 interface ContentVideoYoutubeProps {
