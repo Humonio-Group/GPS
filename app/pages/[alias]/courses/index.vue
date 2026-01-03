@@ -33,12 +33,14 @@ store.loadCourses();
           <UiInput
             class="pl-8"
             :placeholder="$t('labels.search')"
+            disabled
           />
         </div>
 
         <UiButton
           size="icon"
           variant="outline"
+          disabled
         >
           <Filter />
         </UiButton>
