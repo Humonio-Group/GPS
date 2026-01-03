@@ -6,9 +6,18 @@ import BadgeIntroCard from "~/components/course/results/badges/BadgeIntroCard.vu
 import StatsGrid from "~/components/course/results/stats/StatsGrid.vue";
 import CertificationIntroCard from "~/components/course/results/certifications/CertificationIntroCard.vue";
 
+const { t } = useI18n();
+
+const store = useCoursesStore();
+const { selectedCourse: course } = storeToRefs(store);
+
 const id = computed(() => useRoute().params.courseId as string);
 const { fromMinutes } = useTimeUtils();
 const { parsePercent } = useNumberUtils();
+
+watch(course, val => useHead({
+  title: t("courses.specimen.results.title", { name: val!.name }),
+}), { immediate: true });
 </script>
 
 <template>
@@ -22,7 +31,7 @@ const { parsePercent } = useNumberUtils();
           <Clock />
         </template>
         <template #value>
-          {{ fromMinutes(255) }}
+          {{ fromMinutes(store.totalDurationPassed) }}
         </template>
         <template #label>
           {{ $t("courses.specimen.results.stats.time-elapsed") }}
@@ -33,7 +42,7 @@ const { parsePercent } = useNumberUtils();
           <ChartSpline />
         </template>
         <template #value>
-          {{ parsePercent(.4) }}
+          {{ parsePercent(store.courseProgress) }}
         </template>
         <template #label>
           {{ $t("courses.specimen.results.stats.progress") }}

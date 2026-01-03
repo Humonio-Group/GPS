@@ -1,17 +1,25 @@
 <script setup lang="ts">
+import { Book } from "lucide-vue-next";
+import type { Content } from "~/types/entities/course";
+
 interface StageContentIconProps {
-  url?: string;
+  content: Content;
 }
 
-withDefaults(defineProps<StageContentIconProps>(), {
-  url: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-});
+defineProps<StageContentIconProps>();
 </script>
 
 <template>
   <NuxtImg
+    v-if="content.picture"
     class="size-7 rounded-sm bg-primary object-cover object-center shrink-0"
     :placeholder="[50, 50, 25, 75]"
-    :src="url"
+    :src="content.picture"
   />
+  <div
+    v-else
+    class="grid place-items-center size-7 rounded-sm bg-primary shrink-0 [&_>svg]:size-4.5 text-primary-foreground"
+  >
+    <Book />
+  </div>
 </template>

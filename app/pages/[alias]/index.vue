@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { BookDashed } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
+
+const { t } = useI18n();
+
+const { company } = storeToRefs(useCompanyStore());
+
+useHead({
+  title: `${t("home.title")} - ${company.value!.name}`,
+});
 </script>
 
 <template>

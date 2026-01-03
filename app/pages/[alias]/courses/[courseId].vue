@@ -14,15 +14,9 @@ store.selectCourse(Number(id.value));
 <template>
   <PageRoot
     :name="`course.specimen.${id!}`"
-    class="@container/course-page"
+    class="@container/course-page!"
   >
-    <div
-      v-if="loading.specific.specimen"
-      class="w-full grid place-items-center h-24"
-    >
-      <UiSpinner />
-    </div>
-    <template v-else>
+    <template v-if="!loading.specific.specimen">
       <header class="grid gap-4">
         <section class="flex flex-col-reverse @xl/course-page:flex-row gap-4">
           <article class="shrink-0 flex-1/2 flex flex-col gap-4 justify-between">
