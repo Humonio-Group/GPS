@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Content } from "~/types/entities/course";
-import { toast } from "vue-sonner";
 
 interface ContentVideoVimeoProps {
   content: Content;
