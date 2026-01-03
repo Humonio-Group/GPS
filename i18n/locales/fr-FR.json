@@ -1,5 +1,13 @@
 {
+  "btn": {
+    "back": "Retour",
+    "next-content": "Contenu suivant",
+    "previous-content": "Contenu précédent",
+    "open-link": "Ouvrir le lien",
+    "see-my-results": "Voir mes résultats"
+  },
   "labels": {
+    "miss-you": "Oh non 😢 ne partez pas...",
     "time": {
       "long": {
         "months": "{value} mois | {value} mois",
@@ -16,7 +24,13 @@
     },
     "ends-in": "Fin dans {time}",
     "now": "Maintenant",
-    "search": "Rechercher..."
+    "search": "Rechercher...",
+    "video": {
+      "unsupported": {
+        "title": "Oh non...",
+        "description": "Ce fournisseur vidéo n'est pas supporté."
+      }
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -46,6 +60,9 @@
       "log-out": "Déconnexion"
     }
   },
+  "home": {
+    "title": "Accueil"
+  },
   "courses": {
     "home": {
       "title": "Mes formations",
@@ -56,10 +73,15 @@
     },
     "specimen": {
       "overview": {
-        "contents-progress": "{current}/{max} contenus"
+        "title": "Contenus - {name}",
+        "contents-progress": "{current}/{max} contenus",
+        "stages": {
+          "empty": "Il n'y a aucun contenu dans ce module."
+        }
       },
 
       "results": {
+        "title": "Résultats - {name}",
         "stats": {
           "time-elapsed": "Temps passé",
           "progress": "Progression"
