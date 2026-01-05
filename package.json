@@ -32,6 +32,7 @@
     "@pinia/nuxt": "0.11.3",
     "@tailwindcss/vite": "^4.1.18",
     "@unhead/vue": "^2.0.3",
+    "@vee-validate/zod": "^4.15.1",
     "@vueuse/core": "^14.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -52,9 +53,11 @@
     "shadcn-nuxt": "2.4.3",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
+    "vee-validate": "^4.15.1",
     "vue": "^3.5.25",
     "vue-router": "^4.6.4",
-    "vue-sonner": "^2.0.9"
+    "vue-sonner": "^2.0.9",
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@nuxt/test-utils": "^3.21.0",
