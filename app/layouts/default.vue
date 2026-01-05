@@ -11,7 +11,7 @@ import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
       <DefaultSidebar />
 
       <UiSidebarInset class="px-4 md:pl-2">
-        <header class="sticky top-0 py-4 flex items-center gap-2 bg-background">
+        <header class="sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
           <UiSidebarTrigger />
 
           <!-- todo: breadcrumbs - loic -->
