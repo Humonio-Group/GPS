@@ -64,13 +64,15 @@
     "title": "Accueil"
   },
   "profile": {
-    "title": "Mon profile",
-    "first-name": "Prénom",
-    "last-name": "Nom",
-    "email": "Adresse e-mail",
-    "phone": "Numéro de téléphone",
-    "linked-in": "LinkedIn",
-    "created-at": "Compte créé le {date}"
+    "details": {
+      "title": "Mon profile",
+      "first-name": "Prénom",
+      "last-name": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "linked-in": "LinkedIn",
+      "created-at": "Compte créé le {date}"
+    }
   },
   "courses": {
     "home": {
