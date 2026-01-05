@@ -68,9 +68,11 @@ const { alias } = useWorkspaceUtils();
               {{ $t("navigation.user-menu.profile") }}
             </NuxtLinkLocale>
           </UiDropdownMenuItem>
-          <UiDropdownMenuItem>
-            <Settings />
-            {{ $t("navigation.user-menu.settings") }}
+          <UiDropdownMenuItem as-child>
+            <NuxtLinkLocale :to="`/${alias}/profile/settings`">
+              <Settings />
+              {{ $t("navigation.user-menu.settings") }}
+            </NuxtLinkLocale>
           </UiDropdownMenuItem>
         </UiDropdownMenuGroup>
 
