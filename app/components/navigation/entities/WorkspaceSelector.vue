@@ -4,6 +4,9 @@ import { useSidebar } from "~/components/ui/sidebar";
 
 const { isMobile } = useSidebar();
 const { company } = storeToRefs(useCompanyStore());
+const { availableCompanies } = storeToRefs(useUserStore());
+
+const companies = computed(() => availableCompanies.value.filter(c => c.alias !== company.value?.alias));
 </script>
 
 <template>
@@ -41,14 +44,21 @@ const { company } = storeToRefs(useCompanyStore());
         :side="isMobile ? 'bottom' : 'right'"
         :align="isMobile ? 'center' : 'start'"
       >
-        <UiDropdownMenuItem as-child>
-          <NuxtLinkLocale to="/humonio">
-            <span class="shrink-0 grid place-items-center size-6 rounded-sm text-xs font-medium text-sidebar-accent-foreground bg-sidebar-accent">
-              Hu
-            </span> <!-- todo: workspace icon - loic -->
-            Humonio <!-- todo: workspace name - loic -->
+        <UiDropdownMenuItem
+          v-for="comp in companies"
+          :key="comp.alias"
+          as-child
+        >
+          <NuxtLinkLocale :to="`/${comp.alias}`">
+            <UiAvatar class="size-6 rounded-sm">
+              <UiAvatarImage :src="comp.icon" />
+              <UiAvatarFallback class="text-xs bg-sidebar-accent text-sidebar-accent-foreground">
+                {{ comp.name.substring(0, 2) }}
+              </UiAvatarFallback>
+            </UiAvatar>
+            {{ comp.name }}
           </NuxtLinkLocale>
-        </UiDropdownMenuItem> <!-- todo: other workspaces list - loic -->
+        </UiDropdownMenuItem>
       </UiDropdownMenuContent>
     </UiDropdownMenu>
   </UiSidebarMenu>

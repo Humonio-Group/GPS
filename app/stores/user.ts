@@ -1,13 +1,20 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { User } from "~/types/entities/user";
+import type { ApiResponse } from "~/types/primitives/api";
 
 interface UserState {
   user: Nullable<User>;
+  availableCompanies: {
+    alias: string;
+    name: string;
+    icon: string;
+  }[];
 }
 
 export const useUserStore = defineStore("user", {
   state: (): UserState => ({
     user: null,
+    availableCompanies: [],
   }),
   getters: {
     api: () => useApi(),
@@ -16,42 +23,48 @@ export const useUserStore = defineStore("user", {
   actions: {
     async fetchUser() {
       try {
-        const { data: _user } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/users/me"), {
-          headers: this.api.headers(),
-          query: this.api.params({
-            include: "interfaceLanguage",
-          }),
-          credentials: "include",
+        const _user = await this.api.get<ApiResponse>("/users/me", {
+          version: 2,
+          endpointVersion: 1,
+        }, {
+          query: {
+            include: "interfaceLanguage,companies,workspaces",
+          },
         });
 
-        if (!_user.value) return; // todo: open auth portal - loic
+        if (!_user) return; // todo: open auth portal - loic
 
         this.user = {
-          id: _user.value.data.id,
-          key: _user.value.data.key,
-          avatar: _user.value.data.attributes.picture.thumbnail,
+          id: _user.data.id,
+          key: _user.data.attributes.key,
+          avatar: _user.data.attributes.picture.thumbnail,
           name: {
-            first: _user.value.data.attributes.firstname,
-            last: _user.value.data.attributes.lastname,
-            full: _user.value.data.attributes.name,
+            first: _user.data.attributes.firstname,
+            last: _user.data.attributes.lastname,
+            full: _user.data.attributes.name,
           },
           biography: {
-            base: _user.value.data.attributes.biography,
-            long: _user.value.data.attributes.longBiography,
+            base: _user.data.attributes.biography,
+            long: _user.data.attributes.longBiography,
           },
           contact: {
-            email: _user.value.data.attributes.email,
-            phone: _user.value.data.attributes.mobile,
+            email: _user.data.attributes.email,
+            phone: _user.data.attributes.mobile,
           },
           social: {
-            linkedin: _user.value.data.attributes.linkedin,
+            linkedin: _user.data.attributes.linkedin,
           },
           dates: {
-            creation: new Date(_user.value.data.attributes.dates.creation),
-            update: new Date(_user.value.data.attributes.dates.update),
-            lastConnection: new Date(_user.value.data.attributes.dates.lastConnection),
+            creation: new Date(_user.data.attributes.dates.creation),
+            update: new Date(_user.data.attributes.dates.update),
+            lastConnection: new Date(_user.data.attributes.dates.lastConnection),
           },
         };
+        this.availableCompanies = _user.included.filter(e => e.type === "companies").map(e => ({
+          alias: e.attributes.alias,
+          name: e.attributes.name,
+          icon: e.attributes.icon.thumbnail,
+        }));
       }
       catch (e) {
         console.error(e);
