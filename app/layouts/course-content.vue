@@ -15,11 +15,13 @@ const contentId = computed(() => route.params.contentId);
 <template>
   <LayoutRoot name="course-content">
     <UiSidebarProvider>
-      <UiSidebarInset class="overflow">
-        <NuxtPage :key="contentId as string" />
-      </UiSidebarInset>
+      <UiSidebar>
+        <UiSidebarHeader class="h-16 flex items-start justify-center px-4">
+          <p class="font-bold truncate">
+            {{ $t("labels.table-of-contents") }}
+          </p>
+        </UiSidebarHeader>
 
-      <UiSidebar side="right">
         <UiSidebarContent class="overflow-y-auto">
           <UiCollapsible
             v-for="stage in course!.stages"
@@ -65,6 +67,10 @@ const contentId = computed(() => route.params.contentId);
           </UiCollapsible>
         </UiSidebarContent>
       </UiSidebar>
+
+      <UiSidebarInset class="overflow">
+        <NuxtPage :key="contentId as string" />
+      </UiSidebarInset>
     </UiSidebarProvider>
   </LayoutRoot>
 </template>
