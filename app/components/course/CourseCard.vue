@@ -14,7 +14,7 @@ const link = computed(() => `/${alias.value}/courses/${props.course.id}`);
 </script>
 
 <template>
-  <UiCard class="relative p-4 gap-4 flex flex-col @md:flex-row">
+  <UiCard class="relative p-4 gap-4 flex flex-col @md:flex-row max-w-5xl mx-auto w-full">
     <NuxtImg
       :src="course.picture || course.program.picture"
       :placeholder="[50, 50, 25, 75]"
