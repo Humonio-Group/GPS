@@ -16,7 +16,13 @@ store.selectCourse(Number(id.value));
     :name="`course.specimen.${id!}`"
     class="@container/course-page!"
   >
-    <template v-if="!loading.specific.specimen">
+    <div
+      v-if="loading.specific.specimen"
+      class="h-24 grid place-items-center"
+    >
+      <UiSpinner />
+    </div>
+    <template v-else>
       <header class="grid gap-4">
         <section class="flex flex-col-reverse @xl/course-page:flex-row gap-4">
           <article class="shrink-0 flex-1/2 flex flex-col gap-4 justify-between">
@@ -26,7 +32,7 @@ store.selectCourse(Number(id.value));
               </h1>
               <MarkdownRenderer
                 :content="course!.program.description"
-                class="text-muted-foreground text-sm"
+                class="text-muted-foreground text-sm *:mx-0! *:max-w-auto!"
               />
             </header>
 
@@ -101,7 +107,7 @@ store.selectCourse(Number(id.value));
         </nav>
       </header>
 
-      <main class="py-4">
+      <main class="py-4 w-full mx-auto max-w-4xl">
         <NuxtPage />
       </main>
     </template>
