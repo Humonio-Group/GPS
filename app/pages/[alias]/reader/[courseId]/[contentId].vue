@@ -14,7 +14,7 @@ const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, allContents } = storeToRefs(store);
+const { selectedCourse: course, allContents, loading } = storeToRefs(store);
 
 const contentId = useRoute().params.contentId;
 const content = computed(() => allContents.value.find(c => c.id === Number(contentId)));
@@ -61,56 +61,90 @@ const workshop = computed(() => {
       </UiButton>
     </nav>
 
-    <header class="w-full max-w-4xl mx-auto pb-6 border-b flex flex-col gap-6">
-      <div class="flex items-center justify-between">
-        <p class="text-2xl font-bold">
-          {{ content!.name }}
+    <div
+      v-if="loading.specific.activity"
+      class="h-24 w-full grid place-items-center"
+    >
+      <UiSpinner />
+    </div>
+    <template v-else-if="content">
+      <header class="w-full max-w-4xl mx-auto pb-6 border-b flex flex-col gap-6">
+        <div class="flex items-center justify-between">
+          <p class="text-2xl font-bold">
+            {{ content!.name }}
+          </p>
+
+          <UiCircularProgress
+            v-if="content!.progress.viewed"
+            :model-value="content!.progress.value * 100"
+          />
+        </div>
+
+        <ul
+          v-if="content!.duration"
+          class="grid gap-2"
+        >
+          <ContentDetailItem
+            v-if="content!.duration"
+            :icon="Clock"
+            tooltip="labels.duration"
+            :value="$t('labels.time.long.minutes', content!.duration, { named: { value: content!.duration } })"
+          />
+          <ContentDetailItem
+            v-if="workshop"
+            :icon="Calendar"
+            tooltip="labels.workshop-date"
+            :value="workshop"
+          />
+        </ul>
+      </header>
+
+      <ContentDetails :content="content!" />
+
+      <footer class="w-full max-w-4xl mx-auto flex flex-col @lg:flex-row @lg:items-center @lg:justify-between">
+        <UiButton
+          variant="link"
+          :disabled="!content.navigation.previous"
+          :as-child="content.navigation.previous !== null"
+        >
+          <NuxtLinkLocale
+            v-if="content.navigation.previous"
+            :to="`/${alias}/reader/${id}/${content.navigation.previous}`"
+          >
+            <ArrowLeft />
+            {{ $t("btn.previous-content") }}
+          </NuxtLinkLocale>
+          <template v-else>
+            <ArrowLeft />
+            {{ $t("btn.previous-content") }}
+          </template>
+        </UiButton>
+
+        <p
+          v-if="stage"
+          class="order-1 @lg:order-0 text-muted-foreground text-sm text-center truncate"
+        >
+          {{ stage?.name }}
         </p>
 
-        <UiCircularProgress
-          v-if="content!.progress.viewed"
-          :model-value="content!.progress.value * 100"
-        />
-      </div>
-
-      <ul
-        v-if="content!.duration"
-        class="grid gap-2"
-      >
-        <ContentDetailItem
-          v-if="content!.duration"
-          :icon="Clock"
-          tooltip="labels.duration"
-          :value="$t('labels.time.long.minutes', content!.duration, { named: { value: content!.duration } })"
-        />
-        <ContentDetailItem
-          v-if="workshop"
-          :icon="Calendar"
-          tooltip="labels.workshop-date"
-          :value="workshop"
-        />
-      </ul>
-    </header>
-
-    <ContentDetails :content="content!" />
-
-    <footer class="w-full max-w-4xl mx-auto flex flex-col @lg:flex-row @lg:items-center @lg:justify-between">
-      <UiButton variant="link">
-        <ArrowLeft />
-        {{ $t("btn.previous-content") }}
-      </UiButton>
-
-      <p
-        v-if="stage"
-        class="order-1 @lg:order-0 text-muted-foreground text-sm text-center truncate"
-      >
-        {{ stage?.name }}
-      </p>
-
-      <UiButton variant="link">
-        {{ $t("btn.next-content") }}
-        <ArrowRight />
-      </UiButton>
-    </footer>
+        <UiButton
+          variant="link"
+          :disabled="!content.navigation.next"
+          :as-child="content.navigation.next !== null"
+        >
+          <NuxtLinkLocale
+            v-if="content.navigation.next"
+            :to="`/${alias}/reader/${id}/${content.navigation.next}`"
+          >
+            {{ $t("btn.next-content") }}
+            <ArrowRight />
+          </NuxtLinkLocale>
+          <template v-else>
+            {{ $t("btn.next-content") }}
+            <ArrowRight />
+          </template>
+        </UiButton>
+      </footer>
+    </template>
   </PageRoot>
 </template>

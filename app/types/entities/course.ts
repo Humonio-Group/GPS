@@ -27,6 +27,58 @@ export interface Stage {
 }
 export type Stages = Stage[];
 
+export interface ContentDates {
+  start: Nullable<Date>;
+  end: Nullable<Date>;
+}
+export interface ContentPermissions {
+  rateable: boolean;
+  commentable: boolean;
+}
+export interface ContentStats {
+  comments: number;
+  followers: number;
+  likes: number;
+  ratings: number;
+  rate: Nullable<number>;
+  shares: number;
+}
+export interface ContentProgress {
+  value: number;
+  viewed: boolean;
+}
+export interface ContentActivity {
+  link?: string;
+  image?: string;
+  document?: {
+    name: string;
+    url: string;
+  };
+  video?: {
+    provider: VideoProvider;
+    code: string;
+    url: string;
+  };
+  embed?: {
+    main: boolean;
+    disabled: boolean;
+    label: string;
+    url: string;
+  };
+  blended?: {
+    map?: string;
+    start: Date;
+    end: Date;
+  };
+  results: {
+    label: string;
+    url: string;
+  }[];
+}
+export interface ContentNavigation {
+  previous: Nullable<number>;
+  next: Nullable<number>;
+}
 export interface Content {
   id: number;
   order: number;
@@ -36,54 +88,12 @@ export interface Content {
   conditions: unknown[];
   duration: Nullable<number>;
   picture: Nullable<string>;
-  dates: {
-    start: Nullable<Date>;
-    end: Nullable<Date>;
-  };
-  permissions: {
-    rateable: boolean;
-    commentable: boolean;
-  };
-  stats: {
-    comments: number;
-    followers: number;
-    likes: number;
-    ratings: number;
-    rate: Nullable<number>;
-    shares: number;
-  };
-  progress: {
-    value: number;
-    viewed: boolean;
-  };
-  activity: {
-    link?: string;
-    image?: string;
-    document?: {
-      name: string;
-      url: string;
-    };
-    video?: {
-      provider: VideoProvider;
-      code: string;
-      url: string;
-    };
-    embed?: {
-      main: boolean;
-      disabled: boolean;
-      label: string;
-      url: string;
-    };
-    blended?: {
-      map?: string;
-      start: Date;
-      end: Date;
-    };
-    results: {
-      label: string;
-      url: string;
-    }[];
-  };
+  dates: ContentDates;
+  permissions: ContentPermissions;
+  stats: ContentStats;
+  progress: ContentProgress;
+  activity: ContentActivity;
+  navigation: ContentNavigation;
 }
 export type Contents = Content[];
 

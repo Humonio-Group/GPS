@@ -4,4 +4,5 @@ export enum EntityType {
   COMPANY = "companies",
   USER = "users",
   LOCATION = "locations",
+  ACTIVITY_USER = "activityUsers",
 }

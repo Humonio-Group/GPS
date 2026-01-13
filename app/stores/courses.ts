@@ -11,6 +11,7 @@ interface CoursesState {
       specimen: boolean;
       stages: boolean;
       stageContents: number[];
+      activity: boolean;
     };
   };
 }
@@ -22,9 +23,9 @@ function detectProvider(origin: number): Nullable<VideoProvider> {
     case 2:
       return "dailymotion";
     case 3:
-      return "vimeo";
+      return "vimeo"; // Todo: remove, unsupported - loic
     case 4:
-      return "ted";
+      return "ted"; // Todo: remove, unsupported - loic
     default:
       return null;
   }
@@ -40,12 +41,18 @@ export const useCoursesStore = defineStore("courses", {
         specimen: false,
         stages: false,
         stageContents: [],
+        activity: false,
       },
     },
   }),
   getters: {
     api: () => useApi(),
     hasFirstLoadedCourses: state => state.courses !== null,
+    hasStagesLoaded: state => state.selectedCourse?.stages.length,
+    hasActivitiesLoaded: state => state.selectedCourse?.stages.map(s => s.contents).reduce((acc, val) => {
+      acc = [...acc, ...val];
+      return acc;
+    }, []).length,
 
     allContents: state => [...(state.selectedCourse?.stages.reduce((acc, val) => {
       acc = [...acc, ...val.contents];
@@ -138,6 +145,23 @@ export const useCoursesStore = defineStore("courses", {
         this.loading.specific.specimen = false;
       }
     },
+    async loadCourseContents() {
+      if (!this.selectedCourse) return;
+
+      console.log("loading activities");
+
+      this.loading.specific.activity = true;
+      try {
+        await Promise.all(this.selectedCourse.stages.map(stage => this.loadContents(stage.reference)));
+      }
+      catch (e) {
+        console.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.activity = false;
+      }
+    },
     async selectCourse(id: number) {
       if (this.selectedCourse?.id === id) return;
 
@@ -171,9 +195,9 @@ export const useCoursesStore = defineStore("courses", {
         const journeyStages = _stages.value.data;
         const programStages = _stages.value.included.filter((e: any) => e.type === "programStages");
 
-        const stages: Stages = [...(this.selectedCourse?.stages ?? [])];
+        const stages: Stages = [];
         journeyStages
-          .filter((js: any) => !this.selectedCourse?.stages.map(s => s.id).includes(js.id) && !js.attributes.isHidden)
+          .filter((js: any) => !js.attributes.isHidden)
           .forEach((stage: any) => {
             const programStage = programStages.find((ps: any) => ps.id === stage.relationships.programStage.data[0].id);
 
@@ -220,7 +244,7 @@ export const useCoursesStore = defineStore("courses", {
             "stages": stageId,
             "types": "3,4",
             "limit": -1,
-            "include": "location,facilitator,timezone,content",
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser",
             "fields[contents]": "activation",
           }),
           credentials: "include",
@@ -233,6 +257,8 @@ export const useCoursesStore = defineStore("courses", {
           let activity: Content["activity"] = {
             results: [],
           };
+          const previousActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.previousActivityUser.data[0]?.id);
+          const nextActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.nextActivityUser.data[0]?.id);
 
           // ONE CONTENT
           // image
@@ -349,6 +375,10 @@ export const useCoursesStore = defineStore("courses", {
                     url: r.link.external,
                   }))
                 : [],
+            },
+            navigation: {
+              previous: previousActivity?.id ?? null,
+              next: nextActivity?.id ?? null,
             },
           });
         });

@@ -3,7 +3,7 @@ import { ChevronDown, ChevronUp } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 
 const store = useCoursesStore();
-const { selectedCourse: course } = storeToRefs(store);
+const { selectedCourse: course, loading } = storeToRefs(store);
 
 const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
@@ -15,16 +15,23 @@ const contentId = computed(() => route.params.contentId);
 <template>
   <LayoutRoot name="course-content">
     <UiSidebarProvider>
-      <UiSidebar>
+      <UiSidebar class="overflow-y-auto">
         <UiSidebarHeader class="h-16 flex items-start justify-center px-4">
           <p class="font-bold truncate">
             {{ $t("labels.table-of-contents") }}
           </p>
         </UiSidebarHeader>
 
-        <UiSidebarContent class="overflow-y-auto">
+        <UiSidebarContent>
+          <UiSidebarGroup
+            v-if="loading.specific.stages"
+            class="grid place-items-center"
+          >
+            <UiSpinner />
+          </UiSidebarGroup>
           <UiCollapsible
             v-for="stage in course!.stages"
+            v-else
             v-slot="{ open }"
             :key="`stage-${stage.id}`"
             :default-open="true"
@@ -39,7 +46,13 @@ const contentId = computed(() => route.params.contentId);
                 </UiSidebarGroupAction>
               </UiCollapsibleTrigger>
               <UiCollapsibleContent>
-                <UiSidebarMenu>
+                <div
+                  v-if="loading.specific.stageContents.includes(stage.reference)"
+                  class="grid place-items-center"
+                >
+                  <UiSpinner />
+                </div>
+                <UiSidebarMenu v-else>
                   <UiSidebarMenuItem
                     v-for="content in stage.contents"
                     :key="`stage-${stage.id}-c#${content.id}`"
