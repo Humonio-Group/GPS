@@ -1,26 +1,46 @@
+import type { Nullable } from "~/types/primitives/objects";
+import type { Theme } from "~/types/misc/theme";
+import type { AvailableLocale } from "~/types/misc/language";
+
 export interface User {
   id: number;
   key: string;
-  avatar?: string;
-  name: {
-    first: string;
-    last: string;
-    full: string;
-  };
-  biography: {
-    base: string;
-    long: string;
-  };
-  contact: {
-    email: string;
-    phone: string;
-  };
-  social: {
-    linkedin: string;
-  };
+  avatar: Nullable<string>;
+  name: UserName;
+  biography: UserBiography;
+  contact: UserContact;
+  social: UserSocial;
+  settings: UserSettings;
   dates: {
     creation: Date;
     lastConnection: Date;
     update: Date;
   };
+}
+
+export interface UserName {
+  first: string;
+  last: string;
+  full: string;
+}
+
+export interface UserBiography {
+  base: Nullable<string>;
+  long: Nullable<string>;
+}
+
+export interface UserContact {
+  email: string;
+  phone: Nullable<string>;
+}
+
+export interface UserSocial {
+  linkedin: Nullable<string>;
+}
+
+export interface UserSettings {
+  language: AvailableLocale;
+  theme: Theme;
+  courseNotifications: number;
+  activitySummaryFrequency: number;
 }

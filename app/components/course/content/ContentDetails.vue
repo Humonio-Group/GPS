@@ -6,6 +6,7 @@ import ContentImage from "~/components/course/content/elements/ContentImage.vue"
 import ContentDocument from "~/components/course/content/elements/ContentDocument.vue";
 import ContentVideo from "~/components/course/content/elements/ContentVideo.vue";
 import ContentEmbed from "~/components/course/content/elements/ContentEmbed.vue";
+import ContentMap from "~/components/course/content/elements/ContentMap.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -32,6 +33,10 @@ defineProps<ContentDetailsProps>();
     />
     <ContentVideo
       v-if="content.activity.video"
+      :content="content"
+    />
+    <ContentMap
+      v-if="content.activity.blended?.map"
       :content="content"
     />
     <ContentEmbed

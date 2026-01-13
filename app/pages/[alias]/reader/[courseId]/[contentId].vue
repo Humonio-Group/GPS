@@ -1,7 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, Clock } from "lucide-vue-next";
+import { ArrowLeft, ArrowRight, Calendar, Clock, X } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import ContentDetails from "~/components/course/content/ContentDetails.vue";
+import ContentDetailItem from "~/components/course/content/header/ContentDetailItem.vue";
+
+const { t } = useI18n();
 
 definePageMeta({
   layout: "course-content",
@@ -19,6 +22,24 @@ watch(content, val => useHead({
   title: `${val?.name} - ${course.value!.name}`,
 }), { immediate: true });
 const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(contentId))));
+
+const { formatDate, sameDate } = useDateUtils();
+const { formatTime } = useTimeUtils();
+
+const workshop = computed(() => {
+  if (!content.value?.activity.blended) return null;
+  const { start, end } = content.value!.activity.blended;
+  const isSame = sameDate(start, end);
+
+  return t("labels.date-time.interval", isSame ? 1 : 2, {
+    named: {
+      start: formatDate("medium")(start),
+      end: formatDate("medium")(end),
+      startTime: formatTime("short")(start),
+      endTime: formatTime("short")(end),
+    },
+  });
+});
 </script>
 
 <template>
@@ -27,17 +48,17 @@ const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => 
     class="p-6 flex flex-col gap-6 min-h-dvh"
   >
     <nav class="py-2 bg-background sticky top-0 flex items-center justify-between">
+      <UiSidebarTrigger />
+
       <UiButton
         variant="ghost"
+        size="icon"
         as-child
       >
         <NuxtLinkLocale :to="`/${alias}/courses/${id}`">
-          <ArrowLeft />
-          {{ $t("btn.back") }}
+          <X />
         </NuxtLinkLocale>
       </UiButton>
-
-      <UiSidebarTrigger />
     </nav>
 
     <header class="w-full max-w-4xl mx-auto pb-6 border-b flex flex-col gap-6">
@@ -56,13 +77,18 @@ const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => 
         v-if="content!.duration"
         class="grid gap-2"
       >
-        <li
+        <ContentDetailItem
           v-if="content!.duration"
-          class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-        >
-          <Clock />
-          {{ $t("labels.time.long.minutes", content!.duration, { named: { value: content!.duration } }) }}
-        </li>
+          :icon="Clock"
+          tooltip="labels.duration"
+          :value="$t('labels.time.long.minutes', content!.duration, { named: { value: content!.duration } })"
+        />
+        <ContentDetailItem
+          v-if="workshop"
+          :icon="Calendar"
+          tooltip="labels.workshop-date"
+          :value="workshop"
+        />
       </ul>
     </header>
 

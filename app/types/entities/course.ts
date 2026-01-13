@@ -74,6 +74,11 @@ export interface Content {
       label: string;
       url: string;
     };
+    blended?: {
+      map?: string;
+      start: Date;
+      end: Date;
+    };
     results: {
       label: string;
       url: string;

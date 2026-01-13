@@ -3,7 +3,6 @@ import "vue-sonner/style.css";
 import { Toaster } from "~/components/ui/sonner";
 import type { Theme } from "~/types/misc/theme";
 
-useColorMode().preference = "light";
 const theme = computed((): Theme => useColorMode().preference as Theme);
 
 useFancyLeaveTitle();

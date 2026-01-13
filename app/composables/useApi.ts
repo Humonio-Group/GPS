@@ -18,20 +18,28 @@ export const useApi = () => {
     ...obj,
   });
 
-  const get = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const get = <T>(_path: string, apiOptions: ApiOptions & { vanilla?: boolean }, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
-      useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
-        method: "GET",
-        headers: headers(h),
-        query: params(q),
-        ...(body ? { body } : {}),
-        credentials: "include",
-      })
-        .then((response) => {
-          if (response.error.value) {
-            const status = response.error.value.statusCode;
+      if (apiOptions.vanilla) {
+        $fetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+          method: "GET",
+          headers: headers(h),
+          query: params(q),
+          ...(body ? { body } : {}),
+          credentials: "include",
+        })
+          .then((response) => {
+            if (!response) {
+              resolve(null);
+              return;
+            }
+
+            resolve(response as T);
+          })
+          .catch((error: any) => {
+            const status = error.statusCode;
 
             switch (status) {
               case 401: {
@@ -39,25 +47,50 @@ export const useApi = () => {
                 return;
               }
               default: {
-                reject(response.error.value);
+                reject(error);
                 return;
               }
             }
-          }
-          if (!response.data.value) {
-            resolve(null);
-            return;
-          }
+          });
+      }
+      else {
+        useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+          method: "GET",
+          headers: headers(h),
+          query: params(q),
+          ...(body ? { body } : {}),
+          credentials: "include",
+        })
+          .then((response) => {
+            if (response.error.value) {
+              const status = response.error.value.statusCode;
 
-          resolve(response.data.value as T);
-        });
+              switch (status) {
+                case 401: {
+                  navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
+                  return;
+                }
+                default: {
+                  reject(response.error.value);
+                  return;
+                }
+              }
+            }
+            if (!response.data.value) {
+              resolve(null);
+              return;
+            }
+
+            resolve(response.data.value as T);
+          });
+      }
     });
   };
   const post = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
-      useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+      $fetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
         method: "POST",
         headers: headers(h),
         query: params(q),
@@ -65,26 +98,26 @@ export const useApi = () => {
         credentials: "include",
       })
         .then((response) => {
-          if (response.error.value) {
-            const status = response.error.value.statusCode;
-
-            switch (status) {
-              case 401: {
-                navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-                return;
-              }
-              default: {
-                reject(response.error.value);
-                return;
-              }
-            }
-          }
-          if (!response.data.value) {
+          if (!response) {
             resolve(null);
             return;
           }
 
-          resolve(response.data.value as T);
+          resolve(response as T);
+        })
+        .catch((error: any) => {
+          const status = error.statusCode;
+
+          switch (status) {
+            case 401: {
+              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
+              return;
+            }
+            default: {
+              reject(error);
+              return;
+            }
+          }
         });
     });
   };
@@ -92,7 +125,7 @@ export const useApi = () => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
-      useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+      $fetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
         method: "PATCH",
         headers: headers(h),
         query: params(q),
@@ -100,26 +133,26 @@ export const useApi = () => {
         credentials: "include",
       })
         .then((response) => {
-          if (response.error.value) {
-            const status = response.error.value.statusCode;
-
-            switch (status) {
-              case 401: {
-                navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-                return;
-              }
-              default: {
-                reject(response.error.value);
-                return;
-              }
-            }
-          }
-          if (!response.data.value) {
+          if (!response) {
             resolve(null);
             return;
           }
 
-          resolve(response.data.value as T);
+          resolve(response as T);
+        })
+        .catch((error: any) => {
+          const status = error.statusCode;
+
+          switch (status) {
+            case 401: {
+              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
+              return;
+            }
+            default: {
+              reject(error);
+              return;
+            }
+          }
         });
     });
   };
@@ -127,7 +160,7 @@ export const useApi = () => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
-      useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+      $fetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
         method: "PUT",
         headers: headers(h),
         query: params(q),
@@ -135,15 +168,15 @@ export const useApi = () => {
         credentials: "include",
       })
         .then((response) => {
-          if (!response.data.value) {
+          if (!response) {
             resolve(null);
             return;
           }
 
-          resolve(response.data.value as T);
+          resolve(response as T);
         })
         .catch((error: any) => {
-          const status = (error as any).statusCode ?? -1;
+          const status = error.statusCode;
 
           switch (status) {
             case 401: {
@@ -162,7 +195,7 @@ export const useApi = () => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
-      useFetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
+      $fetch<T>(path(url(apiOptions.version, apiOptions.endpointVersion), _path), {
         method: "DELETE",
         headers: headers(h),
         query: params(q),
@@ -170,26 +203,26 @@ export const useApi = () => {
         credentials: "include",
       })
         .then((response) => {
-          if (response.error.value) {
-            const status = response.error.value.statusCode;
-
-            switch (status) {
-              case 401: {
-                navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-                return;
-              }
-              default: {
-                reject(response.error.value);
-                return;
-              }
-            }
-          }
-          if (!response.data.value) {
+          if (!response) {
             resolve(null);
             return;
           }
 
-          resolve(response.data.value as T);
+          resolve(response as T);
+        })
+        .catch((error: any) => {
+          const status = error.statusCode;
+
+          switch (status) {
+            case 401: {
+              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
+              return;
+            }
+            default: {
+              reject(error);
+              return;
+            }
+          }
         });
     });
   };

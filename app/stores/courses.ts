@@ -1,5 +1,6 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } from "~/types/entities/course";
+import { EntityType } from "~/types/entities/entities";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -273,14 +274,40 @@ export const useCoursesStore = defineStore("courses", {
           // forms
           if (c.attributes.specific.subtype === 2 || c.attributes.specific.type === 4) {
             const embedContent = c.attributes.specific.links.container.embedContent[0];
-
-            activity = {
+            if (embedContent) activity = {
               ...activity,
               embed: {
                 main: embedContent.isMain,
                 disabled: embedContent.disabled,
                 label: embedContent.label,
                 url: embedContent.link.external,
+              },
+            };
+          }
+          // workshop
+          if (c.attributes.specific.subtype === 2 && c.attributes.specific.type === 6) {
+            const relatedLocationId = c.relationships.location?.data[0]?.id;
+            const includedLocation = _contents.value.included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
+
+            activity = {
+              ...activity,
+              blended: {
+                start: new Date(c.attributes.dates.start),
+                end: new Date(c.attributes.dates.end),
+              },
+            };
+
+            if (includedLocation) activity = {
+              ...activity,
+              blended: {
+                map: includedLocation.googleMapsIframe,
+                ...activity.blended!,
+              },
+              embed: {
+                main: true,
+                disabled: false,
+                label: "Open Map",
+                url: includedLocation.googleMapsLink,
               },
             };
           }

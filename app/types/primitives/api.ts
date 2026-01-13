@@ -11,13 +11,15 @@ export interface FetchBody {
   body?: HttpObject;
 }
 
+export interface ApiResponseData<T = any> {
+  attributes: T;
+  type: string;
+  id: number;
+  relationships: any[];
+}
+
 export interface ApiResponse<T = any> {
-  data: {
-    attributes: T;
-    type: string;
-    id: number;
-    relationships: any[];
-  };
+  data: ApiResponseData<T> | ApiResponseData<T>[];
   included: any[];
   links?: any[];
   meta: any;

@@ -1,5 +1,5 @@
 export const useTimeUtils = () => {
-  const { t } = useNuxtApp().$i18n;
+  const { t, locale } = useNuxtApp().$i18n;
 
   const display = (months: number, days: number, hours: number, minutes: number, format: "long" | "short" = "long"): string => {
     const string: string[] = [];
@@ -61,6 +61,8 @@ export const useTimeUtils = () => {
     return display(months, days, hours, minutes);
   };
 
+  const formatTime = (style: "short" | "medium" | "long") => new Intl.DateTimeFormat(locale.value, { timeStyle: style }).format;
+
   return {
     display,
     difference,
@@ -68,5 +70,6 @@ export const useTimeUtils = () => {
     daysBetween,
     fromSeconds,
     fromMinutes,
+    formatTime,
   };
 };
