@@ -6,7 +6,11 @@
     "open-link": "Ouvrir le lien",
     "see-my-results": "Voir mes résultats",
     "save": "Enregistrer",
-    "cancel": "Anunler"
+    "cancel": "Anunler",
+    "create": {
+      "default": "Créer",
+      "action": "Créer une action"
+    }
   },
   "labels": {
     "miss-you": "Vous nous manquez déjà 😢",
@@ -30,7 +34,9 @@
     },
     "state": {
       "enabled": "Activé | Activée",
-      "disabled": "Désactivé | Désactivée"
+      "disabled": "Désactivé | Désactivée",
+      "late": "En retard",
+      "completed": "Complété | Complétée"
     },
     "languages": {
       "french": "Français"
@@ -208,7 +214,16 @@
           "empty": "Il n'y a aucun contenu dans ce module."
         }
       },
-
+      "actions": {
+        "title": "Actions - {name}",
+        "empty": {
+          "title": "Oh non...",
+          "description": "Il semblerait qu'il n'y ait aucune action..."
+        },
+        "tasklist": "Liste de tâches",
+        "to-finish-for": "À terminer pour le {date}",
+        "count": "{done} / {total} tâches"
+      },
       "results": {
         "title": "Résultats - {name}",
         "stats": {

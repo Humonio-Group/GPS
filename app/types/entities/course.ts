@@ -1,4 +1,5 @@
 import type { Nullable } from "~/types/primitives/objects";
+import type { Actions } from "~/types/entities/action";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -64,6 +65,7 @@ export interface ContentActivity {
     disabled: boolean;
     label: string;
     url: string;
+    embedded?: boolean;
   };
   blended?: {
     map?: string;
@@ -112,4 +114,5 @@ export interface Course {
 }
 export interface RichCourse extends Course {
   stages: Stages;
+  actions: Actions;
 }

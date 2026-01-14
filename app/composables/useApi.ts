@@ -18,7 +18,7 @@ export const useApi = () => {
     ...obj,
   });
 
-  const get = <T>(_path: string, apiOptions: ApiOptions & { vanilla?: boolean }, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const get = <T = any>(_path: string, apiOptions: ApiOptions & { vanilla?: boolean }, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
@@ -86,7 +86,7 @@ export const useApi = () => {
       }
     });
   };
-  const post = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const post = <T = any>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
@@ -121,7 +121,7 @@ export const useApi = () => {
         });
     });
   };
-  const patch = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const patch = <T = any>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
@@ -156,7 +156,7 @@ export const useApi = () => {
         });
     });
   };
-  const put = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const put = <T = any>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {
@@ -191,7 +191,7 @@ export const useApi = () => {
         });
     });
   };
-  const destroy = <T>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
+  const destroy = <T = any>(_path: string, apiOptions: ApiOptions, _fetchBody: FetchBody = {}): Promise<T | null> => {
     const { headers: h, query: q, body } = _fetchBody;
 
     return new Promise((resolve, reject) => {

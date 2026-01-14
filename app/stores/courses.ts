@@ -1,6 +1,7 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
+import type { Action, Actions } from "~/types/entities/action";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -12,6 +13,7 @@ interface CoursesState {
       stages: boolean;
       stageContents: number[];
       activity: boolean;
+      actions: boolean;
     };
   };
 }
@@ -42,6 +44,7 @@ export const useCoursesStore = defineStore("courses", {
         stages: false,
         stageContents: [],
         activity: false,
+        actions: false,
       },
     },
   }),
@@ -170,6 +173,7 @@ export const useCoursesStore = defineStore("courses", {
       this.selectedCourse = {
         ...course,
         stages: [],
+        actions: [],
       };
     },
 
@@ -307,6 +311,7 @@ export const useCoursesStore = defineStore("courses", {
                 disabled: embedContent.disabled,
                 label: embedContent.label,
                 url: embedContent.link.external,
+                embedded: true,
               },
             };
           }
@@ -333,6 +338,7 @@ export const useCoursesStore = defineStore("courses", {
                 main: true,
                 disabled: false,
                 label: "Open Map",
+                embedded: false,
                 url: includedLocation.googleMapsLink,
               },
             };
@@ -391,6 +397,34 @@ export const useCoursesStore = defineStore("courses", {
         this.loading.specific.stageContents = this.loading.specific.stageContents.filter(s => s !== stageId);
       }
     },
+    async loadActions() {
+      const { user } = storeToRefs(useUserStore());
+
+      if (!this.selectedCourse || !user.value) return;
+
+      this.loading.specific.actions = true;
+
+      try {
+        const _actions = await this.api.get("/actions", { version: 2, endpointVersion: 1 }, {
+          query: {
+            authors: user.value!.id,
+            active: 1,
+            journeys: this.selectedCourse.id,
+            include: "impactMapCategory1,impactMapCategory2,impactMapCategory3,impactMapCategory4",
+          },
+        });
+
+        const included = _actions.included;
+        this.selectedCourse.actions = _actions.data.map((a: any) => this.buildActionEntity(a, included)) as Actions;
+      }
+      catch (e) {
+        console.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.actions = false;
+      }
+    },
 
     buildCourseEntity(journey: any, program: any): Course {
       return {
@@ -411,6 +445,44 @@ export const useCoursesStore = defineStore("courses", {
           picture: program!.attributes.design.picture.thumbnail,
           category: null,
         },
+      };
+    },
+    buildActionEntity(data: any, included: any): Action {
+      const { id, attributes, relations } = this.extractBasicInfo(data);
+
+      const objectiveId = relations.impactMapCategory4.data[0].id;
+      const objective = included.find((i: any) => i.type === EntityType.STRATEGY && i.id === objectiveId);
+
+      return {
+        id,
+        description: {
+          original: attributes.description ?? "",
+          raw: attributes.rawDescription ?? "",
+        },
+        objective: {
+          id: objective.id,
+          name: objective.attributes.name,
+          description: objective.attributes.displayDesc,
+        },
+        end: new Date(attributes.dates.endAction),
+        progression: attributes.progression,
+        tasks: attributes.tasklist.map((task: any, index: number) => ({ ...task, order: index })),
+        stats: {
+          likes: attributes.stats.nbLikes,
+          followers: attributes.stats.nbFollowers,
+          comments: attributes.stats.nbComments,
+        },
+      };
+    },
+    extractBasicInfo(data: any): {
+      id: number;
+      attributes: any;
+      relations: any;
+    } {
+      return {
+        id: data.id,
+        attributes: data.attributes,
+        relations: data.relationships,
       };
     },
   },

@@ -59,9 +59,14 @@ export const useDateUtils = () => {
     dateStyle: style,
   }).format;
 
+  const isBefore = (value: Date, compare: Date = new Date()) => value.getTime() < compare.getTime();
+  const isAfter = (value: Date, compare: Date = new Date()) => value.getTime() > compare.getTime();
+
   return {
     explode,
     sameDate,
     formatDate,
+    isBefore,
+    isAfter,
   };
 };
