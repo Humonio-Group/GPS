@@ -12,10 +12,10 @@ defineProps<ContentEmbedProps>();
 <template>
   <div class="flex flex-col @md:flex-row @md:items-center @md:flex-wrap justify-center gap-2">
     <UiDialog v-if="content.activity.embed!.embedded">
-      <UiDialogTrigger>
+      <UiDialogTrigger as-child>
         <UiButton
           size="lg"
-          class="truncate"
+          class="truncate w-full @md:w-auto"
           :variant="content.activity.embed!.main ? 'default' : 'outline'"
           :disabled="content.activity.embed!.disabled"
         >
@@ -23,10 +23,11 @@ defineProps<ContentEmbedProps>();
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-[calc(100%-2rem)]! w-full! max-h-[95dvh]! p-0 overflow-hidden">
+      <UiDialogContent class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden">
         <iframe
           :src="content.activity.embed!.url"
-          class="aspect-video w-full block"
+          class="size-full block"
+          allow="microphone; camera; autoplay; encrypted-media; fullscreen; picture-in-picture"
           frameborder="0"
         />
       </UiDialogContent>
