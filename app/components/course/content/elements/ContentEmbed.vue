@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { SquareArrowOutUpRight } from "lucide-vue-next";
+import { ChevronDown, SquareArrowOutUpRight, Play } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 
 interface ContentEmbedProps {
@@ -11,7 +11,28 @@ defineProps<ContentEmbedProps>();
 
 <template>
   <div class="flex flex-col @md:flex-row @md:items-center @md:flex-wrap justify-center gap-2">
+    <UiDialog v-if="content.activity.embed!.embedded">
+      <UiDialogTrigger>
+        <UiButton
+          size="lg"
+          class="truncate"
+          :variant="content.activity.embed!.main ? 'default' : 'outline'"
+          :disabled="content.activity.embed!.disabled"
+        >
+          {{ content.activity.embed!.label }}
+          <Play />
+        </UiButton>
+      </UiDialogTrigger>
+      <UiDialogContent class="max-w-[calc(100%-2rem)]! w-full! max-h-[95dvh]! p-0 overflow-hidden">
+        <iframe
+          :src="content.activity.embed!.url"
+          class="aspect-video w-full block"
+          frameborder="0"
+        />
+      </UiDialogContent>
+    </UiDialog>
     <UiButton
+      v-else
       size="lg"
       class="truncate"
       :variant="content.activity.embed!.main ? 'default' : 'outline'"
@@ -58,6 +79,7 @@ defineProps<ContentEmbedProps>();
             variant="outline"
           >
             {{ $t("btn.see-my-results") }}
+            <ChevronDown />
           </UiButton>
         </UiDropdownMenuTrigger>
         <UiDropdownMenuContent>

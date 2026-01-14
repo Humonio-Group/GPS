@@ -17,7 +17,10 @@ defineProps<ContentDetailsProps>();
 
 <template>
   <main class="flex-1 flex flex-col gap-6">
-    <ContentDescription :content="content" />
+    <ContentDescription
+      v-if="content.description.length"
+      :content="content"
+    />
 
     <ContentLink
       v-if="content.activity.link"
