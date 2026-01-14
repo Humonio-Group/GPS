@@ -3,13 +3,16 @@
     "back": "Retour",
     "next-content": "Contenu suivant",
     "previous-content": "Contenu précédent",
-    "open-link": "Ouvrir le lien",
     "see-my-results": "Voir mes résultats",
     "save": "Enregistrer",
     "cancel": "Anunler",
     "create": {
       "default": "Créer",
       "action": "Créer une action"
+    },
+    "open": {
+      "map": "Ouvrir la carte",
+      "link": "Ouvrir le lien"
     }
   },
   "labels": {

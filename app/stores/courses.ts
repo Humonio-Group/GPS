@@ -32,6 +32,65 @@ function detectProvider(origin: number): Nullable<VideoProvider> {
       return null;
   }
 }
+function buildCourseEntity(journey: any, program: any): Course {
+  return {
+    id: journey.id,
+    key: journey.attributes.key,
+    name: program?.attributes.name ?? "-",
+    description: journey.attributes.displayName,
+    picture: journey.attributes.picture.thumbnail,
+    dates: {
+      start: new Date(journey.attributes.dates.start),
+      end: new Date(journey.attributes.dates.end),
+    },
+
+    program: {
+      id: program!.id,
+      name: program!.attributes.name,
+      description: program!.attributes.description,
+      picture: program!.attributes.design.picture.thumbnail,
+      category: null,
+    },
+  };
+}
+function buildActionEntity(data: any, included: any): Action {
+  const { id, attributes, relations } = extractBasicInfo(data);
+
+  const objectiveId = relations.impactMapCategory4.data[0].id;
+  const objective = included.find((i: any) => i.type === EntityType.STRATEGY && i.id === objectiveId);
+
+  return {
+    id,
+    description: {
+      original: attributes.description ?? "",
+      raw: attributes.rawDescription ?? "",
+    },
+    objective: {
+      id: objective.id,
+      name: objective.attributes.name,
+      description: objective.attributes.displayDesc,
+    },
+    end: new Date(attributes.dates.endAction),
+    progression: attributes.progression,
+    tasks: attributes.tasklist.map((task: any, index: number) => ({ ...task, order: index })),
+    stats: {
+      likes: attributes.stats.nbLikes,
+      followers: attributes.stats.nbFollowers,
+      comments: attributes.stats.nbComments,
+    },
+  };
+}
+function extractBasicInfo(data: any): {
+  id: number;
+  attributes: any;
+  relations: any;
+} {
+  return {
+    id: data.id,
+    attributes: data.attributes,
+    relations: data.relationships,
+  };
+}
 
 export const useCoursesStore = defineStore("courses", {
   state: (): CoursesState => ({
@@ -107,7 +166,7 @@ export const useCoursesStore = defineStore("courses", {
           .filter((c: any) => !(this.courses ?? []).map(j => j.id).includes(c.id))
           .forEach((c: any) => {
             const program = programs.find((j: any) => j.id === c.relationships.program.data[0]!.id);
-            list.push(this.buildCourseEntity(c, program));
+            list.push(buildCourseEntity(c, program));
           });
 
         this.courses = [...list];
@@ -135,7 +194,7 @@ export const useCoursesStore = defineStore("courses", {
 
         const journey = course.value.data;
         const program = course.value.included.filter((e: any) => e.type === "programs").find((p: any) => p.id === journey.relationships.program.data[0].id);
-        const c = this.buildCourseEntity(journey, program);
+        const c = buildCourseEntity(journey, program);
 
         if (!this.courses?.find(c => c.id === id))
           this.courses = [...(this.courses ?? []), { ...c }];
@@ -319,29 +378,39 @@ export const useCoursesStore = defineStore("courses", {
           if (c.attributes.specific.subtype === 2 && c.attributes.specific.type === 6) {
             const relatedLocationId = c.relationships.location?.data[0]?.id;
             const includedLocation = _contents.value.included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
+            const { start, end } = c.attributes.dates;
 
-            activity = {
-              ...activity,
-              blended: {
-                start: new Date(c.attributes.dates.start),
-                end: new Date(c.attributes.dates.end),
-              },
-            };
+            if (start && end) {
+              // workshop content
+              if (includedLocation) activity = {
+                ...activity,
+                blended: {
+                  start: new Date(c.attributes.dates.start),
+                  end: new Date(c.attributes.dates.end),
+                  map: includedLocation.googleMapsIframe,
+                },
+                embed: {
+                  main: true,
+                  disabled: false,
+                  label: useNuxtApp().$i18n.t("btn.open.map"),
+                  embedded: false,
+                  url: includedLocation.googleMapsLink,
+                },
+              };
 
-            if (includedLocation) activity = {
-              ...activity,
-              blended: {
-                map: includedLocation.googleMapsIframe,
-                ...activity.blended!,
-              },
-              embed: {
-                main: true,
-                disabled: false,
-                label: "Open Map",
-                embedded: false,
-                url: includedLocation.googleMapsLink,
-              },
-            };
+              // videoconference content
+              else activity = {
+                ...activity,
+                blended: {
+                  start: new Date(c.attributes.dates.start),
+                  end: new Date(c.attributes.dates.end),
+                },
+                embed: {
+                  ...activity.embed!,
+                  embedded: false,
+                },
+              };
+            }
           }
 
           contents.push({
@@ -415,7 +484,7 @@ export const useCoursesStore = defineStore("courses", {
         });
 
         const included = _actions.included;
-        this.selectedCourse.actions = _actions.data.map((a: any) => this.buildActionEntity(a, included)) as Actions;
+        this.selectedCourse.actions = _actions.data.map((a: any) => buildActionEntity(a, included)) as Actions;
       }
       catch (e) {
         console.error(e);
@@ -424,66 +493,6 @@ export const useCoursesStore = defineStore("courses", {
       finally {
         this.loading.specific.actions = false;
       }
-    },
-
-    buildCourseEntity(journey: any, program: any): Course {
-      return {
-        id: journey.id,
-        key: journey.attributes.key,
-        name: program?.attributes.name ?? "-",
-        description: journey.attributes.displayName,
-        picture: journey.attributes.picture.thumbnail,
-        dates: {
-          start: new Date(journey.attributes.dates.start),
-          end: new Date(journey.attributes.dates.end),
-        },
-
-        program: {
-          id: program!.id,
-          name: program!.attributes.name,
-          description: program!.attributes.description,
-          picture: program!.attributes.design.picture.thumbnail,
-          category: null,
-        },
-      };
-    },
-    buildActionEntity(data: any, included: any): Action {
-      const { id, attributes, relations } = this.extractBasicInfo(data);
-
-      const objectiveId = relations.impactMapCategory4.data[0].id;
-      const objective = included.find((i: any) => i.type === EntityType.STRATEGY && i.id === objectiveId);
-
-      return {
-        id,
-        description: {
-          original: attributes.description ?? "",
-          raw: attributes.rawDescription ?? "",
-        },
-        objective: {
-          id: objective.id,
-          name: objective.attributes.name,
-          description: objective.attributes.displayDesc,
-        },
-        end: new Date(attributes.dates.endAction),
-        progression: attributes.progression,
-        tasks: attributes.tasklist.map((task: any, index: number) => ({ ...task, order: index })),
-        stats: {
-          likes: attributes.stats.nbLikes,
-          followers: attributes.stats.nbFollowers,
-          comments: attributes.stats.nbComments,
-        },
-      };
-    },
-    extractBasicInfo(data: any): {
-      id: number;
-      attributes: any;
-      relations: any;
-    } {
-      return {
-        id: data.id,
-        attributes: data.attributes,
-        relations: data.relationships,
-      };
     },
   },
 });

@@ -23,7 +23,10 @@ defineProps<ContentEmbedProps>();
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden">
+      <UiDialogContent class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden isolate">
+        <div class="absolute inset-0 grid place-items-center -z-10">
+          <UiSpinner />
+        </div>
         <iframe
           :src="content.activity.embed!.url"
           class="size-full block"

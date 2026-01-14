@@ -21,7 +21,7 @@ defineProps<ContentLinkProps>();
       rel="noopener noreferrer"
       external
     >
-      {{ $t("btn.open-link") }}
+      {{ $t("btn.open.link") }}
       <SquareArrowOutUpRight />
     </NuxtLink>
   </UiButton>
