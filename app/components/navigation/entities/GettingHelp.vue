@@ -34,23 +34,37 @@ import { CircleHelp, Headphones, LibraryBig, SquareArrowOutUpRight } from "lucid
           {{ $t("navigation.actions.getting-help.ai.label") }}
         </UiDropdownMenuLabel>
 
-        <UiDropdownMenuItem>
-          {{ $t("navigation.actions.getting-help.ai.intelligence") }}
-          <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
-        </UiDropdownMenuItem>
-        <UiDropdownMenuItem>
-          {{ $t("navigation.actions.getting-help.ai.ai-assistant") }}
-          <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
-        </UiDropdownMenuItem>
+        <NuxtLink
+          to="https://chatgpt.com/g/g-67479b6827ec8191bce4bdebcb7fb6ca-humonio-intelligence-beta"
+          external
+          target="_blank"
+        >
+          <UiDropdownMenuItem>
+            {{ $t("navigation.actions.getting-help.ai.intelligence") }}
+            <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
+          </UiDropdownMenuItem>
+        </NuxtLink>
+        <NuxtLink
+          to="https://chatgpt.com/g/g-68aec81824d4819198a9001c03b222f6-qigu-ai-assistant-beta"
+          external
+          target="_blank"
+        >
+          <UiDropdownMenuItem>
+            {{ $t("navigation.actions.getting-help.ai.ai-assistant") }}
+            <SquareArrowOutUpRight class="ml-auto size-3 text-muted-foreground!" />
+          </UiDropdownMenuItem>
+        </NuxtLink>
       </UiDropdownMenuGroup>
 
-      <UiDropdownMenuSeparator />
-      <UiDropdownMenuGroup>
-        <UiDropdownMenuItem>
-          <LibraryBig />
-          {{ $t("navigation.actions.getting-help.other-resources") }}
-        </UiDropdownMenuItem>
-      </UiDropdownMenuGroup>
+      <template v-if="false">
+        <UiDropdownMenuSeparator />
+        <UiDropdownMenuGroup>
+          <UiDropdownMenuItem>
+            <LibraryBig />
+            {{ $t("navigation.actions.getting-help.other-resources") }}
+          </UiDropdownMenuItem>
+        </UiDropdownMenuGroup>
+      </template> <!-- todo: make the library page - loic -->
     </UiDropdownMenuContent>
   </UiDropdownMenu>
 </template>
