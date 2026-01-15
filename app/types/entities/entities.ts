@@ -8,4 +8,5 @@ export enum EntityType {
   STRATEGY = "strategies",
   BADGE = "badges",
   USER_BADGE = "userBadges",
+  MANAGER_INVITATION = "managerInvitations",
 }

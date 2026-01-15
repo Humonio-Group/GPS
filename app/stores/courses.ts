@@ -3,6 +3,7 @@ import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } fro
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
+import type { Manager, People, Peoples } from "~/types/entities/user";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -16,6 +17,9 @@ interface CoursesState {
       activity: boolean;
       actions: boolean;
       badges: boolean;
+      people: boolean;
+      inviteManager: boolean;
+      updateManager: boolean;
     };
   };
 }
@@ -32,6 +36,13 @@ function detectProvider(origin: number): Nullable<VideoProvider> {
       return "ted"; // Todo: remove, unsupported - loic
     default:
       return null;
+  }
+}
+function detectStatus(origin: number): Manager["invitationStatus"] {
+  switch (origin) {
+    case 1: return "accepted";
+    case 2: return "declined";
+    default: return "pending";
   }
 }
 function buildCourseEntity(journey: any, program: any): Course {
@@ -125,6 +136,9 @@ export const useCoursesStore = defineStore("courses", {
         activity: false,
         actions: false,
         badges: false,
+        people: false,
+        inviteManager: false,
+        updateManager: false,
       },
     },
   }),
@@ -257,6 +271,10 @@ export const useCoursesStore = defineStore("courses", {
         stages: [],
         actions: [],
         badges: [],
+        coaches: [],
+        facilitators: [],
+        participants: [],
+        manager: null,
       };
     },
 
@@ -552,6 +570,271 @@ export const useCoursesStore = defineStore("courses", {
       }
       finally {
         this.loading.specific.badges = false;
+      }
+    },
+    async loadPeople() {
+      if (!this.selectedCourse) return;
+
+      this.loading.specific.people = true;
+
+      try {
+        const [users, journey, _manager] = await Promise.all([
+          this.api.get(`/users`, { version: 2, endpointVersion: 1 }, {
+            query: {
+              "requester": storeToRefs(useUserStore()).user.value!.id,
+              "limit": -1,
+              "sort": "lastname",
+              "participateToJourneys": this.selectedCourse.id,
+              "fields[users]": "name,picture,email,mobile,linkedin",
+              "include": "timezone",
+            },
+          }),
+          this.api.get(`/journeys/${this.selectedCourse.id}`, { version: 2, endpointVersion: 1 }, {
+            query: {
+              "include": "requesterParticipation,facilitators,mainFacilitators,teams,teams.leads,teams.participants,teams.participants.tags,program,requesterLanguage",
+              "fields[participations]": "facilitatorRated",
+              "fields[journeys]": "picture",
+              "fields[users]": "name,picture,email,mobile,linkedin",
+              "fields[teams]": "name",
+              "fields[tags]": "name,stats.users",
+              "fields[programs]": "groups",
+            },
+          }),
+          this.api.get("/manager_invitations", { version: 2, endpointVersion: 1 }, {
+            query: {
+              include: "manager",
+            },
+          }),
+        ]);
+
+        const included = journey.included;
+        const includedUsers = included.filter((e: any) => e.type === EntityType.USER);
+
+        this.selectedCourse.participants = users.data.map((u: any): People => ({
+          id: u.id,
+          avatar: u.attributes.picture?.thumbnail ?? null,
+          name: {
+            first: u.attributes.firstname,
+            last: u.attributes.lastname,
+            full: u.attributes.name,
+          },
+          contact: {
+            email: u.attributes.email,
+            phone: u.attributes.mobile ?? null,
+          },
+          social: {
+            linkedin: u.attributes.linkedin ?? null,
+          },
+        })) as Peoples;
+        this.selectedCourse.facilitators = journey.data.relationships.facilitators.data.map((d: any): People => {
+          const relatedUser = includedUsers.find((u: any) => u.id === d.id);
+          return {
+            id: relatedUser.id,
+            avatar: relatedUser.attributes.picture?.thumbnail ?? null,
+            name: {
+              first: relatedUser.attributes.firstname,
+              last: relatedUser.attributes.lastname,
+              full: relatedUser.attributes.name,
+            },
+            contact: {
+              email: relatedUser.attributes.email,
+              phone: relatedUser.attributes.mobile ?? null,
+            },
+            social: {
+              linkedin: relatedUser.attributes.linkedin ?? null,
+            },
+          };
+        }) as Peoples;
+        if (_manager.data.length) {
+          const invitation = _manager.data[0];
+          const manager = _manager.included.find((u: any) => u.id === invitation.relationships.manager.data[0].id);
+          let invitationStatus: Manager["invitationStatus"];
+
+          switch (invitation.attributes.status.value) {
+            case 1: {
+              invitationStatus = "accepted";
+              break;
+            }
+            case 2: {
+              invitationStatus = "declined";
+              break;
+            }
+            default: {
+              invitationStatus = "pending";
+              break;
+            }
+          }
+
+          this.selectedCourse.manager = {
+            id: manager.id,
+            reference: invitation.id,
+            avatar: manager.attributes.picture?.thumbnail ?? null,
+            name: {
+              first: manager.attributes.firstname,
+              last: manager.attributes.lastname,
+              full: manager.attributes.name,
+            },
+            contact: {
+              email: manager.attributes.email,
+              phone: manager.attributes.mobile ?? null,
+            },
+            social: {
+              linkedin: manager.attributes.linkedin ?? null,
+            },
+            invitationStatus,
+            settings: {
+              shareActions: invitation.attributes.shareActions,
+              shareResults: invitation.attributes.shareResults,
+            },
+          };
+        }
+      }
+      catch (e) {
+        console.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.people = false;
+      }
+    },
+
+    async inviteManager(email: string, results?: boolean): Promise<boolean> {
+      if (!this.selectedCourse) return true;
+
+      this.loading.specific.inviteManager = true;
+
+      const userId = storeToRefs(useUserStore()).user.value!.id;
+      let state = true;
+
+      try {
+        const _invitation = await this.api.post("/manager_invitations", { version: 1, endpointVersion: 2 }, {
+          query: {
+            include: "manager",
+          },
+          body: {
+            requester: userId,
+            data: {
+              attributes: {
+                managerEmail: email,
+                shareResults: results ? 1 : 0,
+              },
+              relationships: {
+                directReport: {
+                  data: {
+                    id: userId,
+                    type: EntityType.USER,
+                  },
+                },
+                sender: {
+                  data: {
+                    id: userId,
+                    type: EntityType.USER,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const invitation = _invitation.data;
+        const manager = _invitation.included.find((i: any) =>
+          i.type === EntityType.USER && i.id === invitation.relationships.manager.data[0].id);
+
+        this.selectedCourse.manager = {
+          id: manager.id,
+          reference: invitation.id,
+          avatar: manager.attributes.picture?.thumbnail ?? null,
+          name: {
+            first: manager.attributes.firstname,
+            last: manager.attributes.lastname,
+            full: manager.attributes.name,
+          },
+          contact: {
+            email: manager.attributes.email,
+            phone: manager.attributes.mobile ?? null,
+          },
+          social: {
+            linkedin: manager.attributes.linkedin ?? null,
+          },
+          invitationStatus: detectStatus(invitation.attributes.status.value),
+          settings: {
+            shareActions: invitation.attributes.shareActions,
+            shareResults: invitation.attributes.shareResults,
+          },
+        };
+      }
+      catch (e) {
+        console.error(e);
+        state = false;
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.inviteManager = false;
+      }
+
+      return state;
+    },
+    async patchManagerSettings(reference: number, options: {
+      results?: boolean;
+      actions?: boolean;
+    }) {
+      if (!this.selectedCourse) return;
+
+      const userId = storeToRefs(useUserStore()).user.value!.id;
+
+      this.loading.specific.updateManager = true;
+
+      try {
+        const _invitation = await this.api.put(`/manager_invitations/${reference}`, { version: 1, endpointVersion: 2 }, {
+          query: {
+            include: "manager",
+          },
+          body: {
+            requester: userId,
+            data: {
+              id: reference,
+              type: EntityType.MANAGER_INVITATION,
+              attributes: {
+                ...(options.actions !== undefined ? { shareActions: options.actions } : {}),
+                ...(options.results !== undefined ? { shareResults: options.results } : {}),
+              },
+            },
+          },
+        });
+
+        const invitation = _invitation.data;
+        const manager = _invitation.included.find((i: any) =>
+          i.type === EntityType.USER && i.id === invitation.relationships.manager.data[0].id);
+
+        this.selectedCourse.manager = {
+          id: manager.id,
+          reference: invitation.id,
+          avatar: manager.attributes.picture?.thumbnail ?? null,
+          name: {
+            first: manager.attributes.firstname,
+            last: manager.attributes.lastname,
+            full: manager.attributes.name,
+          },
+          contact: {
+            email: manager.attributes.email,
+            phone: manager.attributes.mobile ?? null,
+          },
+          social: {
+            linkedin: manager.attributes.linkedin ?? null,
+          },
+          invitationStatus: detectStatus(invitation.attributes.status.value),
+          settings: {
+            shareActions: invitation.attributes.shareActions,
+            shareResults: invitation.attributes.shareResults,
+          },
+        };
+      }
+      catch (e) {
+        console.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.updateManager = false;
       }
     },
   },

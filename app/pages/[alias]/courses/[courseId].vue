@@ -14,7 +14,8 @@ store.selectCourse(Number(id.value));
 <template>
   <PageRoot
     :name="`course.specimen.${id!}`"
-    class="@container/course-page!"
+    wrapper
+    wrapper-class="max-w-4xl mx-auto @container/course-page!"
   >
     <div
       v-if="loading.specific.specimen"

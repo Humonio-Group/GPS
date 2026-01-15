@@ -5,7 +5,10 @@
     "previous-content": "Contenu précédent",
     "see-my-results": "Voir mes résultats",
     "save": "Enregistrer",
-    "cancel": "Anunler",
+    "cancel": "Annuler",
+    "add": {
+      "default": "Ajouter"
+    },
     "create": {
       "default": "Créer",
       "action": "Créer une action"
@@ -13,7 +16,8 @@
     "open": {
       "map": "Ouvrir la carte",
       "link": "Ouvrir le lien"
-    }
+    },
+    "invite": "Inviter"
   },
   "labels": {
     "miss-you": "Vous nous manquez déjà 😢",
@@ -39,7 +43,10 @@
       "enabled": "Activé | Activée",
       "disabled": "Désactivé | Désactivée",
       "late": "En retard",
-      "completed": "Complété | Complétée"
+      "completed": "Complété | Complétée",
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "declined": "Declinée"
     },
     "languages": {
       "french": "Français"
@@ -57,7 +64,20 @@
     "duration": "Durée",
     "workshop-date": "Date de l'événement",
     "unlocked-at": "Débloqué le {date} à {time} | Débloquée le {date} à {time}",
-    "locked": "Bloqué | Bloquée"
+    "locked": "Bloqué | Bloquée",
+    "placeholder": {
+      "search": "Rechercher...",
+      "generic": {
+        "email": "Ex: john.doe.at.example.xyz"
+      }
+    },
+    "form-errors": {
+      "email": {
+        "required": "Adresse e-mail requise.",
+        "invalid": "Adresse e-mail invalide.",
+        "other-than-yours": "Utilisez une autre adresse e-mail que la votre."
+      }
+    }
   },
   "navigation": {
     "home": "Accueil",
@@ -217,6 +237,31 @@
         "contents-progress": "{current}/{max} contenus",
         "stages": {
           "empty": "Il n'y a aucun contenu dans ce module."
+        }
+      },
+      "people": {
+        "your-manager": "Votre mentor",
+        "coaches": "Coachs",
+        "facilitators": "Facilitateurs",
+        "participants": "Participants",
+        "manager": {
+          "captions": {
+            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les contenus sur {brand}.",
+            "more-results": "Pour donner davantage de visibilité à votre mentor, veuillez cocher la case"
+          },
+          "invite": "Inviter mon mentor",
+          "change": "Changer de mentor",
+          "fields": {
+            "email": "Adresse e-mail du mentor",
+            "results": {
+              "title": "Résultats du contenu",
+              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les contenus sur {brand}."
+            }
+          },
+          "settings": {
+            "share-actions": "Partager les actions",
+            "share-results": "Partager les résultats"
+          }
         }
       },
       "actions": {

@@ -23,6 +23,9 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      brand: {
+        name: "",
+      },
       api: {
         1: "",
         2: "",
