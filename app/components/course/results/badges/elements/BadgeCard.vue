@@ -15,7 +15,7 @@ const { formatTime } = useTimeUtils();
 <template>
   <UiPopover>
     <UiPopoverTrigger as-child>
-      <UiCard class="p-4 gap-3 flex-row">
+      <UiCard class="p-4 gap-3 flex-row cursor-pointer *:select-none">
         <UiAvatar
           class="size-10 @sm/badges-dialog:size-12 rounded-md bg-accent"
           :class="{ 'bg-primary': badge.unlockedAt }"
