@@ -1,7 +1,7 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { Actions } from "~/types/entities/action";
 import type { Badges } from "~/types/entities/badge";
-import type { Manager, People, Peoples } from "~/types/entities/user";
+import type { Manager, Peoples } from "~/types/entities/user";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
