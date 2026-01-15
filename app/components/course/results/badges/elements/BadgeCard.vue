@@ -32,20 +32,36 @@ const { formatTime } = useTimeUtils();
           <UiCardTitle class="truncate max-w-full">
             {{ badge.name }}
           </UiCardTitle>
-          <UiCardDescription>
-            {{ badge.unlockedAt
-              ? $t("labels.unlocked-at", 1, {
-                named: {
-                  date: formatDate("medium")(badge.unlockedAt),
-                  time: formatTime("short")(badge.unlockedAt),
-                },
-              })
-              : $t("labels.locked") }}
+          <UiCardDescription
+            v-if="badge.description?.length"
+            class="line-clamp-3 whitespace-pre-line"
+          >
+            {{ badge.description }}
           </UiCardDescription>
         </UiCardHeader>
       </UiCard>
     </UiPopoverTrigger>
-    <UiPopoverContent>
+    <UiPopoverContent class="grid gap-3">
+      <div class="space-y-1">
+        <span
+          v-if="badge.unlockedAt"
+          class="text-sm text-muted-foreground"
+        >
+          {{ $t("labels.unlocked-at", 1, {
+            named: {
+              date: formatDate("medium")(badge.unlockedAt),
+              time: formatTime("short")(badge.unlockedAt),
+            },
+          }) }}
+        </span>
+
+        <p v-if="badge.description?.length">
+          {{ badge.description }}
+        </p>
+      </div>
+
+      <UiSeparator />
+
       <ul>
         <li
           v-for="(condition, index) in badge.conditions"

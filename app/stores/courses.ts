@@ -84,10 +84,14 @@ function buildActionEntity(data: any, included: any): Action {
 }
 function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
   const { id, attributes } = extractBasicInfo(data);
+  const locale = useNuxtApp().$i18n.locale;
+
+  console.log(attributes.translations);
 
   return {
     id,
     name: attributes.displayName,
+    description: attributes.translations.description[locale.value] ?? attributes.translations.description[Object.keys(attributes.translations)[0]!] ?? null,
     picture: attributes.picture,
     conditions: attributes.graphics.filter((g: any) => g.type === 2).map((g: any) => ({
       label: g.label,
