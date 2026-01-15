@@ -2,6 +2,7 @@ import type { Nullable } from "~/types/primitives/objects";
 import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
+import type { Badge } from "~/types/entities/badge";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -14,6 +15,7 @@ interface CoursesState {
       stageContents: number[];
       activity: boolean;
       actions: boolean;
+      badges: boolean;
     };
   };
 }
@@ -80,6 +82,20 @@ function buildActionEntity(data: any, included: any): Action {
     },
   };
 }
+function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
+  const { id, attributes } = extractBasicInfo(data);
+
+  return {
+    id,
+    name: attributes.displayName,
+    picture: attributes.picture,
+    conditions: attributes.graphics.filter((g: any) => g.type === 2).map((g: any) => ({
+      label: g.label,
+      icon: useConditionUtils().detectIcon(g.icon),
+    })),
+    unlockedAt: unlockedAt ?? null,
+  };
+}
 function extractBasicInfo(data: any): {
   id: number;
   attributes: any;
@@ -104,6 +120,7 @@ export const useCoursesStore = defineStore("courses", {
         stageContents: [],
         activity: false,
         actions: false,
+        badges: false,
       },
     },
   }),
@@ -141,6 +158,8 @@ export const useCoursesStore = defineStore("courses", {
       const completedContents = contents.filter(c => c.progress.value >= 1);
       return Math.round((completedContents.length / contents.length) * 100) / 100;
     },
+
+    unlockedBadges: state => state.selectedCourse?.badges.filter(b => !!b.unlockedAt) ?? [],
   },
   actions: {
     async loadCourses() {
@@ -233,6 +252,7 @@ export const useCoursesStore = defineStore("courses", {
         ...course,
         stages: [],
         actions: [],
+        badges: [],
       };
     },
 
@@ -492,6 +512,42 @@ export const useCoursesStore = defineStore("courses", {
       }
       finally {
         this.loading.specific.actions = false;
+      }
+    },
+    async loadBadges() {
+      if (!this.selectedCourse) return;
+
+      this.loading.specific.badges = true;
+
+      try {
+        const [_badges, _userBadges] = await Promise.all([
+          this.api.get("/badges", { version: 2, endpointVersion: 1 }, {
+            query: {
+              programs: this.selectedCourse.program.id,
+              journeys: this.selectedCourse.id,
+              active: 1,
+              limit: -1,
+            },
+          }),
+          this.api.get("/user_badges", { version: 2, endpointVersion: 1 }, {
+            query: {
+              programs: this.selectedCourse.program.id,
+              journeys: this.selectedCourse.id,
+              status: "0,1",
+              limit: -1,
+            },
+          }),
+        ]);
+
+        const unlockedBadges = _userBadges.data.map((ub: any) => ({ id: ub.relationships.badge.data[0].id, unlockedAt: new Date(ub.attributes.dates.creation) }));
+        this.selectedCourse.badges = _badges.data.map((b: any) => buildBadgeEntity(b, unlockedBadges.find((ub: any) => ub.id === b.id)?.unlockedAt));
+      }
+      catch (e) {
+        console.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.badges = false;
       }
     },
   },

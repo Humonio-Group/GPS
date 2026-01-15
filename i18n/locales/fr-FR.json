@@ -55,7 +55,9 @@
     },
     "table-of-contents": "Table des matières",
     "duration": "Durée",
-    "workshop-date": "Date de l'événement"
+    "workshop-date": "Date de l'événement",
+    "unlocked-at": "Débloqué le {date} à {time} | Débloquée le {date} à {time}",
+    "locked": "Bloqué | Bloquée"
   },
   "navigation": {
     "home": "Accueil",

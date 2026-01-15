@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { ArrowRight, Award } from "lucide-vue-next";
+import BadgeIcon from "~/components/course/results/badges/elements/BadgeIcon.vue";
+import BadgesDialog from "~/components/course/results/badges/BadgesDialog.vue";
+
+const store = useCoursesStore();
+const { selectedCourse: course, unlockedBadges: badges } = storeToRefs(store);
 </script>
 
 <template>
@@ -10,29 +15,36 @@ import { ArrowRight, Award } from "lucide-vue-next";
         {{ $t("courses.specimen.results.badges.title") }}
       </UiCardTitle>
       <UiCardDescription>
-        {{ $t("courses.specimen.results.badges.description", { course: "Formation à la plateforme Qigu" }) }} <!-- todo: bind program name - loic -->
+        {{ $t("courses.specimen.results.badges.description", { course: course!.name }) }}
       </UiCardDescription>
     </UiCardHeader>
 
-    <UiCardContent>
-      <div class="flex items-center gap-2 flex-wrap">
-        <slot>
-          <span class="text-muted-foreground italic">
-            {{ $t("courses.specimen.results.badges.no-badges") }}
-          </span>
-        </slot>
+    <UiCardContent class="flex items-center gap-2 flex-wrap">
+      <div
+        v-if="!badges.length"
+        class="flex items-center gap-2 flex-wrap"
+      >
+        <p class="text-sm text-muted-foreground italic">
+          {{ $t("courses.specimen.results.badges.no-badges") }}
+        </p>
       </div>
+      <BadgeIcon
+        v-for="badge in badges"
+        :key="`c${course!.id}-b#${badge.id}`"
+        :badge="badge"
+      />
     </UiCardContent>
 
     <UiCardFooter class="justify-end">
-      <UiButton
-        size="sm"
-        variant="link"
-      >
-        {{ $t("courses.specimen.results.badges.all-badges") }}
-        <ArrowRight />
-      </UiButton>
-      <!-- todo: all badges dialog - loic -->
+      <BadgesDialog>
+        <UiButton
+          size="sm"
+          variant="link"
+        >
+          {{ $t("courses.specimen.results.badges.all-badges") }}
+          <ArrowRight />
+        </UiButton>
+      </BadgesDialog>
     </UiCardFooter>
   </UiCard>
 </template>

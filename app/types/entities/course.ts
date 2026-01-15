@@ -1,5 +1,6 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { Actions } from "~/types/entities/action";
+import type { Badges } from "~/types/entities/badge";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -115,4 +116,5 @@ export interface Course {
 export interface RichCourse extends Course {
   stages: Stages;
   actions: Actions;
+  badges: Badges;
 }

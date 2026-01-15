@@ -50,7 +50,7 @@ watch(course, val => useHead({
       </StatCard>
     </StatsGrid>
 
-    <BadgeIntroCard />
+    <BadgeIntroCard v-if="course!.badges.length" />
 
     <CertificationIntroCard />
   </PageRoot>
