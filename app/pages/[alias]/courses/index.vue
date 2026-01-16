@@ -5,12 +5,15 @@ import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 const { t } = useI18n();
 
 const store = useCoursesStore();
-const { courses, loading } = storeToRefs(store);
+const { courses: _courses, loading } = storeToRefs(store);
 const { company } = storeToRefs(useCompanyStore());
 
 useHead({
   title: `${t("courses.home.title")} - ${company.value?.name}`,
 });
+
+const search = ref<string>("");
+const courses = computed(() => _courses.value?.filter(c => c.name.toLowerCase().includes(search.value ?? "")));
 
 store.loadCourses();
 </script>
@@ -32,8 +35,9 @@ store.loadCourses();
           <Search class="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
           <UiInput
             class="pl-8"
+            :model-value="search"
             :placeholder="$t('labels.search')"
-            disabled
+            @update:model-value="search = ($event as string).trim().toLowerCase()"
           />
         </div>
 
