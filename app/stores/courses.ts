@@ -184,22 +184,22 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.coursesList = true;
 
       try {
-        const { data: _courses } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/journeys"), {
-          headers: this.api.headers(),
-          query: this.api.params({
+        const _courses = await this.api.get("/journeys", { version: 2, endpointVersion: 3 }, {
+          query: {
             includeAllActive: "true",
             include: "program",
-          }),
-          credentials: "include",
+            active: 1,
+            companies: storeToRefs(useCompanyStore()).company.value!.id,
+          },
         });
 
         this.courses = [];
-        if (!_courses.value) return;
+        if (!_courses) return;
 
-        const programs = _courses.value.included.filter((e: any) => e.type === "programs");
+        const programs = _courses.included.filter((e: any) => e.type === "programs");
 
         const list: Course[] = [];
-        _courses.value.data
+        _courses.data
           .filter((c: any) => !(this.courses ?? []).map(j => j.id).includes(c.id))
           .forEach((c: any) => {
             const program = programs.find((j: any) => j.id === c.relationships.program.data[0]!.id);
