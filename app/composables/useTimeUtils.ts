@@ -35,8 +35,6 @@ export const useTimeUtils = () => {
     const hours = Math.floor((diff % (60 * 60 * 24)) / (60 * 60));
     const minutes = Math.floor((diff % (60 * 60)) / 60);
 
-    console.log(diff, months, days, hours, minutes);
-
     if (months) return display(months, 0, 0, 0);
     if (days) return display(0, days, 0, 0);
     if (hours) return display(0, 0, hours, 0);
