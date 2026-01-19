@@ -10,8 +10,8 @@ import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
     <UiSidebarProvider>
       <DefaultSidebar />
 
-      <UiSidebarInset class="px-4 md:pl-2">
-        <header class="sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
+      <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh! overflow-y-hidden">
+        <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
           <UiSidebarTrigger />
 
           <!-- todo: breadcrumbs - loic -->
@@ -34,7 +34,7 @@ import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
           </div>
         </header>
 
-        <main class="p-2">
+        <main class="p-2 pt-0 flex-1 flex flex-col max-h-full overflow-y-auto">
           <NuxtPage />
         </main>
       </UiSidebarInset>

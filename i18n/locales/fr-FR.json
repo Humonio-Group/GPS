@@ -15,9 +15,15 @@
     },
     "open": {
       "map": "Ouvrir la carte",
-      "link": "Ouvrir le lien"
+      "link": "Ouvrir le lien",
+      "ticket": "Ouvrir un ticket"
     },
-    "invite": "Inviter"
+    "close": {
+      "default": "Fermer",
+      "ticket": "Fermer le ticket"
+    },
+    "invite": "Inviter",
+    "send": "Envoyer"
   },
   "labels": {
     "miss-you": "Vous nous manquez déjà 😢",
@@ -37,7 +43,10 @@
       "last-update": "Dernière mise à jour le {date}"
     },
     "date-time": {
-      "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}"
+      "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
+      "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
+      "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
+      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}"
     },
     "state": {
       "enabled": "Activé | Activée",
@@ -46,7 +55,13 @@
       "completed": "Complété | Complétée",
       "pending": "En attente",
       "accepted": "Acceptée",
-      "declined": "Declinée"
+      "declined": "Declinée",
+      "closed": "Fermé | Fermée",
+      "opened": "Ouvert | Ouverte",
+      "new": "Nouveau | Nouvelle",
+      "in-progress": "En cours",
+      "reviewable": "Révisable",
+      "resolved": "Résolu | Résolue"
     },
     "languages": {
       "french": "Français"
@@ -107,9 +122,81 @@
       "log-out": "Déconnexion"
     }
   },
+
   "home": {
     "title": "Accueil"
   },
+  "courses": {
+    "home": {
+      "title": "Mes formations",
+      "empty": {
+        "title": "Oh non...",
+        "description": "Vous n'avez aucune formation en cours pour le moment."
+      }
+    },
+    "specimen": {
+      "overview": {
+        "title": "Contenus - {name}",
+        "contents-progress": "{current}/{max} contenus",
+        "stages": {
+          "empty": "Il n'y a aucun contenu dans ce module."
+        }
+      },
+      "people": {
+        "your-manager": "Votre mentor",
+        "coaches": "Coachs",
+        "facilitators": "Facilitateurs",
+        "participants": "Participants",
+        "manager": {
+          "captions": {
+            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les contenus sur {brand}.",
+            "more-results": "Pour donner davantage de visibilité à votre mentor, veuillez cocher la case"
+          },
+          "invite": "Inviter mon mentor",
+          "change": "Changer de mentor",
+          "fields": {
+            "email": "Adresse e-mail du mentor",
+            "results": {
+              "title": "Résultats du contenu",
+              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les contenus sur {brand}."
+            }
+          },
+          "settings": {
+            "share-actions": "Partager les actions",
+            "share-results": "Partager les résultats"
+          }
+        }
+      },
+      "actions": {
+        "title": "Actions - {name}",
+        "empty": {
+          "title": "Oh non...",
+          "description": "Il semblerait qu'il n'y ait aucune action..."
+        },
+        "tasklist": "Liste de tâches",
+        "to-finish-for": "À terminer pour le {date}",
+        "count": "{done} / {total} tâches"
+      },
+      "results": {
+        "title": "Résultats - {name}",
+        "stats": {
+          "time-elapsed": "Temps passé",
+          "progress": "Progression"
+        },
+        "badges": {
+          "title": "Mes badges",
+          "description": "Ci-dessous, l'ensemble des badges que vous avez débloquez en progressant sur \"{course}\".",
+          "all-badges": "Tous les badges",
+          "no-badges": "Vous n'avez encore débloqué aucun badges. Clique sur \"Tous les badges\" pour en voir la liste complète."
+        },
+        "certifications": {
+          "title": "Mes certifications",
+          "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
+        }
+      }
+    }
+  },
+
   "profile": {
     "details": {
       "title": "Mon profile",
@@ -223,74 +310,44 @@
       }
     }
   },
-  "courses": {
-    "home": {
-      "title": "Mes formations",
-      "empty": {
-        "title": "Oh non...",
-        "description": "Vous n'avez aucune formation en cours pour le moment."
+  "support": {
+    "title": "Support",
+    "show-closed-tickets": "Afficher les tickets fermés",
+    "no-tickets": {
+      "title": "Oh non...",
+      "default": "Il semblerait que vous n'ayez aucun tickets ouverts.",
+      "include-closed": "Il semblerait que vous n'ayez aucun tickets.",
+      "with-search": "Il semblerait qu'aucun ticket ne corresponde à votre recherche."
+    },
+    "no-selected": {
+      "title": "Aucun ticket sélectionné",
+      "description": "Sélectionnez un ticket dans la liste pour consulter ses détails."
+    },
+    "create-dialog": {
+      "title": "Nouveau ticket",
+      "description": "Veuillez nous transmettre votre requête en remplissant le formulaire ci-dessous. Nous vous recontacterons dès que possible.",
+      "fields": {
+        "course": "Formation concernée",
+        "category": {
+          "label": "Catégorie"
+        },
+        "subject": "Sujet de la demande",
+        "message": "Détails de la demande"
+      },
+      "contacts": {
+        "dto": "Responsable du traitement des données (DTO)",
+        "dpo": "Responsable de la protection des données (DPO)",
+        "dto-related-question": "Question concernant le traitement des données",
+        "dpo-related-question": "Question concernant la protection des données"
+      },
+      "placeholders": {
+        "subject": "Ex: J'ai une question sur le contenu de la formation"
       }
     },
-    "specimen": {
-      "overview": {
-        "title": "Contenus - {name}",
-        "contents-progress": "{current}/{max} contenus",
-        "stages": {
-          "empty": "Il n'y a aucun contenu dans ce module."
-        }
-      },
-      "people": {
-        "your-manager": "Votre mentor",
-        "coaches": "Coachs",
-        "facilitators": "Facilitateurs",
-        "participants": "Participants",
-        "manager": {
-          "captions": {
-            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les contenus sur {brand}.",
-            "more-results": "Pour donner davantage de visibilité à votre mentor, veuillez cocher la case"
-          },
-          "invite": "Inviter mon mentor",
-          "change": "Changer de mentor",
-          "fields": {
-            "email": "Adresse e-mail du mentor",
-            "results": {
-              "title": "Résultats du contenu",
-              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les contenus sur {brand}."
-            }
-          },
-          "settings": {
-            "share-actions": "Partager les actions",
-            "share-results": "Partager les résultats"
-          }
-        }
-      },
-      "actions": {
-        "title": "Actions - {name}",
-        "empty": {
-          "title": "Oh non...",
-          "description": "Il semblerait qu'il n'y ait aucune action..."
-        },
-        "tasklist": "Liste de tâches",
-        "to-finish-for": "À terminer pour le {date}",
-        "count": "{done} / {total} tâches"
-      },
-      "results": {
-        "title": "Résultats - {name}",
-        "stats": {
-          "time-elapsed": "Temps passé",
-          "progress": "Progression"
-        },
-        "badges": {
-          "title": "Mes badges",
-          "description": "Ci-dessous, l'ensemble des badges que vous avez débloquez en progressant sur \"{course}\".",
-          "all-badges": "Tous les badges",
-          "no-badges": "Vous n'avez encore débloqué aucun badges. Clique sur \"Tous les badges\" pour en voir la liste complète."
-        },
-        "certifications": {
-          "title": "Mes certifications",
-          "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
-        }
-      }
-    }
+    "close-dialog": {
+      "title": "Fermer le ticket #{ticketId}",
+      "description": "Cette action est définitive. Une fois le ticket fermé, aucun commentaire ou précision supplémentaire ne pourra être apporté à celui-ci. Êtes-vous sûr ?"
+    },
+    "text-placeholder": "Écrivez votre commentaire... (Shift+Entrer pour une nouvelle ligne)"
   }
 }

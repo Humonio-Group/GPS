@@ -2,6 +2,11 @@ import type { Nullable } from "~/types/primitives/objects";
 import type { Theme } from "~/types/misc/theme";
 import type { AvailableLocale } from "~/types/misc/language";
 
+export enum UserRole {
+  PARTICIPANT = 6,
+  SUPPORT = 8,
+}
+
 export interface UserName {
   first: string;
   last: string;

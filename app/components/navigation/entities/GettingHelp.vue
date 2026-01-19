@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { CircleHelp, Headphones, LibraryBig, SquareArrowOutUpRight } from "lucide-vue-next";
+
+const { alias } = useWorkspaceUtils();
 </script>
 
 <template>
@@ -18,14 +20,20 @@ import { CircleHelp, Headphones, LibraryBig, SquareArrowOutUpRight } from "lucid
       align="end"
     >
       <UiDropdownMenuGroup>
-        <UiDropdownMenuItem>
+        <UiDropdownMenuItem disabled>
           <CircleHelp />
           {{ $t("navigation.actions.getting-help.help-center") }}
+
+          <UiBadge class="ml-auto shrink-0">
+            W.I.P
+          </UiBadge>
         </UiDropdownMenuItem>
-        <UiDropdownMenuItem>
-          <Headphones />
-          {{ $t("navigation.actions.getting-help.support") }}
-        </UiDropdownMenuItem>
+        <NuxtLinkLocale :to="`/${alias}/support`">
+          <UiDropdownMenuItem>
+            <Headphones />
+            {{ $t("navigation.actions.getting-help.support") }}
+          </UiDropdownMenuItem>
+        </NuxtLinkLocale>
       </UiDropdownMenuGroup>
 
       <UiDropdownMenuSeparator />
