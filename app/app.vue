@@ -4,11 +4,15 @@ import { Toaster } from "~/components/ui/sonner";
 import type { Theme } from "~/types/misc/theme";
 
 const theme = computed((): Theme => useColorMode().preference as Theme);
+
+useFancyLeaveTitle();
 </script>
 
 <template>
   <div>
     <NuxtRouteAnnouncer />
+    <NuxtLoadingIndicator />
+
     <NuxtLayout />
 
     <ClientOnly>

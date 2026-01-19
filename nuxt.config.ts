@@ -10,7 +10,9 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxtjs/google-fonts",
     "@pinia/nuxt",
+    "@nuxt/scripts",
   ],
+  ssr: false,
   devtools: { enabled: true },
   css: ["./tailwind.css"],
   colorMode: {
@@ -18,6 +20,22 @@ export default defineNuxtConfig({
     classSuffix: "",
     preference: "system",
     fallback: "light",
+  },
+  runtimeConfig: {
+    public: {
+      brand: {
+        name: "",
+      },
+      api: {
+        1: "",
+        2: "",
+        key: "",
+      },
+      platform: "",
+      urls: {
+        auth: "",
+      },
+    },
   },
   compatibilityDate: "2025-07-15",
   vite: {

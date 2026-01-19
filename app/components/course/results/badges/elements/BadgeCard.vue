@@ -1,0 +1,78 @@
+<script setup lang="ts">
+import type { Badge } from "~/types/entities/badge";
+import { Check } from "lucide-vue-next";
+
+interface BadgeCardProps {
+  badge: Badge;
+}
+
+defineProps<BadgeCardProps>();
+
+const { formatDate } = useDateUtils();
+const { formatTime } = useTimeUtils();
+</script>
+
+<template>
+  <UiPopover>
+    <UiPopoverTrigger as-child>
+      <UiCard class="p-4 gap-3 flex-row cursor-pointer *:select-none">
+        <UiAvatar
+          class="size-10 @sm/badges-dialog:size-12 rounded-md bg-accent"
+          :class="{ 'bg-primary': badge.unlockedAt }"
+        >
+          <UiAvatarImage
+            v-if="badge.picture"
+            :src="badge.picture"
+            :class="{ 'grayscale-100': !badge.unlockedAt }"
+          />
+          <UiAvatarFallback>{{ badge.name.substring(0, 2) }}</UiAvatarFallback>
+        </UiAvatar>
+
+        <UiCardHeader class="px-0 flex flex-col flex-1">
+          <UiCardTitle class="truncate max-w-full">
+            {{ badge.name }}
+          </UiCardTitle>
+          <UiCardDescription
+            v-if="badge.description?.length"
+            class="line-clamp-3 whitespace-pre-line"
+          >
+            {{ badge.description }}
+          </UiCardDescription>
+        </UiCardHeader>
+      </UiCard>
+    </UiPopoverTrigger>
+    <UiPopoverContent class="grid gap-3">
+      <div class="space-y-1">
+        <span
+          v-if="badge.unlockedAt"
+          class="text-sm text-muted-foreground"
+        >
+          {{ $t("labels.unlocked-at", 1, {
+            named: {
+              date: formatDate("medium")(badge.unlockedAt),
+              time: formatTime("short")(badge.unlockedAt),
+            },
+          }) }}
+        </span>
+
+        <p v-if="badge.description?.length">
+          {{ badge.description }}
+        </p>
+      </div>
+
+      <UiSeparator />
+
+      <ul>
+        <li
+          v-for="(condition, index) in badge.conditions"
+          :key="`b${badge.id}-c#${index}`"
+          class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+          :class="{ '[&_>svg]:text-primary!': badge.unlockedAt }"
+        >
+          <component :is="badge.unlockedAt ? Check : condition.icon" />
+          <p>{{ condition.label }}</p>
+        </li>
+      </ul>
+    </UiPopoverContent>
+  </UiPopover>
+</template>

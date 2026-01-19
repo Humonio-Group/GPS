@@ -1,1 +1,353 @@
-{}
+{
+  "btn": {
+    "back": "Retour",
+    "next-content": "Contenu suivant",
+    "previous-content": "Contenu précédent",
+    "see-my-results": "Voir mes résultats",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "add": {
+      "default": "Ajouter"
+    },
+    "create": {
+      "default": "Créer",
+      "action": "Créer une action"
+    },
+    "open": {
+      "map": "Ouvrir la carte",
+      "link": "Ouvrir le lien",
+      "ticket": "Ouvrir un ticket"
+    },
+    "close": {
+      "default": "Fermer",
+      "ticket": "Fermer le ticket"
+    },
+    "invite": "Inviter",
+    "send": "Envoyer"
+  },
+  "labels": {
+    "miss-you": "Vous nous manquez déjà 😢",
+    "time": {
+      "long": {
+        "months": "{value} mois | {value} mois",
+        "days": "{value} jour | {value} jours",
+        "hours": "{value} heure | {value} heures",
+        "minutes": "{value} minute | {value} minutes"
+      },
+      "short": {
+        "months": "{value}m",
+        "days": "{value}j",
+        "hours": "{value}h",
+        "minutes": "{value}min"
+      },
+      "last-update": "Dernière mise à jour le {date}"
+    },
+    "date-time": {
+      "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
+      "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
+      "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
+      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}"
+    },
+    "state": {
+      "enabled": "Activé | Activée",
+      "disabled": "Désactivé | Désactivée",
+      "late": "En retard",
+      "completed": "Complété | Complétée",
+      "pending": "En attente",
+      "accepted": "Acceptée",
+      "declined": "Declinée",
+      "closed": "Fermé | Fermée",
+      "opened": "Ouvert | Ouverte",
+      "new": "Nouveau | Nouvelle",
+      "in-progress": "En cours",
+      "reviewable": "Révisable",
+      "resolved": "Résolu | Résolue"
+    },
+    "languages": {
+      "french": "Français"
+    },
+    "ends-in": "Fin dans {time}",
+    "now": "Maintenant",
+    "search": "Rechercher...",
+    "video": {
+      "unsupported": {
+        "title": "Oh non...",
+        "description": "Ce fournisseur vidéo n'est pas supporté."
+      }
+    },
+    "table-of-contents": "Table des matières",
+    "duration": "Durée",
+    "workshop-date": "Date de l'événement",
+    "unlocked-at": "Débloqué le {date} à {time} | Débloquée le {date} à {time}",
+    "locked": "Bloqué | Bloquée",
+    "placeholder": {
+      "search": "Rechercher...",
+      "generic": {
+        "email": "Ex: john.doe.at.example.xyz"
+      }
+    },
+    "form-errors": {
+      "email": {
+        "required": "Adresse e-mail requise.",
+        "invalid": "Adresse e-mail invalide.",
+        "other-than-yours": "Utilisez une autre adresse e-mail que la votre."
+      }
+    }
+  },
+  "navigation": {
+    "home": "Accueil",
+    "my-courses": "Mes formations",
+    "course": {
+      "overview": "Vue d'ensemble",
+      "peoples": "Personnes",
+      "actions": "Actions",
+      "results": "Résultats"
+    },
+    "actions": {
+      "notifications": "Notifications",
+      "getting-help": {
+        "help-center": "Centre d'aide",
+        "support": "Support",
+        "ai": {
+          "label": "Intelligence Artificielle",
+          "intelligence": "Humonio Intelligence",
+          "ai-assistant": "Qigu AI Assistant"
+        },
+        "other-resources": "Autres ressources"
+      }
+    },
+    "user-menu": {
+      "profile": "Mon profil",
+      "settings": "Paramètres",
+      "log-out": "Déconnexion"
+    }
+  },
+
+  "home": {
+    "title": "Accueil"
+  },
+  "courses": {
+    "home": {
+      "title": "Mes formations",
+      "empty": {
+        "title": "Oh non...",
+        "description": "Vous n'avez aucune formation en cours pour le moment."
+      }
+    },
+    "specimen": {
+      "overview": {
+        "title": "Contenus - {name}",
+        "contents-progress": "{current}/{max} contenus",
+        "stages": {
+          "empty": "Il n'y a aucun contenu dans ce module."
+        }
+      },
+      "people": {
+        "your-manager": "Votre mentor",
+        "coaches": "Coachs",
+        "facilitators": "Facilitateurs",
+        "participants": "Participants",
+        "manager": {
+          "captions": {
+            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les contenus sur {brand}.",
+            "more-results": "Pour donner davantage de visibilité à votre mentor, veuillez cocher la case"
+          },
+          "invite": "Inviter mon mentor",
+          "change": "Changer de mentor",
+          "fields": {
+            "email": "Adresse e-mail du mentor",
+            "results": {
+              "title": "Résultats du contenu",
+              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les contenus sur {brand}."
+            }
+          },
+          "settings": {
+            "share-actions": "Partager les actions",
+            "share-results": "Partager les résultats"
+          }
+        }
+      },
+      "actions": {
+        "title": "Actions - {name}",
+        "empty": {
+          "title": "Oh non...",
+          "description": "Il semblerait qu'il n'y ait aucune action..."
+        },
+        "tasklist": "Liste de tâches",
+        "to-finish-for": "À terminer pour le {date}",
+        "count": "{done} / {total} tâches"
+      },
+      "results": {
+        "title": "Résultats - {name}",
+        "stats": {
+          "time-elapsed": "Temps passé",
+          "progress": "Progression"
+        },
+        "badges": {
+          "title": "Mes badges",
+          "description": "Ci-dessous, l'ensemble des badges que vous avez débloquez en progressant sur \"{course}\".",
+          "all-badges": "Tous les badges",
+          "no-badges": "Vous n'avez encore débloqué aucun badges. Clique sur \"Tous les badges\" pour en voir la liste complète."
+        },
+        "certifications": {
+          "title": "Mes certifications",
+          "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
+        }
+      }
+    }
+  },
+
+  "profile": {
+    "details": {
+      "title": "Mon profile",
+      "first-name": "Prénom",
+      "last-name": "Nom",
+      "email": "Adresse e-mail",
+      "phone": "Numéro de téléphone",
+      "linked-in": "LinkedIn",
+      "created-at": "Compte créé le {date}"
+    },
+    "settings": {
+      "title": "Paramètres",
+      "account": {
+        "avatar": {
+          "change": "Changer"
+        },
+        "fields": {
+          "first-name": "Prénom",
+          "last-name": "Nom",
+          "email": "Adresse e-mail",
+          "phone": "Numéro de téléphone",
+          "linked-in": "Profil LinkedIn",
+          "avatar": "Avatar"
+        },
+        "placeholders": {
+          "first-name": "John",
+          "last-name": "DOE",
+          "email": "",
+          "phone": "",
+          "linkedin": "https://linkedin.com/in/john.doe"
+        }
+      },
+      "interface": {
+        "title": "Interface",
+        "main-language": {
+          "name": "Langue de l'interface",
+          "description": "Sélectionnez la langue dans laquelle vous souhaitez utiliser la plateforme. Celle-ci sera la langue sélectionnée par défaut pour la lecture des contenus."
+        },
+        "theme": {
+          "name": "Thème général",
+          "description": "Sélectionnez le thème d'affichage de l'interface. Celui-ci sera synchronisé sur tous les appareils connecté à ce compte.",
+          "options": {
+            "system": "Automatique",
+            "light": "Clair",
+            "dark": "Sombre"
+          }
+        },
+        "content-languages": {
+          "title": "Langues des contenus",
+          "coming-soon": "À venir..."
+        }
+      },
+      "notifications": {
+        "title": "Notifications",
+        "course": {
+          "title": "Notifications de formation",
+          "description": "Sélectionnez comment vous souhaitez recevoir les mises à jour de vos formations. Désactiver les notifications par e-mail pour la formation n'affectera pas la réception d'autres alertes système importantes par e-mail. Ajustez vos paramètres pour rester informé de la manière qui vous convient le mieux !",
+          "options": {
+            "app-only": {
+              "name": "Uniquement dans l'application",
+              "description": "Ne recevez des notifications QUE dans l'application web, sur la page \"Notifications\"."
+            },
+            "web-and-app": {
+              "name": "Navigateur et Application mobile",
+              "description": "Recevez les notifications à la fois sur votre navigateur web et sur l'application mobile."
+            },
+            "web-and-emails": {
+              "name": "Navigateur et E-mails",
+              "description": "Recevez les notifications à la fois sur votre navigateur web et dans votre boîte mail."
+            },
+            "all-channels": {
+              "name": "Tous les canaux",
+              "description": "Optez pour des notifications sur tous les canaux : sur le navigateur web, par e-mails et sur l'application mobile."
+            },
+            "auto": {
+              "name": "Automatique",
+              "description": "Nous enverrons automatiquement des notifications à votre navigateur, à l'application si vous l'avez installée ou, à defaut, par e-mail."
+            }
+          }
+        },
+        "activity-summary": {
+          "title": "Notifications de résumé d'activité",
+          "description": "Suivez-vos progrès sans effort ! Déterminez la fréquence de vos résumés d'activité. Ces mises à jour vous seront envoyées par e-mail en toute simplicité.",
+          "options": {
+            "daily": {
+              "name": "Quotidien",
+              "description": "Recevez un rapport d'activité quotidien."
+            },
+            "weekly": {
+              "name": "Hebdomadaire",
+              "description": "Recevez un rapport d'activité hebdomadaire."
+            },
+            "monthly": {
+              "name": "Mensuel",
+              "description": "Recevez un rapport d'activité mensuel."
+            }
+          }
+        }
+      },
+      "terms": {
+        "title": "Conditions générales",
+        "actions": {
+          "read": "Lire le document",
+          "revoke": "Révoquer l'accord"
+        },
+        "confirm-dialog": {
+          "title": "Révoquer l'accès ?",
+          "description": "En révoquant cette accord, votre accès à la plateforme sera suspendue. Il faudra accepter ces conditions une nouvelle fois afin de récupérer votre accès à la plateforme. Êtes-vous sûr ?",
+          "action": "Révoquer"
+        }
+      }
+    }
+  },
+  "support": {
+    "title": "Support",
+    "show-closed-tickets": "Afficher les tickets fermés",
+    "no-tickets": {
+      "title": "Oh non...",
+      "default": "Il semblerait que vous n'ayez aucun tickets ouverts.",
+      "include-closed": "Il semblerait que vous n'ayez aucun tickets.",
+      "with-search": "Il semblerait qu'aucun ticket ne corresponde à votre recherche."
+    },
+    "no-selected": {
+      "title": "Aucun ticket sélectionné",
+      "description": "Sélectionnez un ticket dans la liste pour consulter ses détails."
+    },
+    "create-dialog": {
+      "title": "Nouveau ticket",
+      "description": "Veuillez nous transmettre votre requête en remplissant le formulaire ci-dessous. Nous vous recontacterons dès que possible.",
+      "fields": {
+        "course": "Formation concernée",
+        "category": {
+          "label": "Catégorie"
+        },
+        "subject": "Sujet de la demande",
+        "message": "Détails de la demande"
+      },
+      "contacts": {
+        "dto": "Responsable du traitement des données (DTO)",
+        "dpo": "Responsable de la protection des données (DPO)",
+        "dto-related-question": "Question concernant le traitement des données",
+        "dpo-related-question": "Question concernant la protection des données"
+      },
+      "placeholders": {
+        "subject": "Ex: J'ai une question sur le contenu de la formation"
+      }
+    },
+    "close-dialog": {
+      "title": "Fermer le ticket #{ticketId}",
+      "description": "Cette action est définitive. Une fois le ticket fermé, aucun commentaire ou précision supplémentaire ne pourra être apporté à celui-ci. Êtes-vous sûr ?"
+    },
+    "text-placeholder": "Écrivez votre commentaire... (Shift+Entrer pour une nouvelle ligne)"
+  }
+}
