@@ -1,7 +1,8 @@
 export const useWorkspaceUtils = () => {
-  const alias = computed(() => useRoute().params.alias as string | undefined);
+  const store = useCompanyStore();
+  const { company } = storeToRefs(store);
 
   return {
-    alias,
+    alias: computed(() => company.value?.alias ?? null),
   };
 };

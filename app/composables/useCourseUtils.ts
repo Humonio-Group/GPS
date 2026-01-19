@@ -1,7 +1,8 @@
 export const useCourseUtils = () => {
-  const id = computed(() => useRoute().params.courseId as string | undefined);
+  const store = useCoursesStore();
+  const { selectedCourse: course } = storeToRefs(store);
 
   return {
-    id,
+    id: computed(() => course.value?.id ?? null),
   };
 };
