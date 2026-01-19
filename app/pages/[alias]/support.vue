@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
-import { Menu, MoreVertical, X } from "lucide-vue-next";
+import { Menu } from "lucide-vue-next";
 import TicketsNavigation from "~/components/support/TicketsNavigation.vue";
 import { TicketStatus } from "~/types/entities/ticket";
 import TicketActions from "~/components/support/elements/TicketActions.vue";
