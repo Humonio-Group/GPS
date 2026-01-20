@@ -23,7 +23,11 @@
       "ticket": "Fermer le ticket"
     },
     "invite": "Inviter",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "load": {
+      "default": "Charger",
+      "following": "Charger la suite"
+    }
   },
   "labels": {
     "miss-you": "Vous nous manquez déjà 😢",
@@ -92,6 +96,11 @@
         "invalid": "Adresse e-mail invalide.",
         "other-than-yours": "Utilisez une autre adresse e-mail que la votre."
       }
+    },
+    "notification": {
+      "new-content": "Nouveau contenu disponible : {name}",
+      "badge-awarded": "Nouveau badge débloqué : {name}",
+      "custom-message": "Nouvelle notification."
     }
   },
   "navigation": {
@@ -349,5 +358,12 @@
       "description": "Cette action est définitive. Une fois le ticket fermé, aucun commentaire ou précision supplémentaire ne pourra être apporté à celui-ci. Êtes-vous sûr ?"
     },
     "text-placeholder": "Écrivez votre commentaire... (Shift+Entrer pour une nouvelle ligne)"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "empty": {
+      "title": "Oh non...",
+      "description": "Il semblerait que vous n'ayez aucune notification."
+    }
   }
 }
