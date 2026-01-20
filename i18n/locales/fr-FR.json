@@ -27,9 +27,19 @@
     "load": {
       "default": "Charger",
       "following": "Charger la suite"
+    },
+    "action": {
+      "rename": "Renommer",
+      "archive": "Archiver",
+      "restore": "Restaurer",
+      "delete": "Supprimer"
+    },
+    "copy": {
+      "default": "Copier"
     }
   },
   "labels": {
+    "copied": "Copié | Copiée",
     "miss-you": "Vous nous manquez déjà 😢",
     "time": {
       "long": {
@@ -364,6 +374,17 @@
     "empty": {
       "title": "Oh non...",
       "description": "Il semblerait que vous n'ayez aucune notification."
+    }
+  },
+
+  "companion": {
+    "intro": {
+      "greetings": [
+        "Bonjour {name}, comment puis-je t'aider aujourd'hui ?",
+        "Hey {name}, comment puis-je t'être utile ?",
+        "Holà! Comment puis-je t'aider aujourd'hui, {name} ?"
+      ],
+      "ask-question": "Posez-moi votre question (Shift+Entrer pour une nouvelle ligne)"
     }
   }
 }
