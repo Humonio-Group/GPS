@@ -1,3 +1,6 @@
+import { formatDistanceToNow } from "date-fns";
+import { fr } from "date-fns/locale";
+
 interface ExplodedDate {
   day: number;
   month: number;
@@ -18,7 +21,7 @@ interface ExplodedDate {
 }
 
 export const useDateUtils = () => {
-  const locale = useNuxtApp().$i18n.locale;
+  const { locale } = useNuxtApp().$i18n;
 
   const explode = (date: Date): ExplodedDate => {
     const day = date.getDate();
@@ -62,11 +65,21 @@ export const useDateUtils = () => {
   const isBefore = (value: Date, compare: Date = new Date()) => value.getTime() < compare.getTime();
   const isAfter = (value: Date, compare: Date = new Date()) => value.getTime() > compare.getTime();
 
+  const relativeDate = (date: Date | string | number): string => {
+    const dateLocale = () => {
+      switch (locale.value) {
+        default: return fr;
+      }
+    };
+    return formatDistanceToNow(new Date(date), { locale: dateLocale(), addSuffix: true });
+  };
+
   return {
     explode,
     sameDate,
     formatDate,
     isBefore,
     isAfter,
+    relativeDate,
   };
 };

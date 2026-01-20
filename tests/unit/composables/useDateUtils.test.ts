@@ -211,6 +211,158 @@ describe("useDateUtils", () => {
     });
   });
 
+  describe("relativeDate", () => {
+    it("should return time format for today", () => {
+      const now = new Date();
+      now.setHours(14, 30, 0, 0);
+
+      const result = dateUtils.relativeDate(now);
+
+      expect(result).toBe("14:30");
+    });
+
+    it("should pad hours and minutes with zeros", () => {
+      const now = new Date();
+      now.setHours(9, 5, 0, 0);
+
+      const result = dateUtils.relativeDate(now);
+
+      expect(result).toBe("09:05");
+    });
+
+    it("should return 'Yesterday' for yesterday", () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const result = dateUtils.relativeDate(yesterday);
+
+      expect(result).toBe("Yesterday");
+    });
+
+    it("should return 'Few days ago' for 2-6 days ago", () => {
+      const threeDaysAgo = new Date();
+      threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+      const result = dateUtils.relativeDate(threeDaysAgo);
+
+      expect(result).toBe("Few days ago");
+    });
+
+    it("should return '1 week ago' for 7-13 days ago", () => {
+      const tenDaysAgo = new Date();
+      tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
+
+      const result = dateUtils.relativeDate(tenDaysAgo);
+
+      expect(result).toBe("1 week ago");
+    });
+
+    it("should return '2 weeks ago' for 14-20 days ago", () => {
+      const fifteenDaysAgo = new Date();
+      fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
+
+      const result = dateUtils.relativeDate(fifteenDaysAgo);
+
+      expect(result).toBe("2 weeks ago");
+    });
+
+    it("should return '3 weeks ago' for 21-27 days ago", () => {
+      const twentyTwoDaysAgo = new Date();
+      twentyTwoDaysAgo.setDate(twentyTwoDaysAgo.getDate() - 22);
+
+      const result = dateUtils.relativeDate(twentyTwoDaysAgo);
+
+      expect(result).toBe("3 weeks ago");
+    });
+
+    it("should return '4 weeks ago' for 28-29 days ago", () => {
+      const twentyNineDaysAgo = new Date();
+      twentyNineDaysAgo.setDate(twentyNineDaysAgo.getDate() - 29);
+
+      const result = dateUtils.relativeDate(twentyNineDaysAgo);
+
+      expect(result).toBe("4 weeks ago");
+    });
+
+    it("should return 'Last month' for 30-59 days ago", () => {
+      const fortyDaysAgo = new Date();
+      fortyDaysAgo.setDate(fortyDaysAgo.getDate() - 40);
+
+      const result = dateUtils.relativeDate(fortyDaysAgo);
+
+      expect(result).toBe("Last month");
+    });
+
+    it("should return formatted date for dates older than 60 days", () => {
+      const oldDate = new Date();
+      oldDate.setDate(oldDate.getDate() - 90);
+
+      const result = dateUtils.relativeDate(oldDate);
+
+      // Should return a formatted date string (not one of the relative strings)
+      expect(result).not.toBe("Yesterday");
+      expect(result).not.toBe("Few days ago");
+      expect(result).not.toBe("Last week");
+      expect(result).not.toBe("Last month");
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it("should accept string date input", () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const result = dateUtils.relativeDate(yesterday.toISOString());
+
+      expect(result).toBe("Yesterday");
+    });
+
+    it("should accept timestamp input", () => {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+
+      const result = dateUtils.relativeDate(yesterday.getTime());
+
+      expect(result).toBe("Yesterday");
+    });
+
+    it("should handle edge case at boundary of today/yesterday", () => {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      // Just into today
+      const result1 = dateUtils.relativeDate(new Date(startOfToday.getTime() + 1000));
+      expect(result1).toMatch(/^\d{2}:\d{2}$/);
+
+      // Just before today (yesterday)
+      const result2 = dateUtils.relativeDate(new Date(startOfToday.getTime() - 1000));
+      expect(result2).toBe("Yesterday");
+    });
+
+    it("should handle 6 days ago as 'Few days ago'", () => {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const sixDaysAgo = new Date(startOfToday);
+      sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
+
+      const result = dateUtils.relativeDate(sixDaysAgo);
+
+      expect(result).toBe("Few days ago");
+    });
+
+    it("should handle 29 days ago as '4 weeks ago'", () => {
+      const now = new Date();
+      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      const twentyNineDaysAgo = new Date(startOfToday);
+      twentyNineDaysAgo.setDate(twentyNineDaysAgo.getDate() - 29);
+
+      const result = dateUtils.relativeDate(twentyNineDaysAgo);
+
+      expect(result).toBe("4 weeks ago");
+    });
+  });
+
   describe("edge cases", () => {
     it("should handle leap year dates", () => {
       const leapDay = new Date("2024-02-29");
