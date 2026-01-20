@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import { Bell } from "lucide-vue-next";
+import { Bell, BellDot } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import DefaultSidebar from "~/components/navigation/DefaultSidebar.vue";
 import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
+
+const { alias } = useWorkspaceUtils();
+
+const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificationStore());
 </script>
 
 <template>
@@ -22,8 +26,13 @@ import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
                 <UiButton
                   size="icon-sm"
                   variant="ghost"
+                  as-child
                 >
-                  <Bell />
+                  <NuxtLinkLocale :to="`/${alias}/notifications`">
+                    <UiSpinner v-if="!notifications.length && loading.list" />
+                    <BellDot v-else-if="hasNewNotifications" />
+                    <Bell v-else />
+                  </NuxtLinkLocale>
                 </UiButton>
               </UiTooltipTrigger>
               <UiTooltipContent>
