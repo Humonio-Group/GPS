@@ -103,17 +103,17 @@ describe("useNotificationStore", () => {
         { version: 2, endpointVersion: 1 },
         {
           query: {
-            types: 2,
-            hasEventName: 1,
-            sort: "-date_creation",
-            include: "sender,relatedEntity,activityUser,activityUser.journeyStage,recipientJourney,recipientJourney.program",
+            "types": 2,
+            "hasEventName": 1,
+            "sort": "-date_creation",
+            "include": "sender,relatedEntity,activityUser,activityUser.journeyStage,recipientJourney,recipientJourney.program",
             "fields[users]": "name,picture",
             "fields[journeys]": "",
             "fields[stages]": "",
             "fields[activityUsers]": "display,design,specific",
             "fields[programs]": "name",
-            limit: 25,
-            offset: 0,
+            "limit": 25,
+            "offset": 0,
           },
         },
       );
@@ -142,7 +142,8 @@ describe("useNotificationStore", () => {
         expect(badgeNotif.from.email).toBe("system@example.com");
         expect(badgeNotif.data.type).toBe("badges");
         expect(badgeNotif.dates.createdAt).toBeInstanceOf(Date);
-      } else {
+      }
+      else {
         // If no valid notification, just check that store was called
         expect(store.notifications.length).toBeGreaterThanOrEqual(0);
       }
@@ -158,7 +159,8 @@ describe("useNotificationStore", () => {
         expect(contentNotif.event).toBe(EventName.CONTENT_ACTIVATED);
         expect(contentNotif.title).toContain("Introduction à Vue.js");
         expect(contentNotif.data.type).toBe("activityUsers");
-      } else {
+      }
+      else {
         // If no valid notification, just check that store was called
         expect(store.notifications.length).toBeGreaterThanOrEqual(0);
       }
@@ -281,7 +283,8 @@ describe("useNotificationStore", () => {
         if (notification.dates.viewedAt) {
           expect(notification.dates.viewedAt).toBeInstanceOf(Date);
         }
-      } else {
+      }
+      else {
         // If no valid notifications, just pass
         expect(true).toBe(true);
       }

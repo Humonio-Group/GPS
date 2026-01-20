@@ -6,7 +6,7 @@ import { EventName } from "~/types/entities/notification";
 
 // Mock dependencies
 const mockAlias = { value: "test-workspace" };
-const mockRelativeDate = vi.fn((date: Date) => "2 days ago");
+const mockRelativeDate = vi.fn((_: Date) => "2 days ago");
 const mockNavigateTo = vi.fn();
 const mockUseLocalePath = vi.fn(() => (path: string) => path);
 
@@ -33,7 +33,7 @@ describe("NotificationLine", () => {
     mockRelativeDate.mockClear();
   });
 
-  const defaultGlobalStubs = {
+  /* const defaultGlobalStubs = {
     UiAvatar: true,
     UiAvatarImage: true,
     UiAvatarFallback: true,
@@ -49,7 +49,7 @@ describe("NotificationLine", () => {
 
   const defaultGlobalMocks = {
     $t: (key: string) => key,
-  };
+  }; */
 
   it("should render notification title", () => {
     const wrapper = mount(NotificationLine, {

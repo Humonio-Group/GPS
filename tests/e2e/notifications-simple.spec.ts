@@ -42,7 +42,8 @@ test.describe("Notifications - Critical Flows", () => {
     // Give it time to render (empty state might take a moment)
     try {
       await expect(emptyState.first()).toBeVisible({ timeout: 10000 });
-    } catch {
+    }
+    catch {
       // If no explicit empty state, that's okay - just verify page loaded
       await expect(page.locator("body")).toBeVisible();
     }
