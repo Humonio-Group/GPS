@@ -34,11 +34,14 @@
       "restore": "Restaurer",
       "delete": "Supprimer"
     },
+    "switch-role": "Changer de rôle",
     "copy": {
       "default": "Copier"
     }
   },
   "labels": {
+    "other-workspaces": "Autres espaces de travail",
+    "other-products": "Autres produits",
     "copied": "Copié | Copiée",
     "miss-you": "Vous nous manquez déjà 😢",
     "time": {
@@ -139,6 +142,25 @@
       "profile": "Mon profil",
       "settings": "Paramètres",
       "log-out": "Déconnexion"
+    }
+  },
+
+  "auth": {
+    "login-title": "Connexion",
+    "fields": {
+      "email": "Adresse e-mail",
+      "password": "Mot de passe",
+      "remember-me": "Se souvenir de moi"
+    },
+    "action": "Me connecter",
+    "roles": {
+      "developer": "Développeur",
+      "analyst": "Analyste",
+      "facilitator": "Facilitateur",
+      "participant": "Participant",
+      "coach": "Coach",
+      "manager": "Mentor",
+      "creator": "Créateur"
     }
   },
 

@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ChevronsUpDown } from "lucide-vue-next";
+import { ArrowRightLeft, ChevronsUpDown, Presentation, ChartLine, Users, User, ListTree, Toolbox, Binary, Play, ListChecks, Form, Airplay } from "lucide-vue-next";
 import { useSidebar } from "~/components/ui/sidebar";
+import { UserRole } from "~/types/entities/user";
 
 const { isMobile } = useSidebar();
 const { company } = storeToRefs(useCompanyStore());
-const { availableCompanies } = storeToRefs(useUserStore());
+const { availableCompanies, activeRoles } = storeToRefs(useUserStore());
+const platform = usePlatform();
 
 const companies = computed(() => availableCompanies.value.filter(c => c.alias !== company.value?.alias));
 </script>
@@ -40,25 +42,231 @@ const companies = computed(() => availableCompanies.value.filter(c => c.alias !=
       </UiSidebarMenuItem>
 
       <UiDropdownMenuContent
-        class="max-h-48 overflow-y-auto"
+        class="overflow-y-auto"
         :side="isMobile ? 'bottom' : 'right'"
         :align="isMobile ? 'center' : 'start'"
       >
-        <UiDropdownMenuItem
-          v-for="comp in companies"
-          :key="comp.alias"
-          as-child
-        >
-          <NuxtLinkLocale :to="`/${comp.alias}`">
-            <UiAvatar class="size-6 rounded-sm">
-              <UiAvatarImage :src="comp.icon" />
-              <UiAvatarFallback class="text-xs bg-sidebar-accent text-sidebar-accent-foreground">
-                {{ comp.name.substring(0, 2) }}
-              </UiAvatarFallback>
-            </UiAvatar>
-            {{ comp.name }}
-          </NuxtLinkLocale>
-        </UiDropdownMenuItem>
+        <UiDropdownMenuGroup class="flex items-center gap-2 p-1">
+          <UiAvatar class="rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
+            <UiAvatarImage
+              v-if="company!.icon"
+              :src="company!.icon"
+            />
+            <UiAvatarFallback>{{ company!.name.substring(0, 2) }}</UiAvatarFallback>
+          </UiAvatar>
+
+          <div class="grid">
+            <p class="text-sm font-semibold">
+              {{ company!.name }}
+            </p>
+            <span class="text-xs text-muted-foreground">Gratuit</span> <!-- todo: bind plan - loic -->
+          </div>
+        </UiDropdownMenuGroup>
+
+        <template v-if="activeRoles.length > 1">
+          <UiDropdownMenuGroup>
+            <UiDropdownMenuSub>
+              <UiDropdownMenuSubTrigger>
+                <ArrowRightLeft />
+                {{ $t("btn.switch-role") }}
+              </UiDropdownMenuSubTrigger>
+              <UiDropdownMenuPortal>
+                <UiDropdownMenuSubContent>
+                  <!-- todo: add develop - loic -->
+                  <NuxtLink
+                    v-if="false"
+                    :to="platform.develop(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Binary />
+                      {{ $t("auth.roles.developer") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="useGrantAccess([UserRole.ANALYST])"
+                    :to="platform.execute(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <ChartLine />
+                      {{ $t("auth.roles.analyst") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="useGrantAccess([UserRole.FACILITATOR])"
+                    :to="platform.facilitate(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Presentation />
+                      {{ $t("auth.roles.facilitator") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="useGrantAccess([UserRole.COACH])"
+                    :to="platform.coach(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Users />
+                      {{ $t("auth.roles.coach") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="useGrantAccess([UserRole.MANAGER])"
+                    :to="platform.manage(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <ListTree />
+                      {{ $t("auth.roles.manager") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="useGrantAccess([UserRole.ADMIN, UserRole.SUPPORT, UserRole.CREATOR])"
+                    :to="platform.coordinator(company!)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Toolbox />
+                      {{ $t("auth.roles.creator") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                </UiDropdownMenuSubContent>
+              </UiDropdownMenuPortal>
+            </UiDropdownMenuSub>
+          </UiDropdownMenuGroup>
+        </template>
+
+        <template v-if="company!.drive">
+          <UiDropdownMenuSeparator />
+
+          <UiDropdownMenuGroup>
+            <UiDropdownMenuLabel>
+              {{ $t("labels.other-products") }}
+            </UiDropdownMenuLabel>
+
+            <UiDropdownMenuItem>
+              <Play />
+              Qigu Play
+            </UiDropdownMenuItem>
+            <UiDropdownMenuItem>
+              <ListChecks />
+              Qigu Check
+            </UiDropdownMenuItem>
+            <UiDropdownMenuItem>
+              <Form />
+              Qigu Rate
+            </UiDropdownMenuItem>
+            <UiDropdownMenuItem>
+              <Airplay />
+              Qigu Meet
+            </UiDropdownMenuItem>
+          </UiDropdownMenuGroup>
+        </template>
+
+        <template v-if="companies.length">
+          <UiDropdownMenuSeparator />
+
+          <UiDropdownMenuGroup>
+            <UiDropdownMenuLabel>
+              {{ $t("labels.other-workspaces") }}
+            </UiDropdownMenuLabel>
+            <UiDropdownMenuSub
+              v-for="comp in companies"
+              :key="comp.alias"
+            >
+              <UiDropdownMenuSubTrigger>
+                <UiAvatar class="size-6 rounded-sm">
+                  <UiAvatarImage
+                    v-if="comp.icon"
+                    :src="comp.icon"
+                  />
+                  <UiAvatarFallback class="text-xs bg-sidebar-accent text-sidebar-accent-foreground">
+                    {{ comp.name.substring(0, 2) }}
+                  </UiAvatarFallback>
+                </UiAvatar>
+                {{ comp.name }}
+              </UiDropdownMenuSubTrigger>
+
+              <UiDropdownMenuPortal>
+                <UiDropdownMenuSubContent>
+                  <!-- todo: add develop - loic -->
+                  <NuxtLink
+                    v-if="false"
+                    :to="platform.develop(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Binary />
+                      {{ $t("auth.roles.developer") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="comp.roles.includes(UserRole.ANALYST)"
+                    :to="platform.execute(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <ChartLine />
+                      {{ $t("auth.roles.analyst") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="comp.roles.includes(UserRole.FACILITATOR)"
+                    :to="platform.facilitate(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Presentation />
+                      {{ $t("auth.roles.facilitator") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLinkLocale
+                    v-if="comp.roles.includes(UserRole.PARTICIPANT)"
+                    :to="platform.learn(comp)"
+                  >
+                    <UiDropdownMenuItem>
+                      <User />
+                      {{ $t("auth.roles.participant") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLinkLocale>
+                  <NuxtLink
+                    v-if="comp.roles.includes(UserRole.COACH)"
+                    :to="platform.coach(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Users />
+                      {{ $t("auth.roles.coach") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="comp.roles.includes(UserRole.MANAGER)"
+                    :to="platform.manage(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <ListTree />
+                      {{ $t("auth.roles.manager") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                  <NuxtLink
+                    v-if="comp.roles.some(r => [UserRole.ADMIN, UserRole.SUPPORT, UserRole.CREATOR].includes(r))"
+                    :to="platform.coordinator(comp)"
+                    external
+                  >
+                    <UiDropdownMenuItem>
+                      <Toolbox />
+                      {{ $t("auth.roles.creator") }}
+                    </UiDropdownMenuItem>
+                  </NuxtLink>
+                </UiDropdownMenuSubContent>
+              </UiDropdownMenuPortal>
+            </UiDropdownMenuSub>
+          </UiDropdownMenuGroup>
+        </template>
       </UiDropdownMenuContent>
     </UiDropdownMenu>
   </UiSidebarMenu>

@@ -3,7 +3,9 @@ import { ChevronsUpDown, LogOut, User, Settings } from "lucide-vue-next";
 import { useSidebar } from "~/components/ui/sidebar";
 
 const { isMobile } = useSidebar();
-const { user } = storeToRefs(useUserStore());
+
+const store = useUserStore();
+const { user } = storeToRefs(store);
 
 const { alias } = useWorkspaceUtils();
 </script>
@@ -79,7 +81,10 @@ const { alias } = useWorkspaceUtils();
         <UiDropdownMenuSeparator />
 
         <UiDropdownMenuGroup>
-          <UiDropdownMenuItem variant="destructive">
+          <UiDropdownMenuItem
+            variant="destructive"
+            @click="store.logout"
+          >
             <LogOut />
             {{ $t("navigation.user-menu.log-out") }}
           </UiDropdownMenuItem>

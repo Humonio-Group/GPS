@@ -3,6 +3,7 @@ export interface Company {
   key: string;
   alias: string;
   name: string;
+  drive: boolean;
   colors: {
     first: string;
     second: string;

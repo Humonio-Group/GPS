@@ -123,7 +123,7 @@ export const useTicketStore = defineStore("ticket", {
         this.tickets = _tickets.data.map((t: any) => buildTicketEntity(t, included));
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -143,7 +143,7 @@ export const useTicketStore = defineStore("ticket", {
         }));
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -230,7 +230,7 @@ export const useTicketStore = defineStore("ticket", {
       }
       catch (e) {
         state = false;
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -251,7 +251,7 @@ export const useTicketStore = defineStore("ticket", {
         this.tickets = this.tickets.map(t => t.id === id ? { ...t, dates: { ...t.dates, closedAt }, metadata: { ...t.metadata, status: TicketStatus.CLOSED } } : t);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -293,7 +293,7 @@ export const useTicketStore = defineStore("ticket", {
         this.tickets = this.tickets.map(t => t.id === id ? { ...t, comments: [...t.comments, comment] } : t);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         state = false;
         // todo: toast it - loic
       }

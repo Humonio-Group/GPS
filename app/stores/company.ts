@@ -33,58 +33,8 @@ export const useCompanyStore = defineStore("company", {
     isLoaded: state => !!state.company,
   },
   actions: {
-    async oldFetchCompany(alias: string) {
-      try {
-        const { data: _company } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/companies"), {
-          headers: this.api.headers(),
-          query: this.api.params({
-            alias,
-          }),
-          credentials: "include",
-        });
-
-        if (!_company.value) return;
-
-        const company = _company.value.data[0]!;
-        this.company = {
-          id: company.id,
-          key: company.attributes.key,
-          alias: company.attributes.alias,
-          name: company.attributes.name,
-          colors: {
-            first: company.attributes.colors.firstGradient,
-            second: company.attributes.colors.secondGradient,
-          },
-          icon: company.attributes.icon.thumbnail,
-          logo: company.attributes.logo.thumbnail,
-        };
-
-        const style = document.createElement("style");
-        style.id = "company-theme";
-
-        let cssRules = "";
-
-        if (this.company.colors.first)
-          cssRules += `:root { --primary: #${this.company.colors.first}; }\n`;
-
-        if (this.company.colors.second)
-          cssRules += `.dark { --primary: #${this.company.colors.second}; }\n`;
-
-        if (cssRules) {
-          const existingStyle = document.getElementById("company-theme");
-          if (existingStyle)
-            existingStyle.remove();
-
-          style.textContent = cssRules;
-          document.head.appendChild(style);
-        }
-      }
-      catch (error) {
-        console.error(error);
-      }
-    },
     async fetchCompany(alias: string) {
-      useStoreClearing();
+      useStoreClearing(false);
 
       try {
         const response = await this.api.get("/companies", { version: 2, endpointVersion: 3 }, {
@@ -101,6 +51,7 @@ export const useCompanyStore = defineStore("company", {
           key: company.attributes.key,
           alias: company.attributes.alias,
           name: company.attributes.name,
+          drive: company.attributes.isDrive,
           colors: {
             first: company.attributes.colors.firstGradient,
             second: company.attributes.colors.secondGradient,
@@ -111,7 +62,7 @@ export const useCompanyStore = defineStore("company", {
         bindCompanyColors(this.company);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
     },

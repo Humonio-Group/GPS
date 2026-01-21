@@ -1,5 +1,5 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { User } from "~/types/entities/user";
+import type { UserRole, AvailableCompany, User } from "~/types/entities/user";
 import type { ApiResponse } from "~/types/primitives/api";
 import type { AvailableLocale, Locale } from "~/types/misc/language";
 import type { Theme, ThemeObject } from "~/types/misc/theme";
@@ -9,11 +9,7 @@ import { EntityType } from "~/types/entities/entities";
 interface UserState {
   user: Nullable<User>;
   terms: Terms;
-  availableCompanies: {
-    alias: string;
-    name: string;
-    icon: string;
-  }[];
+  availableCompanies: AvailableCompany[];
   loading: {
     terms: {
       revoking: Nullable<number>;
@@ -25,7 +21,57 @@ interface UserState {
     uiTheme: boolean;
     courseNotifications: boolean;
     activitySummaryFrequency: boolean;
+    loggingIn: boolean;
   };
+}
+
+function buildUserEntity(data: any, included: any): User {
+  return {
+    id: data.id,
+    key: data.attributes.key,
+    avatar: data.attributes.picture.thumbnail,
+    name: {
+      first: data.attributes.firstname,
+      last: data.attributes.lastname,
+      full: data.attributes.name,
+    },
+    biography: {
+      base: data.attributes.biography,
+      long: data.attributes.longBiography,
+    },
+    contact: {
+      email: data.attributes.email,
+      phone: data.attributes.mobile,
+    },
+    social: {
+      linkedin: data.attributes.linkedin,
+    },
+    settings: {
+      language: included.filter((e: any) => e.type === EntityType.LANGUAGE)[0]!.attributes.code,
+      theme: data.attributes.theme ?? "light",
+      courseNotifications: data.attributes.settings.notifications.inApp.value,
+      activitySummaryFrequency: data.attributes.settings.notifications.summary.participant.value,
+    },
+    dates: {
+      creation: new Date(data.attributes.dates.creation),
+      update: new Date(data.attributes.dates.update),
+      lastConnection: new Date(data.attributes.dates.lastConnection),
+    },
+  };
+}
+function buildAvailableCompaniesMap(included: any): AvailableCompany[] {
+  return included.filter((e: any) => e.type === EntityType.COMPANY).map((e: any): AvailableCompany => ({
+    id: e.id,
+    key: e.attributes.key,
+    alias: e.attributes.alias,
+    name: e.attributes.name,
+    icon: e.attributes.icon.thumbnail,
+    roles: e.attributes.activeRoles.map((r: any) => r.type as UserRole),
+  }));
+}
+async function setupInterfaceWithUserSettings(user: User) {
+  useColorMode().preference = user.settings.theme as Theme;
+  await useNuxtApp().$i18n.setLocale(user.settings.language as AvailableLocale);
 }
 
 export const useUserStore = defineStore("user", {
@@ -44,16 +90,75 @@ export const useUserStore = defineStore("user", {
       uiTheme: false,
       courseNotifications: false,
       activitySummaryFrequency: false,
+      loggingIn: false,
     },
   }),
   getters: {
     api: () => useApi(),
     isLoggedIn: state => !!state.user,
+    activeRoles: (state): UserRole[] => {
+      const { company } = storeToRefs(useCompanyStore());
+      if (!company.value) return [];
+
+      return state.availableCompanies.find(c => c.alias === company.value!.alias)?.roles ?? [];
+    },
   },
   actions: {
+    async login(payload: {
+      login: string;
+      password: string;
+      rememberMe?: boolean;
+    }) {
+      const localePath = useLocalePath();
+
+      this.loading.loggingIn = true;
+
+      try {
+        const response = await this.api.post("/login", { version: 2, endpointVersion: 1 }, {
+          query: {
+            include: "interfaceLanguage,companies,workspaces",
+          },
+          body: {
+            ...payload,
+            device: await useDeviceInfo(),
+          },
+        });
+
+        this.user = buildUserEntity(response.data, response.included);
+        this.availableCompanies = buildAvailableCompaniesMap(response.included);
+        await setupInterfaceWithUserSettings(this.user!);
+
+        if (this.availableCompanies.length === 1) navigateTo(localePath(`/${this.availableCompanies[0]!.alias}`));
+        else navigateTo(localePath("/auth/portal"));
+      }
+      catch (e) {
+        useLogger().error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.loggingIn = false;
+      }
+    },
+    async logout(): Promise<boolean> {
+      let state = true;
+
+      try {
+        await this.api.post("/logout", { version: 1, endpointVersion: 2 });
+        useStoreClearing();
+        navigateTo(useLocalePath()("/auth/login"));
+      }
+      catch (e) {
+        useLogger().error(e);
+        state = false;
+        // todo: toast it - loic
+      }
+
+      return state;
+    },
+
     async fetchUser() {
       try {
-        const _user = await this.api.get<ApiResponse>("/users/me", {
+        const response = await this.api.get<ApiResponse>("/users/me", {
           version: 2,
           endpointVersion: 1,
         }, {
@@ -62,53 +167,14 @@ export const useUserStore = defineStore("user", {
           },
         });
 
-        if (!_user) return;
+        if (!response) return;
 
-        const data = _user.data as any;
-
-        this.user = {
-          id: data.id,
-          key: data.attributes.key,
-          avatar: data.attributes.picture.thumbnail,
-          name: {
-            first: data.attributes.firstname,
-            last: data.attributes.lastname,
-            full: data.attributes.name,
-          },
-          biography: {
-            base: data.attributes.biography,
-            long: data.attributes.longBiography,
-          },
-          contact: {
-            email: data.attributes.email,
-            phone: data.attributes.mobile,
-          },
-          social: {
-            linkedin: data.attributes.linkedin,
-          },
-          settings: {
-            language: _user.included.filter(e => e.type === EntityType.LANGUAGE)[0]!.attributes.code,
-            theme: data.attributes.theme ?? "light",
-            courseNotifications: data.attributes.settings.notifications.inApp.value,
-            activitySummaryFrequency: data.attributes.settings.notifications.summary.participant.value,
-          },
-          dates: {
-            creation: new Date(data.attributes.dates.creation),
-            update: new Date(data.attributes.dates.update),
-            lastConnection: new Date(data.attributes.dates.lastConnection),
-          },
-        };
-        this.availableCompanies = _user.included.filter(e => e.type === EntityType.COMPANY).map(e => ({
-          alias: e.attributes.alias,
-          name: e.attributes.name,
-          icon: e.attributes.icon.thumbnail,
-        }));
-
-        useColorMode().preference = this.user!.settings.theme as Theme;
-        await useNuxtApp().$i18n.setLocale(this.user!.settings.language as AvailableLocale);
+        this.user = buildUserEntity(response.data, response.included);
+        this.availableCompanies = buildAvailableCompaniesMap(response.included);
+        await setupInterfaceWithUserSettings(this.user!);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast error - loic
       }
     },
@@ -131,7 +197,7 @@ export const useUserStore = defineStore("user", {
         }))];
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -181,7 +247,7 @@ export const useUserStore = defineStore("user", {
         };
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -223,7 +289,7 @@ export const useUserStore = defineStore("user", {
         this.user!.settings.language = language.code;
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -253,7 +319,7 @@ export const useUserStore = defineStore("user", {
         this.user!.settings.theme = theme.value;
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -287,7 +353,7 @@ export const useUserStore = defineStore("user", {
         this.user!.settings.courseNotifications = value;
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -323,7 +389,7 @@ export const useUserStore = defineStore("user", {
         this.user!.settings.activitySummaryFrequency = value;
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -342,7 +408,7 @@ export const useUserStore = defineStore("user", {
         navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {

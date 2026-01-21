@@ -23,6 +23,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
+      env: "",
       brand: {
         name: "",
       },
@@ -34,6 +35,12 @@ export default defineNuxtConfig({
       platform: "",
       urls: {
         auth: "",
+        coordinator: "",
+        facilitate: "",
+        coach: "",
+        manage: "",
+        execute: "",
+        develop: "",
       },
     },
   },

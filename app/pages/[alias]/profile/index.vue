@@ -11,6 +11,8 @@ const { company } = storeToRefs(useCompanyStore());
 useHead({
   title: `${t("profile.details.title")} - ${company.value!.name}`,
 });
+
+const deviceInfo = await useDeviceInfo();
 </script>
 
 <template>
@@ -19,5 +21,7 @@ useHead({
     class="flex flex-col gap-8 @container/profile"
   >
     <UserProfile :user="user!" />
+
+    <pre><code>{{ deviceInfo }}</code></pre>
   </PageRoot>
 </template>
