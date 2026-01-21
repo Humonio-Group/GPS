@@ -43,12 +43,11 @@ export const useApi = () => {
 
             switch (status) {
               case 401: {
-                navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-                return;
+                navigateTo(useLocalePath()("/auth/login"));
+                return resolve(null);
               }
               default: {
-                reject(error);
-                return;
+                return reject(error);
               }
             }
           });
@@ -67,12 +66,11 @@ export const useApi = () => {
 
               switch (status) {
                 case 401: {
-                  navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-                  return;
+                  navigateTo(useLocalePath()("/auth/login"));
+                  return resolve(null);
                 }
                 default: {
-                  reject(response.error.value);
-                  return;
+                  return reject(response.error.value);
                 }
               }
             }
@@ -110,12 +108,11 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-              return;
+              navigateTo(useLocalePath()("/auth/login"));
+              return resolve(null);
             }
             default: {
-              reject(error);
-              return;
+              return reject(error);
             }
           }
         });
@@ -145,12 +142,11 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-              return;
+              navigateTo(useLocalePath()("/auth/login"));
+              return resolve(null);
             }
             default: {
-              reject(error);
-              return;
+              return reject(error);
             }
           }
         });
@@ -180,12 +176,11 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-              return;
+              navigateTo(useLocalePath()("/auth/login"));
+              return resolve(null);
             }
             default: {
-              reject(error);
-              return;
+              return reject(error);
             }
           }
         });
@@ -215,12 +210,11 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
-              return;
+              navigateTo(useLocalePath()("/auth/login"));
+              return resolve(null);
             }
             default: {
-              reject(error);
-              return;
+              return reject(error);
             }
           }
         });

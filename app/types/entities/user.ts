@@ -3,8 +3,23 @@ import type { Theme } from "~/types/misc/theme";
 import type { AvailableLocale } from "~/types/misc/language";
 
 export enum UserRole {
+  ADMIN = 3,
+  ANALYST = 4,
+  FACILITATOR = 5,
   PARTICIPANT = 6,
+  COACH = 7,
   SUPPORT = 8,
+  MANAGER = 9,
+  CREATOR = 10,
+}
+
+export interface AvailableCompany {
+  id: number;
+  key: string;
+  alias: string;
+  name: string;
+  icon: Nullable<string>;
+  roles: UserRole[];
 }
 
 export interface UserName {

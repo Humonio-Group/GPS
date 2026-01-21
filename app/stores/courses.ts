@@ -97,7 +97,7 @@ function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
   const { id, attributes } = extractBasicInfo(data);
   const locale = useNuxtApp().$i18n.locale;
 
-  console.log(attributes.translations);
+  useLogger().log(attributes.translations);
 
   return {
     id,
@@ -209,7 +209,7 @@ export const useCoursesStore = defineStore("courses", {
         this.courses = [...list];
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
       }
       finally {
         this.loading.coursesList = false;
@@ -238,7 +238,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectCourse(id);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
       }
       finally {
         this.loading.specific.specimen = false;
@@ -247,14 +247,14 @@ export const useCoursesStore = defineStore("courses", {
     async loadCourseContents() {
       if (!this.selectedCourse) return;
 
-      console.log("loading activities");
+      useLogger().log("loading activities");
 
       this.loading.specific.activity = true;
       try {
         await Promise.all(this.selectedCourse.stages.map(stage => this.loadContents(stage.reference)));
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -329,7 +329,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
       }
       finally {
         this.loading.specific.stages = false;
@@ -502,7 +502,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
       }
       finally {
         this.loading.specific.stageContents = this.loading.specific.stageContents.filter(s => s !== stageId);
@@ -529,7 +529,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.actions = _actions.data.map((a: any) => buildActionEntity(a, included)) as Actions;
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -565,7 +565,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.badges = _badges.data.map((b: any) => buildBadgeEntity(b, unlockedBadges.find((ub: any) => ub.id === b.id)?.unlockedAt));
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -690,7 +690,7 @@ export const useCoursesStore = defineStore("courses", {
         }
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {
@@ -764,7 +764,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         state = false;
         // todo: toast it - loic
       }
@@ -830,7 +830,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {

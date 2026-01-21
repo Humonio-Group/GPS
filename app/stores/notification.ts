@@ -126,10 +126,10 @@ export const useNotificationStore = defineStore("notification", {
           ...response.data.map((notification: any) => buildNotificationEntity(notification, included)),
         ];
         this.canLoadMore = response.meta.total > this.notifications.length;
-        console.log(response.meta, response.data.length, this.notifications.length);
+        useLogger().log(response.meta, response.data.length, this.notifications.length);
       }
       catch (e) {
-        console.error(e);
+        useLogger().error(e);
         // todo: toast it - loic
       }
       finally {

@@ -124,7 +124,7 @@ export const useCompanionStore = defineStore("companion", {
       if (!this.selectedConversation) return;
 
       // todo: load conversation messages - loic
-      console.log("loading conversations messages");
+      useLogger().log("loading conversations messages");
     },
     selectConversation(slug?: string) {
       if (!slug) {
@@ -142,7 +142,7 @@ export const useCompanionStore = defineStore("companion", {
     },
 
     async createConversation(initialMessage: string, model: string) {
-      console.log(initialMessage, model);
+      useLogger().log(initialMessage, model);
     }, // todo: create model ids - loic
     async sendMessage(message: string) {
       if (!this.selectedConversation) return;
@@ -151,7 +151,7 @@ export const useCompanionStore = defineStore("companion", {
         message,
         author: "user",
       });
-      console.log(message);
+      useLogger().log(message);
 
       this.loading.thinking = true;
       setTimeout(() => this.loading.thinking = false, 5000);

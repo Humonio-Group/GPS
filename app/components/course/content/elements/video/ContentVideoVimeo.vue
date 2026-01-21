@@ -18,21 +18,21 @@ const playerState = defineModel<{
 const code = computed(() => props.content.activity.video!.code);
 
 const onReady = (event: any, player: any) => {
-  console.log("Vimeo Ready - event:", event, "player:", player);
+  useLogger().log("Vimeo Ready - event:", event, "player:", player);
   playerState.value.isReady = true;
 
   const vimeoPlayer = player || event;
 
   if (vimeoPlayer && typeof vimeoPlayer.getDuration === "function") {
     vimeoPlayer.getDuration().then((duration: number) => {
-      console.log("Vimeo duration:", duration);
+      useLogger().log("Vimeo duration:", duration);
       playerState.value.duration = duration;
     }).catch((error: any) => {
-      console.error("Error getting Vimeo duration:", error);
+      useLogger().error("Error getting Vimeo duration:", error);
     });
   }
   else {
-    console.error("Vimeo player or getDuration not available");
+    useLogger().error("Vimeo player or getDuration not available");
   }
 };
 const onPlay = () => {
@@ -48,7 +48,7 @@ const onTimeUpdate = (event: any) => {
   }
 };
 const onDurationChange = (event: any) => {
-  console.log("Vimeo duration change:", event);
+  useLogger().log("Vimeo duration change:", event);
   if (event.duration) {
     playerState.value.duration = event.duration;
   }
