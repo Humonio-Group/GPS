@@ -57,7 +57,10 @@
         "hours": "{value}h",
         "minutes": "{value}min"
       },
-      "last-update": "Dernière mise à jour le {date}"
+      "last-update": "Dernière mise à jour le {date}",
+      "ends-in": "Termine dans {time}",
+      "starts-in": "Démarre dans {time}",
+      "ended": "Terminé {time} | Terminée {time}"
     },
     "date-time": {
       "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
@@ -119,6 +122,7 @@
   "navigation": {
     "home": "Accueil",
     "my-courses": "Mes formations",
+    "events": "Événements",
     "course": {
       "overview": "Vue d'ensemble",
       "peoples": "Personnes",
@@ -235,6 +239,15 @@
           "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
         }
       }
+    }
+  },
+  "events": {
+    "title": "Événements",
+    "caption": "Retrouvez ici toutes les sessions actuelles, à venir et passées de l'ensemble de vos formations.",
+    "sections": {
+      "now": "Session en cours | Sessions en cours",
+      "incoming": "Sessions à venir",
+      "passed": "Sessions passées"
     }
   },
 
