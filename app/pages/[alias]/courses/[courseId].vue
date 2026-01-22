@@ -87,6 +87,18 @@ store.selectCourse(Number(id.value));
             variant="outline"
           >
             <NuxtLinkLocale
+              :to="`/${alias!}/courses/${id!}/events`"
+              active-class="bg-accent!"
+            >
+              {{ $t("navigation.course.events") }}
+            </NuxtLinkLocale>
+          </UiButton>
+          <UiButton
+            as-child
+            size="sm"
+            variant="outline"
+          >
+            <NuxtLinkLocale
               :to="`/${alias!}/courses/${id!}/actions`"
               active-class="bg-accent!"
             >

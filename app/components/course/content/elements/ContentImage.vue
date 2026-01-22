@@ -12,6 +12,7 @@ defineProps<ContentImageProps>();
   <NuxtImg
     :src="content.activity.image!"
     :placeholder="[50, 50, 25, 75]"
-    class="rounded-lg mx-auto w-full max-w-7xl"
+    class="rounded-lg mx-auto w-full max-w-4xl"
   />
+  <!-- max-w-4xl -->
 </template>

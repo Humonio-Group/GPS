@@ -19,4 +19,6 @@ export enum EntityType {
   TICKET = "tickets",
   TICKET_COMMENT = "ticketComments",
   TICKET_CATEGORY = "ticketCategories",
+  // Events
+  USER_EVENT = "userEvents",
 }

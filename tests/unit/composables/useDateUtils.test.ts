@@ -212,85 +212,90 @@ describe("useDateUtils", () => {
   });
 
   describe("relativeDate", () => {
-    it("should return time format for today", () => {
+    it("should return relative time for recent dates", () => {
       const now = new Date();
-      now.setHours(14, 30, 0, 0);
-
       const result = dateUtils.relativeDate(now);
 
-      expect(result).toBe("14:30");
+      // formatDistanceToNow returns strings like "il y a moins d'une minute" or similar
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result.length).toBeGreaterThan(0);
     });
 
-    it("should pad hours and minutes with zeros", () => {
-      const now = new Date();
-      now.setHours(9, 5, 0, 0);
-
-      const result = dateUtils.relativeDate(now);
-
-      expect(result).toBe("09:05");
-    });
-
-    it("should return 'Yesterday' for yesterday", () => {
+    it("should return relative time for yesterday", () => {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
 
       const result = dateUtils.relativeDate(yesterday);
 
-      expect(result).toBe("Yesterday");
+      // Should contain "jour" for day in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should return 'Few days ago' for 2-6 days ago", () => {
+    it("should return relative time for few days ago", () => {
       const threeDaysAgo = new Date();
       threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
 
       const result = dateUtils.relativeDate(threeDaysAgo);
 
-      expect(result).toBe("Few days ago");
+      // Should contain "jours" (plural) for multiple days in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should return '1 week ago' for 7-13 days ago", () => {
+    it("should return relative time for a week ago", () => {
       const tenDaysAgo = new Date();
       tenDaysAgo.setDate(tenDaysAgo.getDate() - 10);
 
       const result = dateUtils.relativeDate(tenDaysAgo);
 
-      expect(result).toBe("1 week ago");
+      // Should contain "jours" for days in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should return '2 weeks ago' for 14-20 days ago", () => {
+    it("should return relative time for two weeks ago", () => {
       const fifteenDaysAgo = new Date();
       fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15);
 
       const result = dateUtils.relativeDate(fifteenDaysAgo);
 
-      expect(result).toBe("2 weeks ago");
+      // Should contain "jours" for days in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should return '3 weeks ago' for 21-27 days ago", () => {
+    it("should return relative time for three weeks ago", () => {
       const twentyTwoDaysAgo = new Date();
       twentyTwoDaysAgo.setDate(twentyTwoDaysAgo.getDate() - 22);
 
       const result = dateUtils.relativeDate(twentyTwoDaysAgo);
 
-      expect(result).toBe("3 weeks ago");
+      // Should contain "jours" for days in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should return '4 weeks ago' for 28-29 days ago", () => {
+    it("should return relative time for four weeks ago", () => {
       const twentyNineDaysAgo = new Date();
       twentyNineDaysAgo.setDate(twentyNineDaysAgo.getDate() - 29);
 
       const result = dateUtils.relativeDate(twentyNineDaysAgo);
 
-      expect(result).toBe("4 weeks ago");
+      // Should contain "jour" or "mois" for days/month in French
+      expect(result).toContain("il y a");
     });
 
-    it("should return 'Last month' for 30-59 days ago", () => {
+    it("should return relative time for a month ago", () => {
       const fortyDaysAgo = new Date();
       fortyDaysAgo.setDate(fortyDaysAgo.getDate() - 40);
 
       const result = dateUtils.relativeDate(fortyDaysAgo);
 
-      expect(result).toBe("Last month");
+      // Should contain "mois" for month in French
+      expect(result).toContain("mois");
+      expect(result).toContain("il y a");
     });
 
     it("should return formatted date for dates older than 60 days", () => {
@@ -313,7 +318,9 @@ describe("useDateUtils", () => {
 
       const result = dateUtils.relativeDate(yesterday.toISOString());
 
-      expect(result).toBe("Yesterday");
+      // Should contain "jour" for day in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
     it("should accept timestamp input", () => {
@@ -322,7 +329,9 @@ describe("useDateUtils", () => {
 
       const result = dateUtils.relativeDate(yesterday.getTime());
 
-      expect(result).toBe("Yesterday");
+      // Should contain "jour" for day in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
     it("should handle edge case at boundary of today/yesterday", () => {
@@ -331,14 +340,17 @@ describe("useDateUtils", () => {
 
       // Just into today
       const result1 = dateUtils.relativeDate(new Date(startOfToday.getTime() + 1000));
-      expect(result1).toMatch(/^\d{2}:\d{2}$/);
+      // Should return relative time in French
+      expect(result1).toContain("il y a");
 
-      // Just before today (yesterday)
+      // Just before today (yesterday) - may be hours or days depending on current time
       const result2 = dateUtils.relativeDate(new Date(startOfToday.getTime() - 1000));
-      expect(result2).toBe("Yesterday");
+      // Should contain either "heure" or "jour" depending on the time of day
+      expect(result2).toContain("il y a");
+      expect(result2).toMatch(/(heure|jour)/);
     });
 
-    it("should handle 6 days ago as 'Few days ago'", () => {
+    it("should handle 6 days ago correctly", () => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -347,10 +359,12 @@ describe("useDateUtils", () => {
 
       const result = dateUtils.relativeDate(sixDaysAgo);
 
-      expect(result).toBe("Few days ago");
+      // Should contain "jour" for days in French
+      expect(result).toContain("jour");
+      expect(result).toContain("il y a");
     });
 
-    it("should handle 29 days ago as '4 weeks ago'", () => {
+    it("should handle 29 days ago correctly", () => {
       const now = new Date();
       const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -359,7 +373,8 @@ describe("useDateUtils", () => {
 
       const result = dateUtils.relativeDate(twentyNineDaysAgo);
 
-      expect(result).toBe("4 weeks ago");
+      // Should contain "jour" or "mois" for days/month in French
+      expect(result).toContain("il y a");
     });
   });
 

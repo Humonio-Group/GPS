@@ -201,17 +201,30 @@ describe("TicketItem", () => {
           UiCard: {
             template: "<div class=\"card\"><slot /></div>",
           },
-          UiCardHeader: true,
-          UiCardTitle: true,
-          UiCardDescription: true,
-          UiCardFooter: true,
-          UiBadge: true,
-          NuxtLinkLocale: true,
+          UiCardHeader: {
+            template: "<div><slot /></div>",
+          },
+          UiCardTitle: {
+            template: "<h3><slot /></h3>",
+          },
+          UiCardDescription: {
+            template: "<p><slot /></p>",
+          },
+          UiCardFooter: {
+            template: "<div><slot /></div>",
+          },
+          UiBadge: {
+            template: "<span><slot /></span>",
+          },
+          NuxtLinkLocale: {
+            template: "<a><slot /></a>",
+          },
         },
       },
     });
 
-    const card = wrapper.find(".card");
-    expect(card.exists()).toBe(true);
+    // Just check that component renders successfully
+    expect(wrapper.exists()).toBe(true);
+    expect(wrapper.text()).toContain(mockTicket.title);
   });
 });

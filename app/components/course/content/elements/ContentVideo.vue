@@ -37,7 +37,8 @@ watch(playerState, (val) => {
 </script>
 
 <template>
-  <div class="w-full max-w-7xl mx-auto">
+  <!-- max-w-4xl -->
+  <div class="w-full mx-auto max-w-4xl">
     <ContentVideoYoutube
       v-if="isYouTube"
       v-model:player-state="playerState"

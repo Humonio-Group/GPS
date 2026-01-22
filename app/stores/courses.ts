@@ -4,6 +4,8 @@ import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
 import type { Manager, People, Peoples } from "~/types/entities/user";
+import { buildEventEntity } from "~/stores/event";
+import { EventStatus } from "~/types/entities/event";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -18,6 +20,7 @@ interface CoursesState {
       actions: boolean;
       badges: boolean;
       people: boolean;
+      events: boolean;
       inviteManager: boolean;
       updateManager: boolean;
     };
@@ -137,6 +140,7 @@ export const useCoursesStore = defineStore("courses", {
         actions: false,
         badges: false,
         people: false,
+        events: false,
         inviteManager: false,
         updateManager: false,
       },
@@ -178,6 +182,10 @@ export const useCoursesStore = defineStore("courses", {
     },
 
     unlockedBadges: state => state.selectedCourse?.badges.filter(b => !!b.unlockedAt) ?? [],
+
+    nowEvents: state => state.selectedCourse?.events.filter(e => e.status === EventStatus.NOW).sort((a, b) => b.dates.start.getTime() - a.dates.start.getTime()) ?? [],
+    incomingEvents: state => state.selectedCourse?.events.filter(e => e.status === EventStatus.INCOMING).sort((a, b) => b.dates.start.getTime() - a.dates.start.getTime()) ?? [],
+    passedEvents: state => state.selectedCourse?.events.filter(e => e.status === EventStatus.PASSED).sort((a, b) => b.dates.start.getTime() - a.dates.start.getTime()) ?? [],
   },
   actions: {
     async loadCourses() {
@@ -275,6 +283,7 @@ export const useCoursesStore = defineStore("courses", {
         facilitators: [],
         participants: [],
         manager: null,
+        events: [],
       };
     },
 
@@ -695,6 +704,23 @@ export const useCoursesStore = defineStore("courses", {
       }
       finally {
         this.loading.specific.people = false;
+      }
+    },
+    async loadEvents() {
+      if (!this.selectedCourse) return;
+      this.loading.specific.events = true;
+
+      try {
+        const response = await this.api.get(`/events/${this.selectedCourse.id}`, { version: 2, endpointVersion: 3 }, {});
+
+        this.selectedCourse.events = response.data.map(buildEventEntity);
+      }
+      catch (e) {
+        useLogger().error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.events = false;
       }
     },
 

@@ -193,7 +193,7 @@
     }
 
     img, .image {
-      @apply block w-full max-w-7xl mx-auto h-auto rounded-lg;
+      @apply block w-full max-w-4xl mx-auto h-auto rounded-lg;
     }
 
     hr {

@@ -8,7 +8,7 @@ vi.mock("~/composables/useWorkspaceUtils", () => ({
 }));
 
 describe("GettingHelp", () => {
-  it("should have workspace alias available", () => {
+  it("should have workspace alias available", async () => {
     const { useWorkspaceUtils } = await import("~/composables/useWorkspaceUtils");
     const { alias } = useWorkspaceUtils();
     expect(alias.value).toBe("test-workspace");

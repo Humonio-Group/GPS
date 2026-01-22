@@ -9,6 +9,13 @@ vi.mock("~/composables/useApi", () => ({
   useApi: vi.fn(),
 }));
 
+vi.mock("~/composables/useLogger", () => ({
+  useLogger: vi.fn(() => ({
+    log: vi.fn(),
+    error: vi.fn(),
+  })),
+}));
+
 vi.mock("#app", () => ({
   useNuxtApp: () => ({
     $i18n: {
@@ -28,6 +35,7 @@ vi.mock("#app", () => ({
 describe("useNotificationStore", () => {
   let store: ReturnType<typeof useNotificationStore>;
   let mockApi: any;
+  let mockLogger: any;
 
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -38,7 +46,14 @@ describe("useNotificationStore", () => {
       get: vi.fn(),
     };
 
+    // Reset mock Logger
+    mockLogger = {
+      log: vi.fn(),
+      error: vi.fn(),
+    };
+
     vi.mocked(useApi).mockReturnValue(mockApi);
+    vi.mocked(useLogger).mockReturnValue(mockLogger);
   });
 
   describe("initial state", () => {
@@ -249,27 +264,21 @@ describe("useNotificationStore", () => {
     });
 
     it("should handle API errors gracefully", async () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.get.mockRejectedValue(new Error("API Error"));
 
       await store.loadNotifications();
 
-      expect(consoleError).toHaveBeenCalledWith(expect.any(Error));
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(store.loading.list).toBe(false);
       expect(store.notifications).toEqual([]);
-
-      consoleError.mockRestore();
     });
 
     it("should set loading to false even when API fails", async () => {
-      const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.get.mockRejectedValue(new Error("Network error"));
 
       await store.loadNotifications();
 
       expect(store.loading.list).toBe(false);
-
-      consoleError.mockRestore();
     });
 
     it("should parse dates correctly", async () => {
