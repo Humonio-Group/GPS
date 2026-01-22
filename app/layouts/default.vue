@@ -14,7 +14,7 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
     <UiSidebarProvider>
       <DefaultSidebar />
 
-      <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh! overflow-y-hidden">
+      <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh! overflow-y-auto">
         <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
           <UiSidebarTrigger />
 
@@ -43,7 +43,7 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
           </div>
         </header>
 
-        <main class="p-2 pt-0 flex-1 flex flex-col max-h-full overflow-y-auto">
+        <main class="p-2 pt-0 flex-1 flex flex-col">
           <NuxtPage />
         </main>
       </UiSidebarInset>
