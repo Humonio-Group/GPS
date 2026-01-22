@@ -7,6 +7,7 @@ import ContentDocument from "~/components/course/content/elements/ContentDocumen
 import ContentVideo from "~/components/course/content/elements/ContentVideo.vue";
 import ContentEmbed from "~/components/course/content/elements/ContentEmbed.vue";
 import ContentMap from "~/components/course/content/elements/ContentMap.vue";
+import ContentTasklist from "~/components/course/content/elements/ContentTasklist.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -38,12 +39,18 @@ defineProps<ContentDetailsProps>();
       v-if="content.activity.video"
       :content="content"
     />
+
     <ContentMap
       v-if="content.activity.blended?.map"
       :content="content"
     />
     <ContentEmbed
       v-if="content.activity.embed"
+      :content="content"
+    />
+
+    <ContentTasklist
+      v-if="content.activity.tasks"
       :content="content"
     />
   </main>
