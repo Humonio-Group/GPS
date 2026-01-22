@@ -53,8 +53,9 @@ store.loadEvents();
       <section class="grid @xl:sticky @xl:top-20 px-6 py-5 bg-card text-card-foreground border rounded-xl">
         <header class="flex items-center gap-2">
           <span class="block size-3 rounded-full bg-destructive animate-pulse" />
+
           <h2 class="text-lg font-bold">
-            {{ $t("events.sections.passed") }}
+            {{ $t("events.sections.now") }}
           </h2>
         </header>
         <main
@@ -76,7 +77,7 @@ store.loadEvents();
       </section>
     </div>
 
-    <UiEmpty v-if="!events.length">
+    <UiEmpty v-if="!events.length && !loading.specific.events">
       <UiEmptyHeader>
         <UiEmptyTitle>Oh non...</UiEmptyTitle>
         <UiEmptyDescription>Il semblerait que vous n'ayez aucun événement.</UiEmptyDescription>
