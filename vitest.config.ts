@@ -13,6 +13,7 @@ export default defineVitestConfig({
         domEnvironment: "happy-dom",
       },
     },
+    setupFiles: ["./tests/mocks/color-mode.ts", "./tests/setup.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
@@ -26,5 +27,7 @@ export default defineVitestConfig({
       ],
     },
     globals: true,
+    silent: false,
+    logHeapUsage: false,
   },
 });

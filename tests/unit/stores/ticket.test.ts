@@ -9,6 +9,13 @@ vi.mock("~/composables/useApi", () => ({
   useApi: vi.fn(),
 }));
 
+vi.mock("~/composables/useLogger", () => ({
+  useLogger: vi.fn(() => ({
+    log: vi.fn(),
+    error: vi.fn(),
+  })),
+}));
+
 vi.mock("~/composables/useWorkspaceUtils", () => ({
   useWorkspaceUtils: vi.fn(() => ({
     alias: { value: "test-workspace" },
@@ -201,6 +208,7 @@ describe("Ticket Store", () => {
   let ticketStore: ReturnType<typeof useTicketStore>;
   let userStore: ReturnType<typeof useUserStore>;
   let mockApi: any;
+  let mockLogger: any;
 
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -225,8 +233,17 @@ describe("Ticket Store", () => {
       destroy: vi.fn(),
     };
 
+    // Mock Logger
+    mockLogger = {
+      log: vi.fn(),
+      error: vi.fn(),
+    };
+
     // Mock useApi composable
     vi.mocked(useApi).mockReturnValue(mockApi);
+
+    // Mock useLogger composable
+    vi.mocked(useLogger).mockReturnValue(mockLogger);
 
     // Mock useWorkspaceUtils
     vi.mocked(useWorkspaceUtils).mockReturnValue({
@@ -339,16 +356,13 @@ describe("Ticket Store", () => {
     });
 
     it("should handle errors gracefully", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.get.mockRejectedValue(new Error("Network error"));
 
       await ticketStore.loadTickets();
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(ticketStore.tickets).toEqual([]);
       expect(ticketStore.loading.list).toBe(false);
-
-      consoleErrorSpy.mockRestore();
     });
 
     it("should transform API response correctly", async () => {
@@ -395,16 +409,13 @@ describe("Ticket Store", () => {
     });
 
     it("should handle errors gracefully", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.get.mockRejectedValue(new Error("Network error"));
 
       await ticketStore.loadCategories();
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(ticketStore.categories).toEqual([]);
       expect(ticketStore.loading.categories).toBe(false);
-
-      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -484,17 +495,14 @@ describe("Ticket Store", () => {
     });
 
     it("should handle errors and return false", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.post.mockRejectedValue(new Error("Creation failed"));
 
       const result = await ticketStore.createTicket(123, 1, "Failed Ticket", "Message");
 
       expect(result).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(ticketStore.tickets).toHaveLength(0);
       expect(ticketStore.loading.create).toBe(false);
-
-      consoleErrorSpy.mockRestore();
     });
 
     it("should prepend new ticket to tickets array", async () => {
@@ -582,7 +590,6 @@ describe("Ticket Store", () => {
     });
 
     it("should handle errors gracefully", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.destroy.mockRejectedValue(new Error("Close failed"));
 
       ticketStore.$patch({
@@ -601,11 +608,9 @@ describe("Ticket Store", () => {
 
       await ticketStore.closeTicket(1);
 
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(ticketStore.tickets[0].metadata.status).toBe(TicketStatus.OPEN);
       expect(ticketStore.loading.closing).toBe(false);
-
-      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -700,7 +705,6 @@ describe("Ticket Store", () => {
     });
 
     it("should handle errors and return false", async () => {
-      const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
       mockApi.put.mockRejectedValue(new Error("Send failed"));
 
       ticketStore.$patch({
@@ -720,11 +724,9 @@ describe("Ticket Store", () => {
       const result = await ticketStore.sendMessage(1, "Failed message");
 
       expect(result).toBe(false);
-      expect(consoleErrorSpy).toHaveBeenCalled();
+      expect(mockLogger.error).toHaveBeenCalled();
       expect(ticketStore.tickets[0].comments).toHaveLength(0);
       expect(ticketStore.loading.sending).toBe(false);
-
-      consoleErrorSpy.mockRestore();
     });
 
     it("should append message to existing comments", async () => {
