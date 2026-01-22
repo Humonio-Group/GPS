@@ -126,6 +126,166 @@ function extractBasicInfo(data: any): {
   };
 }
 
+function buildFileActivity(data: any) {
+  const fileName = data.attributes.specific.data.translations?.[0].fileName;
+  const link = data.attributes.specific.data.translations?.[0].fullSize;
+
+  if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) return { image: link };
+  return {
+    document: {
+      name: fileName,
+      url: link,
+    },
+  };
+}
+function buildLinkActivity(data: any) {
+  return {
+    link: data.attributes.specific.data.translations?.[0].data,
+  };
+}
+function buildVideoActivity(data: any) {
+  const provider = detectProvider(data.attributes.specific.data.origin);
+  return provider
+    ? {
+        video: {
+          provider,
+          code: data.attributes.specific.data.translations?.[0].data,
+          url: data.attributes.specific.data.translations?.[0].url,
+        },
+      }
+    : {};
+}
+function buildFormActivity(data: any) {
+  const embedContent = data.attributes.specific.links.container.embedContent[0];
+  return embedContent
+    ? {
+        embed: {
+          main: embedContent.isMain,
+          disabled: embedContent.disabled,
+          label: embedContent.label,
+          url: embedContent.link.external,
+          embedded: true,
+        },
+      }
+    : {};
+}
+function buildWorkshopActivity(activity: Content["activity"], data: any, included: any) {
+  const relatedLocationId = data.relationships.location?.data[0]?.id;
+  const includedLocation = included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
+  const { start, end } = data.attributes.dates;
+
+  if (start && end) {
+    // workshop content
+    if (includedLocation) return {
+      blended: {
+        start: new Date(data.attributes.dates.start),
+        end: new Date(data.attributes.dates.end),
+        map: includedLocation.googleMapsIframe,
+      },
+      embed: {
+        main: true,
+        disabled: false,
+        label: useNuxtApp().$i18n.t("btn.open.map"),
+        embedded: false,
+        url: includedLocation.googleMapsLink,
+      },
+    };
+
+    // videoconference content
+    return {
+      blended: {
+        start: new Date(data.attributes.dates.start),
+        end: new Date(data.attributes.dates.end),
+      },
+      embed: {
+        ...activity.embed!,
+        embedded: false,
+      },
+    };
+  }
+  return {};
+}
+function buildTasklistActivity(data: any) {
+  return {
+    tasks: data.attributes.specific.tasks.map((task: any) => ({
+      id: task.id,
+      label: task.name,
+      impact: task.percent,
+      checked: task.checked,
+    })),
+  };
+}
+function buildContentEntity(data: any, included: any): Content {
+  let activity: Content["activity"] = {
+    results: [],
+  };
+  const previousActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.previousActivityUser.data[0]?.id);
+  const nextActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.nextActivityUser.data[0]?.id);
+
+  // Embed content
+  // Image
+  if (data.attributes.specific.data.type === 3) activity = { ...activity, ...buildFileActivity(data) };
+  // File
+  if (data.attributes.specific.data.type === 4) activity = {
+    ...activity,
+    ...buildLinkActivity(data),
+  };
+  // Video
+  if (data.attributes.specific.data.type === 5) activity = { ...activity, ...buildVideoActivity(data) };
+
+  // Interactive contents
+  // Forms
+  if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4) activity = { ...activity, ...buildFormActivity(data) };
+  // Workshop
+  if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) activity = { ...activity, ...buildWorkshopActivity(activity, data, included) };
+  // Tasklist
+  if (data.attributes.type.value === 4) activity = { ...activity, ...buildTasklistActivity(data) };
+
+  return {
+    id: data.id,
+    order: data.attributes.specific.order,
+    duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
+    name: data.attributes.title,
+    description: data.attributes.description,
+    conditions: [],
+    locked: data.attributes.permissions.isLocked,
+    picture: data.attributes.design.picture.thumbnail ?? null,
+    progress: {
+      viewed: data.attributes.specific.progression.isViewed,
+      value: data.attributes.specific.progression.progression,
+    },
+    dates: {
+      start: data.attributes.dates.start ? new Date(data.attributes.dates.start) : null,
+      end: data.attributes.dates.end ? new Date(data.attributes.dates.end) : null,
+    },
+    permissions: {
+      rateable: data.attributes.permissions.isRateable,
+      commentable: data.attributes.permissions.isCommentable,
+    },
+    stats: {
+      likes: 0,
+      comments: 0,
+      followers: 0,
+      ratings: 0,
+      rate: null,
+      shares: 0,
+    },
+    activity: {
+      ...activity,
+      results: data.attributes.specific.links.results?.length
+        ? data.attributes.specific.links.results.map((r: any) => ({
+            label: r.label,
+            url: r.link.external,
+          }))
+        : [],
+    },
+    navigation: {
+      previous: previousActivity?.id ?? null,
+      next: nextActivity?.id ?? null,
+    },
+  };
+}
+
 export const useCoursesStore = defineStore("courses", {
   state: (): CoursesState => ({
     courses: null,
@@ -350,9 +510,8 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
 
       try {
-        const { data: _contents } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/activity_users"), {
-          headers: this.api.headers(),
-          query: this.api.params({
+        const response = await this.api.get("/activity_users", { version: 2, endpointVersion: 1 }, {
+          query: {
             "journeys": this.selectedCourse.id,
             "sort": "content_order",
             "stages": stageId,
@@ -360,154 +519,15 @@ export const useCoursesStore = defineStore("courses", {
             "limit": -1,
             "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser",
             "fields[contents]": "activation",
-          }),
-          credentials: "include",
+          },
         });
 
-        if (!_contents.value) return;
+        if (!response) return;
 
-        const contents: Contents = [];
-        _contents.value.data.forEach((c: any) => {
-          let activity: Content["activity"] = {
-            results: [],
-          };
-          const previousActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.previousActivityUser.data[0]?.id);
-          const nextActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.nextActivityUser.data[0]?.id);
+        const data = response.data;
+        const included = response.included;
 
-          // ONE CONTENT
-          // image
-          if (c.attributes.specific.data.type === 3) {
-            const fileName = c.attributes.specific.data.translations?.[0].fileName;
-            const link = c.attributes.specific.data.translations?.[0].fullSize;
-            if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) activity = {
-              ...activity,
-              image: link,
-            };
-            else activity = {
-              ...activity,
-              document: {
-                name: fileName,
-                url: link,
-              },
-            };
-          }
-          // link
-          if (c.attributes.specific.data.type === 4)
-            activity = {
-              ...activity,
-              link: c.attributes.specific.data.translations?.[0].data,
-            };
-          // video
-          if (c.attributes.specific.data.type === 5) {
-            const provider = detectProvider(c.attributes.specific.data.origin);
-            if (provider) activity = {
-              ...activity,
-              video: {
-                provider,
-                code: c.attributes.specific.data.translations?.[0].data,
-                url: c.attributes.specific.data.translations?.[0].url,
-              },
-            };
-          }
-
-          // EMBED CONTENT
-          // forms
-          if (c.attributes.specific.subtype === 2 || c.attributes.specific.type === 4) {
-            const embedContent = c.attributes.specific.links.container.embedContent[0];
-            if (embedContent) activity = {
-              ...activity,
-              embed: {
-                main: embedContent.isMain,
-                disabled: embedContent.disabled,
-                label: embedContent.label,
-                url: embedContent.link.external,
-                embedded: true,
-              },
-            };
-          }
-          // workshop
-          if (c.attributes.specific.subtype === 2 && c.attributes.specific.type === 6) {
-            const relatedLocationId = c.relationships.location?.data[0]?.id;
-            const includedLocation = _contents.value.included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
-            const { start, end } = c.attributes.dates;
-
-            if (start && end) {
-              // workshop content
-              if (includedLocation) activity = {
-                ...activity,
-                blended: {
-                  start: new Date(c.attributes.dates.start),
-                  end: new Date(c.attributes.dates.end),
-                  map: includedLocation.googleMapsIframe,
-                },
-                embed: {
-                  main: true,
-                  disabled: false,
-                  label: useNuxtApp().$i18n.t("btn.open.map"),
-                  embedded: false,
-                  url: includedLocation.googleMapsLink,
-                },
-              };
-
-              // videoconference content
-              else activity = {
-                ...activity,
-                blended: {
-                  start: new Date(c.attributes.dates.start),
-                  end: new Date(c.attributes.dates.end),
-                },
-                embed: {
-                  ...activity.embed!,
-                  embedded: false,
-                },
-              };
-            }
-          }
-
-          contents.push({
-            id: c.id,
-            order: c.attributes.specific.order,
-            duration: c.attributes.specific.duration ? Number(c.attributes.specific.duration) : null,
-            name: c.attributes.title,
-            description: c.attributes.description,
-            conditions: [],
-            locked: c.attributes.permissions.isLocked,
-            picture: c.attributes.design.picture.thumbnail ?? null,
-            progress: {
-              viewed: c.attributes.specific.progression.isViewed,
-              value: c.attributes.specific.progression.progression,
-            },
-            dates: {
-              start: c.attributes.dates.start ? new Date(c.attributes.dates.start) : null,
-              end: c.attributes.dates.end ? new Date(c.attributes.dates.end) : null,
-            },
-            permissions: {
-              rateable: c.attributes.permissions.isRateable,
-              commentable: c.attributes.permissions.isCommentable,
-            },
-            stats: {
-              likes: 0,
-              comments: 0,
-              followers: 0,
-              ratings: 0,
-              rate: null,
-              shares: 0,
-            },
-            activity: {
-              ...activity,
-              results: c.attributes.specific.links.results?.length
-                ? c.attributes.specific.links.results.map((r: any) => ({
-                    label: r.label,
-                    url: r.link.external,
-                  }))
-                : [],
-            },
-            navigation: {
-              previous: previousActivity?.id ?? null,
-              next: nextActivity?.id ?? null,
-            },
-          });
-        });
+        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included));
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {

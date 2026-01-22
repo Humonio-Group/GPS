@@ -75,6 +75,12 @@ export interface ContentActivity {
     start: Date;
     end: Date;
   };
+  tasks?: {
+    id: number;
+    label: string;
+    impact: number;
+    checked: boolean;
+  }[];
   results: {
     label: string;
     url: string;
