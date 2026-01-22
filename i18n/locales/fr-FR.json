@@ -249,6 +249,20 @@
       "now": "Session en cours | Sessions en cours",
       "incoming": "Sessions à venir",
       "passed": "Sessions passées"
+    },
+    "empty": {
+      "active-sessions": {
+        "title": "Oh non...",
+        "description": "Il semblerait que vous n'ayez aucune session en cours."
+      },
+      "other-sessions": {
+        "title": "Oh non...",
+        "description": "Il semblerait que vous n'ayez aucune autre session."
+      },
+      "sessions": {
+        "title": "Oh non...",
+        "description": "Il semblerait que vous n'ayez aucune session."
+      }
     }
   },
 

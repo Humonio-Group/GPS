@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import EventCard from "~/components/events/EventCard.vue";
+import { CalendarX } from "lucide-vue-next";
 
 const store = useCoursesStore();
 const { selectedCourse: course, nowEvents, incomingEvents, passedEvents, loading } = storeToRefs(store);
@@ -48,6 +49,17 @@ store.loadEvents();
             />
           </main>
         </section>
+
+        <UiEmpty v-if="!loading.specific.events && !passedEvents.length && !incomingEvents.length">
+          <UiEmptyHeader>
+            <UiEmptyTitle>
+              {{ $t("events.empty.other-sessions.title") }}
+            </UiEmptyTitle>
+            <UiEmptyDescription>
+              {{ $t("events.empty.other-sessions.description") }}
+            </UiEmptyDescription>
+          </UiEmptyHeader>
+        </UiEmpty>
       </div>
 
       <section class="grid @xl:sticky @xl:top-20 px-6 py-5 bg-card text-card-foreground border rounded-xl">
@@ -58,6 +70,7 @@ store.loadEvents();
             {{ $t("events.sections.now") }}
           </h2>
         </header>
+
         <main
           v-if="nowEvents.length"
           class="grid divide-y"
@@ -70,18 +83,29 @@ store.loadEvents();
         </main>
         <UiEmpty v-else>
           <UiEmptyHeader>
-            <UiEmptyTitle>Oh non...</UiEmptyTitle>
-            <UiEmptyDescription>Il semblerait qu'aucun événement ne soit en cours.</UiEmptyDescription>
-          </UiEmptyHeader> <!-- todo: translate - loic -->
+            <UiEmptyTitle>
+              {{ $t("events.empty.active-sessions.title") }}
+            </UiEmptyTitle>
+            <UiEmptyDescription>
+              {{ $t("events.empty.active-sessions.description") }}
+            </UiEmptyDescription>
+          </UiEmptyHeader>
         </UiEmpty>
       </section>
     </div>
 
     <UiEmpty v-if="!events.length && !loading.specific.events">
       <UiEmptyHeader>
-        <UiEmptyTitle>Oh non...</UiEmptyTitle>
-        <UiEmptyDescription>Il semblerait que vous n'ayez aucun événement.</UiEmptyDescription>
-      </UiEmptyHeader> <!-- todo: translate - loic -->
+        <UiEmptyMedia variant="icon">
+          <CalendarX class="text-muted-foreground" />
+        </UiEmptyMedia>
+        <UiEmptyTitle>
+          {{ $t("events.empty.sessions.title") }}
+        </UiEmptyTitle>
+        <UiEmptyDescription>
+          {{ $t("events.empty.sessions.description") }}
+        </UiEmptyDescription>
+      </UiEmptyHeader>
     </UiEmpty>
 
     <div

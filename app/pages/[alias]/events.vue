@@ -102,6 +102,17 @@ store.loadEvents();
             />
           </div>
         </section>
+
+        <UiEmpty v-if="!loading && !passed.length && !incoming.length">
+          <UiEmptyHeader>
+            <UiEmptyTitle>
+              {{ $t("events.empty.other-sessions.title") }}
+            </UiEmptyTitle>
+            <UiEmptyDescription>
+              {{ $t("events.empty.other-sessions.description") }}
+            </UiEmptyDescription>
+          </UiEmptyHeader>
+        </UiEmpty>
       </div>
 
       <section class="@container/events @xl:sticky @xl:top-20 grid h-min gap-2 px-6 pt-5 pb-2 rounded-xl border bg-card text-card-foreground row-start-1 @xl:row-auto @xl:col-start-2 @2xl:col-start-3 auto-rows-min">
@@ -126,8 +137,12 @@ store.loadEvents();
         </div>
         <UiEmpty v-else>
           <UiEmptyHeader>
-            <UiEmptyTitle>Oh non...</UiEmptyTitle>
-            <UiEmptyDescription>Il semblerait que vous n'ayez aucun session en cours.</UiEmptyDescription>
+            <UiEmptyTitle>
+              {{ $t("events.empty.active-sessions.title") }}
+            </UiEmptyTitle>
+            <UiEmptyDescription>
+              {{ $t("events.empty.active-sessions.description") }}
+            </UiEmptyDescription>
           </UiEmptyHeader>
         </UiEmpty>
       </section>
@@ -139,10 +154,10 @@ store.loadEvents();
           <CalendarX class="text-muted-foreground" />
         </UiEmptyMedia>
         <UiEmptyTitle>
-          Oh non...
+          {{ $t("events.empty.sessions.title") }}
         </UiEmptyTitle>
         <UiEmptyDescription>
-          Il semblerait que vous n'ayez eu aucune session.
+          {{ $t("events.empty.sessions.description") }}
         </UiEmptyDescription>
       </UiEmptyHeader>
     </UiEmpty>
