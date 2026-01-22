@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { mount } from "@vue/test-utils";
 import NotificationLine from "~/components/notifications/NotificationLine.vue";
 import { mockNotificationBadge, mockNotificationContent, mockNotificationCustomMessage } from "../../../utils/fixtures/notification.fixtures";
-import { EventName } from "~/types/entities/notification";
 
 // Mock dependencies
 const mockAlias = { value: "test-workspace" };

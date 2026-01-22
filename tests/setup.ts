@@ -1,5 +1,3 @@
-import { vi } from "vitest";
-
 // Suppress all console errors during tests
 // These are non-critical plugin initialization errors in test environment
 const originalConsoleError = console.error;
@@ -10,12 +8,12 @@ console.error = (...args: any[]) => {
 
   // Suppress known non-critical Nuxt plugin errors
   if (
-    message.includes("Cannot read properties of undefined") ||
-    message.includes("[nuxt] error caught during app initialization") ||
-    message.includes("Page not found:") ||
-    message.includes("H3Error") ||
-    message.includes("[vitest-worker]") ||
-    message.includes("Closing rpc while")
+    message.includes("Cannot read properties of undefined")
+    || message.includes("[nuxt] error caught during app initialization")
+    || message.includes("Page not found:")
+    || message.includes("H3Error")
+    || message.includes("[vitest-worker]")
+    || message.includes("Closing rpc while")
   ) {
     return;
   }
@@ -28,9 +26,9 @@ console.warn = (...args: any[]) => {
 
   // Suppress Vue Router warnings in test environment
   if (
-    message.includes("No match found for location with path") ||
-    message.includes("[Vue Router warn]") ||
-    message.includes("Template compilation error")
+    message.includes("No match found for location with path")
+    || message.includes("[Vue Router warn]")
+    || message.includes("Template compilation error")
   ) {
     return;
   }
@@ -42,8 +40,8 @@ console.warn = (...args: any[]) => {
 process.on("unhandledRejection", (reason: any) => {
   const message = reason?.message || reason?.toString() || "";
   if (
-    message.includes("[vitest-worker]") ||
-    message.includes("Closing rpc while")
+    message.includes("[vitest-worker]")
+    || message.includes("Closing rpc while")
   ) {
     // Suppress these specific errors
     return;

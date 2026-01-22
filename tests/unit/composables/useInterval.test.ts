@@ -1,6 +1,4 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
-import { ref } from "vue";
-import { IntervalStatus } from "~/types/misc/timer";
 
 // Mock onBeforeUnmount to avoid warnings in tests
 vi.mock("vue", async () => {

@@ -6,7 +6,7 @@ import { EventStatus, type Event } from "~/types/entities/event";
 // Mock the composables
 vi.mock("~/composables/useDateUtils", () => ({
   useDateUtils: () => ({
-    relativeDate: vi.fn((date: Date) => "il y a 2 heures"),
+    relativeDate: vi.fn((_date: Date) => "il y a 2 heures"),
   }),
 }));
 
@@ -73,7 +73,7 @@ describe("EventCard", () => {
           UiButton: true,
         },
         mocks: {
-          $t: (key: string, ...args: any[]) => key,
+          $t: (key: string, ..._args: any[]) => key,
         },
       },
     });
@@ -119,7 +119,7 @@ describe("EventCard", () => {
           UiButton: true,
         },
         mocks: {
-          $t: (key: string, options?: any) => key,
+          $t: (key: string, _options?: any) => key,
         },
       },
     });
@@ -141,7 +141,7 @@ describe("EventCard", () => {
           UiButton: true,
         },
         mocks: {
-          $t: (key: string, options?: any) => key,
+          $t: (key: string, _options?: any) => key,
         },
       },
     });
