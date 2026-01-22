@@ -25,7 +25,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div :class="cn('p-4 flex flex-col gap-4', props.class)">
+  <div :class="cn('py-4 flex flex-col gap-4', props.class)">
     <div class="flex items-start gap-2">
       <!-- todo: upload avatar - loic -->
       <div class="grid auto-rows-min">

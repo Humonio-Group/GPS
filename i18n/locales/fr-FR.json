@@ -59,7 +59,7 @@
       },
       "last-update": "Dernière mise à jour le {date}",
       "ends-in": "Termine dans {time}",
-      "starts-in": "Démarre dans {time}",
+      "starts-in": "Démarre {time}",
       "ended": "Terminé {time} | Terminée {time}"
     },
     "date-time": {
@@ -126,6 +126,7 @@
     "course": {
       "overview": "Vue d'ensemble",
       "peoples": "Personnes",
+      "events": "Événements",
       "actions": "Actions",
       "results": "Résultats"
     },

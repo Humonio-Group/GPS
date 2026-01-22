@@ -6,7 +6,7 @@ interface EventState {
   loading: boolean;
 }
 
-function buildEventEntity(data: any): Event {
+export function buildEventEntity(data: any): Event {
   return {
     id: data.id,
     name: data.attributes.contentName,
