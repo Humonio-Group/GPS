@@ -36,6 +36,7 @@ watchOnce(api, (value) => {
       <UiCarouselItem
         v-for="slide in slides"
         :key="`content#${content.id}-slide#${slide.id}`"
+        class="@container/slide-item"
       >
         <MemoSlide :slide="slide" />
       </UiCarouselItem>

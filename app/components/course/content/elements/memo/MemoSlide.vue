@@ -20,7 +20,7 @@ defineProps<MemoSlideProps>();
           v-if="element.type === 'picture' && element.url"
           class="grid gap-2"
         >
-          <div class="aspect-16/11 grid place-items-center">
+          <div class="aspect-16/11 @lg/slide-item:aspect-video grid place-items-center">
             <NuxtImg
               :src="element.url"
               class="max-h-full max-w-full rounded-lg mx-auto"
