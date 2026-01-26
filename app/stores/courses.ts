@@ -225,6 +225,13 @@ function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
     checked: task.checked,
   }));
 }
+function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
+  const extensions = data.attributes.specific.links.container.embedContent[0]!.specific.upload.extensions.split(",") as string[];
+
+  return {
+    extensions,
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
@@ -275,6 +282,11 @@ function buildContentEntity(data: any, included: any): Content {
   if (data.attributes.type.value === 4) {
     const tasks = buildTasklistActivity(data);
     if (tasks) activity = { ...activity, tasks };
+  }
+  // Drop file
+  if (data.attributes.specific.type === 11) {
+    const dropFile = buildDropFileActivity(data);
+    if (dropFile) activity = { ...activity, dropFile };
   }
 
   return {

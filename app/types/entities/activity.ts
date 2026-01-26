@@ -49,6 +49,10 @@ export interface PageActivity {
 }
 export type ActivityPages = PageActivity[];
 
+export interface DropFileActivity {
+  extensions: string[];
+}
+
 export interface ActivityResult {
   label: string;
   url: string;

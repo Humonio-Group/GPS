@@ -8,7 +8,7 @@ import type {
   ActivityResults,
   ActivityTasks,
   BlendedActivity,
-  DocumentActivity,
+  DocumentActivity, DropFileActivity,
   EmbedActivity,
   VideoActivity,
 } from "~/types/entities/activity";
@@ -65,6 +65,7 @@ export interface ContentActivity {
   image?: string;
   document?: DocumentActivity;
   video?: VideoActivity;
+  dropFile?: DropFileActivity;
   embed?: EmbedActivity;
   blended?: BlendedActivity;
   tasks?: ActivityTasks;
