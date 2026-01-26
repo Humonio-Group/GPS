@@ -1,11 +1,12 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } from "~/types/entities/course";
+import type { Content, ContentActivity, Contents, Course, RichCourse, Stages } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
 import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
+import type { PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -126,50 +127,61 @@ function extractBasicInfo(data: any): {
   };
 }
 
-function buildFileActivity(data: any) {
+function buildFileActivity(data: any): ContentActivity["document"] | ContentActivity["image"] {
   const fileName = data.attributes.specific.data.translations?.[0].fileName;
   const link = data.attributes.specific.data.translations?.[0].fullSize;
 
-  if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) return { image: link };
+  if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) return link;
   return {
-    document: {
-      name: fileName,
-      url: link,
-    },
+    name: fileName,
+    url: link,
   };
 }
-function buildLinkActivity(data: any) {
-  return {
-    link: data.attributes.specific.data.translations?.[0].data,
-  };
+function buildLinkActivity(data: any): ContentActivity["link"] {
+  return data.attributes.specific.data.translations?.[0].data;
 }
-function buildVideoActivity(data: any) {
+function buildVideoActivity(data: any): Nullable<ContentActivity["video"]> {
   const provider = detectProvider(data.attributes.specific.data.origin);
   return provider
     ? {
-        video: {
-          provider,
-          code: data.attributes.specific.data.translations?.[0].data,
-          url: data.attributes.specific.data.translations?.[0].url,
-        },
+        provider,
+        code: data.attributes.specific.data.translations?.[0].data,
+        url: data.attributes.specific.data.translations?.[0].url,
       }
-    : {};
+    : null;
 }
-function buildFormActivity(data: any) {
+function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const embedContent = included.find((c: any) => c.type === EntityType.MEMO && c.id === relatedContent?.relationships.embedContent.data[0]?.id);
+
+  return embedContent?.attributes.specific.xmlContent?.pages
+    .map((page: any) => ({
+      id: page.id,
+      title: page.title,
+      elements: page.elements.map((element: any, index: number): PageElement => ({
+        order: index,
+        type: element.type as PageElementType,
+        text: element.text,
+        url: element.url || null,
+      })),
+    }));
+}
+function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
   return embedContent
     ? {
-        embed: {
-          main: embedContent.isMain,
-          disabled: embedContent.disabled,
-          label: embedContent.label,
-          url: embedContent.link.external,
-          embedded: true,
-        },
+        main: embedContent.isMain,
+        disabled: embedContent.disabled,
+        label: embedContent.label,
+        url: embedContent.link.external,
+        embedded: true,
       }
-    : {};
+    : null;
 }
-function buildWorkshopActivity(activity: Content["activity"], data: any, included: any) {
+function buildWorkshopActivity(activity: Content["activity"], data: any, included: any): Nullable<{
+  embed: ContentActivity["embed"];
+  blended: ContentActivity["blended"];
+}> {
   const relatedLocationId = data.relationships.location?.data[0]?.id;
   const includedLocation = included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
   const { start, end } = data.attributes.dates;
@@ -203,43 +215,67 @@ function buildWorkshopActivity(activity: Content["activity"], data: any, include
       },
     };
   }
-  return {};
+  return null;
 }
-function buildTasklistActivity(data: any) {
-  return {
-    tasks: data.attributes.specific.tasks.map((task: any) => ({
-      id: task.id,
-      label: task.name,
-      impact: task.percent,
-      checked: task.checked,
-    })),
-  };
+function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
+  return data.attributes.specific.tasks.map((task: any) => ({
+    id: task.id,
+    label: task.name,
+    impact: task.percent,
+    checked: task.checked,
+  }));
 }
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
-    results: [],
+    results: data.attributes.specific.links.results?.length
+      ? data.attributes.specific.links.results.map((r: any) => ({
+          label: r.label,
+          url: r.link.external,
+        }))
+      : [],
   };
   const previousActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.previousActivityUser.data[0]?.id);
   const nextActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.nextActivityUser.data[0]?.id);
 
   // Embed content
-  // Image
-  if (data.attributes.specific.data.type === 3) activity = { ...activity, ...buildFileActivity(data) };
-  // File
-  if (data.attributes.specific.data.type === 4) activity = {
-    ...activity,
-    ...buildLinkActivity(data),
-  };
+  // Image / Document
+  if (data.attributes.specific.data.type === 3) {
+    const document = buildFileActivity(data);
+    if (typeof document === "string") activity = { ...activity, image: document as string };
+    else if (document) activity = { ...activity, document };
+  }
+  // Link
+  if (data.attributes.specific.data.type === 4) {
+    const link = buildLinkActivity(data);
+    if (link) activity = { ...activity, link };
+  }
   // Video
-  if (data.attributes.specific.data.type === 5) activity = { ...activity, ...buildVideoActivity(data) };
+  if (data.attributes.specific.data.type === 5) {
+    const video = buildVideoActivity(data);
+    if (video) activity = { ...activity, video };
+  }
+  // Memo
+  if (data.attributes.specific.type === 5) {
+    const pages = buildMemoActivity(data, included);
+    if (pages) activity = { ...activity, pages };
+  }
 
   // Interactive contents
   // Forms
-  if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4) activity = { ...activity, ...buildFormActivity(data) };
+  if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4) {
+    const form = buildFormActivity(data);
+    if (form) activity = { ...activity, embed: form };
+  }
   // Workshop
-  if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) activity = { ...activity, ...buildWorkshopActivity(activity, data, included) };
+  if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) {
+    const workshop = buildWorkshopActivity(activity, data, included);
+    if (workshop) activity = { ...activity, ...workshop };
+  }
   // Tasklist
-  if (data.attributes.type.value === 4) activity = { ...activity, ...buildTasklistActivity(data) };
+  if (data.attributes.type.value === 4) {
+    const tasks = buildTasklistActivity(data);
+    if (tasks) activity = { ...activity, tasks };
+  }
 
   return {
     id: data.id,
@@ -270,15 +306,7 @@ function buildContentEntity(data: any, included: any): Content {
       rate: null,
       shares: 0,
     },
-    activity: {
-      ...activity,
-      results: data.attributes.specific.links.results?.length
-        ? data.attributes.specific.links.results.map((r: any) => ({
-            label: r.label,
-            url: r.link.external,
-          }))
-        : [],
-    },
+    activity,
     navigation: {
       previous: previousActivity?.id ?? null,
       next: nextActivity?.id ?? null,
@@ -517,8 +545,9 @@ export const useCoursesStore = defineStore("courses", {
             "stages": stageId,
             "types": "3,4",
             "limit": -1,
-            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser",
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
             "fields[contents]": "activation",
+            "fields[memos]": "specific.xmlContent",
           },
         });
 

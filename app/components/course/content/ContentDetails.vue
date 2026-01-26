@@ -8,6 +8,7 @@ import ContentVideo from "~/components/course/content/elements/ContentVideo.vue"
 import ContentEmbed from "~/components/course/content/elements/ContentEmbed.vue";
 import ContentMap from "~/components/course/content/elements/ContentMap.vue";
 import ContentTasklist from "~/components/course/content/elements/ContentTasklist.vue";
+import ContentMemo from "~/components/course/content/elements/ContentMemo.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -23,6 +24,7 @@ defineProps<ContentDetailsProps>();
       :content="content"
     />
 
+    <!-- reading -->
     <ContentLink
       v-if="content.activity.link"
       :content="content"
@@ -39,7 +41,12 @@ defineProps<ContentDetailsProps>();
       v-if="content.activity.video"
       :content="content"
     />
+    <ContentMemo
+      v-if="content.activity.pages?.length"
+      :content="content"
+    />
 
+    <!-- embed contents -->
     <ContentMap
       v-if="content.activity.blended?.map"
       :content="content"
@@ -49,6 +56,7 @@ defineProps<ContentDetailsProps>();
       :content="content"
     />
 
+    <!-- tasklists -->
     <ContentTasklist
       v-if="content.activity.tasks"
       :content="content"
