@@ -10,7 +10,7 @@ defineProps<ContentMapProps>();
 
 <template>
   <iframe
-    class="w-full max-w-7xl mx-auto aspect-[16/11] rounded-lg"
+    class="w-full max-w-4xl mx-auto aspect-[16/11] rounded-lg"
     :src="content.activity.blended!.map"
     frameborder="0"
   />
