@@ -305,4 +305,192 @@ describe("useCoursesStore - Memo and Tasklist Support", () => {
     expect(task.impact).toBe(50);
     expect(task.checked).toBe(false);
   });
+
+  it("should support dropFile activity structure", () => {
+    // Verify that the Content activity type can include dropFile
+    const contentWithDropFile: Content = {
+      id: 5,
+      name: "Drop File Content",
+      order: 1,
+      description: "A content with file drop",
+      locked: false,
+      conditions: [],
+      duration: null,
+      picture: null,
+      dates: {
+        start: null,
+        end: null,
+      },
+      permissions: {
+        rateable: false,
+        commentable: false,
+      },
+      stats: {
+        comments: 0,
+        followers: 0,
+        likes: 0,
+        ratings: 0,
+        rate: null,
+        shares: 0,
+      },
+      progress: {
+        value: 0,
+        viewed: false,
+      },
+      activity: {
+        dropFile: {
+          extensions: [".pdf", ".doc", ".docx"],
+        },
+        results: [],
+      },
+      navigation: {
+        previous: null,
+        next: null,
+      },
+    };
+
+    expect(contentWithDropFile.activity.dropFile).toBeDefined();
+    expect(contentWithDropFile.activity.dropFile!.extensions).toEqual([".pdf", ".doc", ".docx"]);
+    expect(contentWithDropFile.activity.dropFile!.extensions).toHaveLength(3);
+  });
+
+  it("should support dropFile with various extension formats", () => {
+    // Test extensions with and without leading dot
+    const contentWithMixedExtensions: Content = {
+      id: 6,
+      name: "Drop File Mixed Extensions",
+      order: 1,
+      description: "A content with mixed extension formats",
+      locked: false,
+      conditions: [],
+      duration: null,
+      picture: null,
+      dates: {
+        start: null,
+        end: null,
+      },
+      permissions: {
+        rateable: false,
+        commentable: false,
+      },
+      stats: {
+        comments: 0,
+        followers: 0,
+        likes: 0,
+        ratings: 0,
+        rate: null,
+        shares: 0,
+      },
+      progress: {
+        value: 0,
+        viewed: false,
+      },
+      activity: {
+        dropFile: {
+          extensions: [".pdf", "doc", ".jpg", "png"],
+        },
+        results: [],
+      },
+      navigation: {
+        previous: null,
+        next: null,
+      },
+    };
+
+    expect(contentWithMixedExtensions.activity.dropFile).toBeDefined();
+    expect(contentWithMixedExtensions.activity.dropFile!.extensions).toContain(".pdf");
+    expect(contentWithMixedExtensions.activity.dropFile!.extensions).toContain("doc");
+    expect(contentWithMixedExtensions.activity.dropFile!.extensions).toContain(".jpg");
+    expect(contentWithMixedExtensions.activity.dropFile!.extensions).toContain("png");
+  });
+
+  it("should support dropFile with empty extensions array", () => {
+    // Test with no restrictions (empty extensions)
+    const contentWithNoRestrictions: Content = {
+      id: 7,
+      name: "Drop File No Restrictions",
+      order: 1,
+      description: "A content with no file restrictions",
+      locked: false,
+      conditions: [],
+      duration: null,
+      picture: null,
+      dates: {
+        start: null,
+        end: null,
+      },
+      permissions: {
+        rateable: false,
+        commentable: false,
+      },
+      stats: {
+        comments: 0,
+        followers: 0,
+        likes: 0,
+        ratings: 0,
+        rate: null,
+        shares: 0,
+      },
+      progress: {
+        value: 0,
+        viewed: false,
+      },
+      activity: {
+        dropFile: {
+          extensions: [],
+        },
+        results: [],
+      },
+      navigation: {
+        previous: null,
+        next: null,
+      },
+    };
+
+    expect(contentWithNoRestrictions.activity.dropFile).toBeDefined();
+    expect(contentWithNoRestrictions.activity.dropFile!.extensions).toHaveLength(0);
+  });
+
+  it("should support content without dropFile activity", () => {
+    // Verify that dropFile is optional
+    const contentWithoutDropFile: Content = {
+      id: 8,
+      name: "No Drop File",
+      order: 1,
+      description: "Content without drop file",
+      locked: false,
+      conditions: [],
+      duration: null,
+      picture: null,
+      dates: {
+        start: null,
+        end: null,
+      },
+      permissions: {
+        rateable: false,
+        commentable: false,
+      },
+      stats: {
+        comments: 0,
+        followers: 0,
+        likes: 0,
+        ratings: 0,
+        rate: null,
+        shares: 0,
+      },
+      progress: {
+        value: 0,
+        viewed: false,
+      },
+      activity: {
+        results: [],
+      },
+      navigation: {
+        previous: null,
+        next: null,
+      },
+    };
+
+    expect(contentWithoutDropFile.activity.dropFile).toBeUndefined();
+  });
 });

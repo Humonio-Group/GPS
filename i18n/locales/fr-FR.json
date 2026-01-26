@@ -117,6 +117,14 @@
       "new-content": "Nouveau contenu disponible : {name}",
       "badge-awarded": "Nouveau badge débloqué : {name}",
       "custom-message": "Nouvelle notification."
+    },
+    "drag-n-drop": {
+      "drag-drop-label": "Glissez-déposez votre fichier ici | Glissez-déposez vos fichiers ici",
+      "drop-label": "Déposez votre fichier ici | Déposez vos fichiers ici",
+      "or-click": "ou cliquez pour sélectionner un fichier | ou cliquez pour sélectionner des fichiers",
+      "max-size": "Taille maximale : {value}{unit}",
+      "allowed-extensions": "Extension acceptée : {extensions} | Extensions acceptées : {extensions}",
+      "selected-files": "1 fichier sélectionné | {files} fichiers sélectionnés"
     }
   },
   "navigation": {
