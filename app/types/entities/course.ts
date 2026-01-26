@@ -3,6 +3,15 @@ import type { Actions } from "~/types/entities/action";
 import type { Badges } from "~/types/entities/badge";
 import type { Manager, Peoples } from "~/types/entities/user";
 import type { Events } from "~/types/entities/event";
+import type {
+  ActivityPages,
+  ActivityResults,
+  ActivityTasks,
+  BlendedActivity,
+  DocumentActivity,
+  EmbedActivity,
+  VideoActivity,
+} from "~/types/entities/activity";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -54,37 +63,13 @@ export interface ContentProgress {
 export interface ContentActivity {
   link?: string;
   image?: string;
-  document?: {
-    name: string;
-    url: string;
-  };
-  video?: {
-    provider: VideoProvider;
-    code: string;
-    url: string;
-  };
-  embed?: {
-    main: boolean;
-    disabled: boolean;
-    label: string;
-    url: string;
-    embedded?: boolean;
-  };
-  blended?: {
-    map?: string;
-    start: Date;
-    end: Date;
-  };
-  tasks?: {
-    id: number;
-    label: string;
-    impact: number;
-    checked: boolean;
-  }[];
-  results: {
-    label: string;
-    url: string;
-  }[];
+  document?: DocumentActivity;
+  video?: VideoActivity;
+  embed?: EmbedActivity;
+  blended?: BlendedActivity;
+  tasks?: ActivityTasks;
+  pages?: ActivityPages;
+  results: ActivityResults;
 }
 export interface ContentNavigation {
   previous: Nullable<number>;
