@@ -4,6 +4,7 @@
     "next-content": "Contenu suivant",
     "previous-content": "Contenu précédent",
     "see-my-results": "Voir mes résultats",
+    "know-more": "En savoir plus",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "add": {
@@ -102,15 +103,26 @@
     "locked": "Bloqué | Bloquée",
     "placeholder": {
       "search": "Rechercher...",
+      "task": "Tâche...",
       "generic": {
         "email": "Ex: john.doe.at.example.xyz"
       }
+    },
+    "fields": {
+      "objective": "Objectif",
+      "description": "Description",
+      "deadline": "Date de réalisation",
+      "tasks": "Tâches"
     },
     "form-errors": {
       "email": {
         "required": "Adresse e-mail requise.",
         "invalid": "Adresse e-mail invalide.",
         "other-than-yours": "Utilisez une autre adresse e-mail que la votre."
+      },
+      "tasks": {
+        "task-label-non-empty": "L'intitulé de la tâche doit être renseigné.",
+        "description-required": "La description est requise."
       }
     },
     "notification": {
@@ -125,6 +137,13 @@
       "max-size": "Taille maximale : {value}{unit}",
       "allowed-extensions": "Extension acceptée : {extensions} | Extensions acceptées : {extensions}",
       "selected-files": "1 fichier sélectionné | {files} fichiers sélectionnés"
+    }
+  },
+  "dialogs": {
+    "create-action": {
+      "title": "Créer une action",
+      "description": "Créez une action pour montrer votre implication au sein de la formation.",
+      "markdown-handled": "Syntaxe markdown supportée. {link}"
     }
   },
   "navigation": {

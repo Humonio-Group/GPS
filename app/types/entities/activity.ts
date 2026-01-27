@@ -53,6 +53,13 @@ export interface DropFileActivity {
   extensions: string[];
 }
 
+export interface ActivityAction {
+  reference: number;
+  label: string;
+  main: boolean;
+  disabled: boolean;
+}
+
 export interface ActivityResult {
   label: string;
   url: string;

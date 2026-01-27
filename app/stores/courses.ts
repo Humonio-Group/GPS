@@ -232,6 +232,16 @@ function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
     extensions,
   };
 }
+function buildActionActivity(data: any): ContentActivity["action"] {
+  const link = data.attributes.specific.links.container.embedContent[0];
+
+  return {
+    reference: data.relationships.content.data[0]!.id,
+    label: link!.label,
+    main: link!.isMain,
+    disabled: link!.disabled,
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
@@ -272,6 +282,14 @@ function buildContentEntity(data: any, included: any): Content {
   if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4 || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)) {
     const form = buildFormActivity(data);
     if (form) activity = { ...activity, embed: form };
+  }
+  // action
+  if (data.attributes.specific.type === 8 && data.attributes.specific.subtype === 2) {
+    const action = buildActionActivity(data);
+    if (action) {
+      if (activity.embed) delete activity.embed;
+      activity = { ...activity, action };
+    }
   }
   // Workshop
   if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) {
