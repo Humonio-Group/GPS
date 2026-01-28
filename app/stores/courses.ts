@@ -6,7 +6,7 @@ import type { Badge } from "~/types/entities/badge";
 import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
-import type { PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
+import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -250,9 +250,12 @@ function buildActionActivity(data: any, included: any): ContentActivity["action"
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
-      ? data.attributes.specific.links.results.map((r: any) => ({
+      ? data.attributes.specific.links.results.map((r: any): ActivityResult => ({
           label: r.label,
           url: r.link.external,
+          internalUrl: r.link.internal,
+          main: r.isMain,
+          disabled: r.disabled,
         }))
       : [],
   };

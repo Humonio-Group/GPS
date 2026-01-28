@@ -64,5 +64,8 @@ export interface ActivityAction {
 export interface ActivityResult {
   label: string;
   url: string;
+  internalUrl: string;
+  main: boolean;
+  disabled: boolean;
 }
 export type ActivityResults = ActivityResult[];
