@@ -24,6 +24,7 @@ interface CoursesState {
       events: boolean;
       inviteManager: boolean;
       updateManager: boolean;
+      creatingAction: boolean;
     };
   };
 }
@@ -232,10 +233,14 @@ function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
     extensions,
   };
 }
-function buildActionActivity(data: any): ContentActivity["action"] {
+function buildActionActivity(data: any, included: any): ContentActivity["action"] {
   const link = data.attributes.specific.links.container.embedContent[0];
 
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const embedContent = relatedContent.relationships.embedContent.data[0].id;
+
   return {
+    id: embedContent,
     reference: data.relationships.content.data[0]!.id,
     label: link!.label,
     main: link!.isMain,
@@ -285,7 +290,7 @@ function buildContentEntity(data: any, included: any): Content {
   }
   // action
   if (data.attributes.specific.type === 8 && data.attributes.specific.subtype === 2) {
-    const action = buildActionActivity(data);
+    const action = buildActionActivity(data, included);
     if (action) {
       if (activity.embed) delete activity.embed;
       activity = { ...activity, action };
@@ -361,6 +366,7 @@ export const useCoursesStore = defineStore("courses", {
         events: false,
         inviteManager: false,
         updateManager: false,
+        creatingAction: false,
       },
     },
   }),
@@ -941,6 +947,77 @@ export const useCoursesStore = defineStore("courses", {
       finally {
         this.loading.specific.updateManager = false;
       }
+    },
+
+    async createAction(actionId: number, payload: {
+      objective: number;
+      description: string;
+      deadline: Date;
+      tasks: { checked: boolean; label: string }[];
+      visibility: "public" | "private";
+    }): Promise<boolean> {
+      if (!this.selectedCourse) return false;
+
+      this.loading.specific.creatingAction = true;
+      let state = true;
+
+      try {
+        const response = await this.api.post("/actions", { version: 2, endpointVersion: 1 }, {
+          body: {
+            data: {
+              type: EntityType.ACTION,
+              attributes: {
+                dates: {
+                  endAction:
+                    `${payload.deadline.getFullYear()}-${(payload.deadline.getMonth() + 1).toString().padStart(2, "0")}-${(payload.deadline.getDate()).toString().padStart(2, "0")}`,
+                },
+                description: payload.description,
+                tasklist: payload.tasks.map(t => ({ name: t.label, done: t.checked })),
+              },
+              relationships: {
+                changr: {
+                  data: {
+                    id: actionId,
+                    type: EntityType.CHANGR,
+                  },
+                },
+                impactMapCategory4: {
+                  data: {
+                    id: payload.objective,
+                    type: EntityType.STRATEGY,
+                  },
+                },
+                journey: {
+                  data: {
+                    id: this.selectedCourse.id,
+                    type: EntityType.JOURNEY,
+                  },
+                },
+                topic: {
+                  data: {
+                    type: EntityType.TOPIC,
+                    attributes: {
+                      isPublic: payload.visibility === "public",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        useLogger().log(response);
+      }
+      catch (e) {
+        useLogger().error(e);
+        state = false;
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.creatingAction = false;
+      }
+
+      return state;
     },
   },
 });

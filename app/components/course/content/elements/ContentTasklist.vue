@@ -17,7 +17,10 @@ const tasks = computed(() => props.content.activity.tasks ?? []);
       :key="task.id"
       class="flex items-center gap-2 text-base! font-normal!"
     >
-      <UiCheckbox :model-value="task.checked" />
+      <UiCheckbox
+        v-model="task.checked"
+        class="size-5"
+      />
       <p>{{ task.label }}</p>
     </UiLabel>
   </div>

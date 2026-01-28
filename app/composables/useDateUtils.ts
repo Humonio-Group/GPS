@@ -63,7 +63,10 @@ export const useDateUtils = () => {
   }).format;
 
   const isBefore = (value: Date, compare: Date = new Date()) => value.getTime() < compare.getTime();
+  const isOnOrBefore = (value: Date, compare: Date = new Date()) => value.getTime() <= compare.getTime();
   const isAfter = (value: Date, compare: Date = new Date()) => value.getTime() > compare.getTime();
+  const isOnOrAfter = (value: Date, compare: Date = new Date()) => value.getTime() >= compare.getTime();
+  const isOn = (value: Date, compare: Date = new Date()) => value.getTime() === compare.getTime();
 
   const relativeDate = (date: Date | string | number): string => {
     const dateLocale = () => {
@@ -78,8 +81,13 @@ export const useDateUtils = () => {
     explode,
     sameDate,
     formatDate,
+
     isBefore,
+    isOnOrBefore,
     isAfter,
+    isOnOrAfter,
+    isOn,
+
     relativeDate,
   };
 };

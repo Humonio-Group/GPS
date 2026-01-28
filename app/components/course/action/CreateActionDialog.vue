@@ -36,7 +36,9 @@ watch(open, async (val) => {
 });
 
 const strategyStore = useStrategyStore();
+const store = useCoursesStore();
 const { loading: loadingStrategies, strategies } = storeToRefs(strategyStore);
+const { loading } = storeToRefs(store);
 
 const form = useForm({
   validationSchema: toTypedSchema(z.object({
@@ -53,6 +55,7 @@ const form = useForm({
           message: t("labels.form-errors.tasks.task-label-non-empty"),
         });
     }),
+    visibility: z.enum(["public", "private"]).default("public"),
   })),
   initialValues: {
     tasks: [
@@ -70,10 +73,6 @@ const deadline = computed({
 });
 const tasks = ref<FormTask[]>([{ id: uuid(), checked: false, label: "" }]);
 watch(tasks, val => form.setFieldValue("tasks", val.map(t => ({ checked: t.checked, label: t.label }))), { deep: true });
-
-const submit = form.handleSubmit(async (values) => {
-  useLogger().log("Create action.", values);
-});
 
 async function addTask() {
   const task = {
@@ -126,6 +125,10 @@ async function handleTaskKeydown(id: string, event: KeyboardEvent) {
   event.preventDefault();
   event.stopPropagation();
 }
+
+const submit = form.handleSubmit(async (values) => {
+  open.value = !(await store.createAction(props.content.activity.action!.id, values));
+});
 </script>
 
 <template>
@@ -134,7 +137,7 @@ async function handleTaskKeydown(id: string, event: KeyboardEvent) {
       <slot />
     </UiDialogTrigger>
 
-    <UiDialogContent class="max-w-3xl! w-[calc(100%-2rem)] max-h-[calc(85dvh-2rem)] overflow-y-auto pb-0">
+    <UiDialogContent class="@container max-w-3xl! w-[calc(100%-2rem)] max-h-[calc(85dvh-2rem)] overflow-y-auto pb-0">
       <UiDialogHeader>
         <UiDialogTitle>{{ $t("dialogs.create-action.title") }}</UiDialogTitle>
         <UiDialogDescription>{{ $t("dialogs.create-action.description") }}</UiDialogDescription>
@@ -230,64 +233,6 @@ async function handleTaskKeydown(id: string, event: KeyboardEvent) {
             </UiPopover>
           </UiFormItem>
         </UiFormField>
-        <!-- <div
-          :key="`form-iteration-${iteration}`"
-          class="space-y-2"
-        >
-          <div class="flex items-center justify-between">
-            <UiLabel>
-              {{ $t("labels.fields.tasks") }}
-            </UiLabel>
-
-            <UiButton
-              type="button"
-              variant="ghost"
-              size="icon-xs"
-              @click="addTask"
-            >
-              <Plus />
-            </UiButton>
-          </div>
-
-          <div class="space-y-2">
-            <div
-              v-for="(task, index) in tasks.fields.value"
-              :key="`task#${task.key}`"
-              class="flex items-center gap-2"
-            >
-              <UiFormField
-                v-slot="{ componentField }"
-                :name="`tasks[${index}].checked`"
-              >
-                <UiFormItem>
-                  <UiFormControl>
-                    <UiCheckbox
-                      class="size-5"
-                      :checked="componentField.modelValue"
-                      @update:checked="componentField['onUpdate:modelValue']"
-                    />
-                  </UiFormControl>
-                </UiFormItem>
-              </UiFormField>
-              <UiFormField
-                v-slot="{ componentField }"
-                :name="`tasks[${index}].label`"
-              >
-                <UiFormItem class="w-full">
-                  <UiFormControl>
-                    <UiInput
-                      v-bind="componentField"
-                      :id="`task-input-${task.key}`"
-                      class="border-none shadow-none px-1"
-                      :placeholder="$t('labels.placeholder.task')"
-                      @keydown="handleTaskKeydown(task.key, $event)"
-                    />
-                  </UiFormControl>
-                </UiFormItem>
-              </UiFormField>
-            </div>
-          </div>
-        </div> -->
         <UiFormField name="tasks">
           <UiFormItem class="space-y-2">
             <div class="flex items-center justify-between">
@@ -320,6 +265,47 @@ async function handleTaskKeydown(id: string, event: KeyboardEvent) {
             <UiFormMessage />
           </UiFormItem>
         </UiFormField>
+        <UiFormField
+          v-slot="{ componentField }"
+          name="visibility"
+        >
+          <UiFormItem>
+            <UiFormLabel>{{ $t("labels.fields.visibility") }}</UiFormLabel>
+            <UiFormControl>
+              <UiRadioGroup
+                :model-value="componentField.modelValue"
+                @update:model-value="componentField['onUpdate:modelValue']"
+              >
+                <div class="grid grid-cols-1 @md:grid-cols-2">
+                  <div class="flex items-center gap-2">
+                    <UiRadioGroupItem
+                      id="visibility-public"
+                      value="public"
+                    />
+                    <UiLabel
+                      for="visibility-public"
+                      class="flex-1"
+                    >
+                      {{ $t("labels.visibility.public", 2) }}
+                    </UiLabel>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <UiRadioGroupItem
+                      id="visibility-private"
+                      value="private"
+                    />
+                    <UiLabel
+                      for="visibility-private"
+                      class="flex-1"
+                    >
+                      {{ $t("labels.visibility.private", 2) }}
+                    </UiLabel>
+                  </div>
+                </div>
+              </UiRadioGroup>
+            </UiFormControl>
+          </UiFormItem>
+        </UiFormField>
 
         <UiDialogFooter class="py-4 sticky bottom-0 bg-background">
           <UiDialogClose as-child>
@@ -330,8 +316,12 @@ async function handleTaskKeydown(id: string, event: KeyboardEvent) {
               {{ $t("btn.cancel") }}
             </UiButton>
           </UiDialogClose>
-          <UiButton type="submit">
+          <UiButton
+            type="submit"
+            :disabled="loading.specific.creatingAction"
+          >
             {{ $t("btn.create.action") }}
+            <UiSpinner v-if="loading.specific.creatingAction" />
           </UiButton>
         </UiDialogFooter>
       </form>

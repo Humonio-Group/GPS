@@ -54,6 +54,7 @@ export interface DropFileActivity {
 }
 
 export interface ActivityAction {
+  id: number;
   reference: number;
   label: string;
   main: boolean;

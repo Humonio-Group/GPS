@@ -8,8 +8,21 @@ interface ActionCardProps {
 
 const props = defineProps<ActionCardProps>();
 
-const { isBefore, formatDate } = useDateUtils();
-const late = computed(() => isBefore(props.action.end));
+const { isOn, isOnOrBefore, formatDate } = useDateUtils();
+const end = computed(() => {
+  const date = new Date(props.action.end);
+  date.setDate(date.getDate() + 1);
+  return date;
+});
+const today = computed(() => {
+  const _end = new Date(props.action.end);
+  _end.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return isOn(_end, today);
+});
+const late = computed(() => isOnOrBefore(end.value));
 </script>
 
 <template>
@@ -20,9 +33,12 @@ const late = computed(() => isBefore(props.action.end));
           {{ action.description.raw }}
         </UiCardTitle>
         <UiCardDescription :class="{ 'text-destructive!': late }">
-          {{ late
-            ? $t("labels.state.late")
-            : $t("courses.specimen.actions.to-finish-for", { date: formatDate("medium")(action.end) }) }}
+          <template v-if="late">
+            {{ $t("labels.state.late") }}
+          </template>
+          <template v-else>
+            {{ $t("courses.specimen.actions.to-finish-for", today ? 1 : 2, { named: { date: formatDate("medium")(action.end) } }) }}
+          </template>
         </UiCardDescription>
       </UiCardHeader>
 

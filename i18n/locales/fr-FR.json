@@ -64,6 +64,7 @@
       "ended": "Terminé {time} | Terminée {time}"
     },
     "date-time": {
+      "today": "aujourd'hui",
       "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
       "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
       "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
@@ -112,7 +113,8 @@
       "objective": "Objectif",
       "description": "Description",
       "deadline": "Date de réalisation",
-      "tasks": "Tâches"
+      "tasks": "Tâches",
+      "visibility": "Visibilité"
     },
     "form-errors": {
       "email": {
@@ -137,6 +139,10 @@
       "max-size": "Taille maximale : {value}{unit}",
       "allowed-extensions": "Extension acceptée : {extensions} | Extensions acceptées : {extensions}",
       "selected-files": "1 fichier sélectionné | {files} fichiers sélectionnés"
+    },
+    "visibility": {
+      "public": "Public | Publique",
+      "private": "Privé | Privée"
     }
   },
   "dialogs": {
@@ -247,7 +253,7 @@
           "description": "Il semblerait qu'il n'y ait aucune action..."
         },
         "tasklist": "Liste de tâches",
-        "to-finish-for": "À terminer pour le {date}",
+        "to-finish-for": "À terminer pour aujourd'hui | À terminer pour le {date}",
         "count": "{done} / {total} tâches"
       },
       "results": {
