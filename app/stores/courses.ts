@@ -287,7 +287,12 @@ function buildContentEntity(data: any, included: any): Content {
 
   // Interactive contents
   // Forms
-  if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4 || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)) {
+  if (
+    data.attributes.specific.subtype === 2
+    || data.attributes.specific.type === 4
+    || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)
+    || (data.attributes.specific.type === 7 && data.attributes.specific.subtype === 3)
+  ) {
     const form = buildFormActivity(data);
     if (form) activity = { ...activity, embed: form };
   }
