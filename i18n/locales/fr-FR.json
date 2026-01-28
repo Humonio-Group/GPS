@@ -254,7 +254,7 @@
         },
         "tasklist": "Liste de tâches",
         "to-finish-for": "À terminer pour aujourd'hui | À terminer pour le {date}",
-        "count": "{done} / {total} tâches"
+        "count": "{done} / {total} tâche | {done} / {total} tâches"
       },
       "results": {
         "title": "Résultats - {name}",

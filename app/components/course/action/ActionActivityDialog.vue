@@ -6,42 +6,39 @@ import type { Nullable } from "~/types/primitives/objects";
 import { EntityType } from "~/types/entities/entities";
 
 interface ActionActivityDialogProps {
-  actionId: Nullable<number>;
+  actionId: number;
 }
 const props = defineProps<ActionActivityDialogProps>();
-const emit = defineEmits<{ (e: "close"): void }>();
+const emit = defineEmits<{
+  close: [];
+}>();
 
 const open = defineModel<boolean>("open", { default: false });
 watch(open, (val) => {
-  if (!val) return;
-  emit("close");
-});
-watch(props, (val) => {
-  if (!val.actionId || !open.value) {
-    action.value = null;
+  if (!val) {
+    emit("close");
     return;
   }
+
   loadAction();
 });
 
 const action = ref<Nullable<Action>>(null);
 const loading = ref<boolean>(false);
+const updating = ref<boolean>(false);
 
-const tasks = computed(() => action.value
-  ? [...action.value.tasks]
-      .sort((a, b) => a.order - b.order)
-      .sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0))
-  : []);
+const tasks = computed(() => action.value?.tasks ?? []);
 
 const completedCount = computed(() => tasks.value.filter(t => t.done).length);
 const totalCount = computed(() => tasks.value.length);
+const api = useApi();
 
 async function loadAction() {
   const id = props.actionId;
   loading.value = true;
 
   try {
-    const response = await useApi().get(`/actions/${id}`, { version: 2, endpointVersion: 1 }, {
+    const response = await api.get(`/actions/${id}`, { version: 2, endpointVersion: 1, vanilla: true }, {
       query: {
         include: "impactMapCategory4",
       },
@@ -61,9 +58,9 @@ async function loadAction() {
       },
       end: new Date(response.data.attributes.dates.endAction),
       progression: response.data.attributes.progression,
-      tasks: response.data.attributes.tasklist.map((t: any, index: number) => ({
-        order: index,
-        ...t,
+      tasks: response.data.attributes.tasklist.map((t: any) => ({
+        name: t.name,
+        done: t.done,
       })),
       stats: {
         likes: response.data.attributes.stats.nbLikes,
@@ -81,10 +78,37 @@ async function loadAction() {
     loading.value = false;
   }
 }
+async function updateAction() {
+  if (!action.value) return;
+  updating.value = true;
+
+  try {
+    await useApi().put(`/actions/${action.value.id}`, { version: 2, endpointVersion: 1 }, {
+      body: {
+        data: {
+          type: EntityType.ACTION,
+          attributes: {
+            tasklist: tasks.value.map(t => ({ name: t.name, done: t.done })),
+          },
+        },
+      },
+    });
+  }
+  catch (e) {
+    console.error(e);
+    // todo: toast - loic
+  }
+  finally {
+    updating.value = false;
+  }
+}
 </script>
 
 <template>
   <UiDialog v-model:open="open">
+    <UiDialogTrigger as-child>
+      <slot />
+    </UiDialogTrigger>
     <UiDialogContent>
       <div
         v-if="loading"
@@ -117,7 +141,7 @@ async function loadAction() {
             </h3>
 
             <UiBadge variant="outline">
-              {{ $t("courses.specimen.actions.count", { done: completedCount, total: totalCount }) }}
+              {{ $t("courses.specimen.actions.count", totalCount, { named: { done: completedCount, total: totalCount } }) }}
             </UiBadge>
           </header>
 
@@ -129,15 +153,20 @@ async function loadAction() {
             >
               <UiLabel
                 :for="`a${action.id}-task#${task.name.substring(0, 8)}`"
-                class="text-base! font-normal! leading-normal!"
+                class="text-base! font-normal! leading-normal! cursor-pointer"
               >
                 <UiCheckbox
                   :id="`a${action.id}-task#${task.name.substring(0, 8)}`"
-                  v-model="task.done"
+                  :model-value="task.done"
                   class="size-5"
-                /> <!-- todo: update task/action to sync with server -->
+                  :disabled="updating"
+                  @update:model-value="(val) => {
+                    task.done = val as boolean;
+                    updateAction();
+                  }"
+                />
 
-                <span :class="{ 'text-muted-foreground line-through': task.done }">
+                <span :class="{ 'text-muted-foreground line-through': task.done, 'opacity-50': updating }">
                   {{ task.name }}
                 </span>
               </UiLabel>

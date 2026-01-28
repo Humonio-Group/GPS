@@ -13,12 +13,6 @@ const props = defineProps<ContentActionProps>();
 
 const action = computed(() => props.content.activity.action!);
 const selectedAction = ref<Nullable<number>>(null);
-const dialogOpen = ref<boolean>(false);
-watch(dialogOpen, (value) => {
-  if (value) return;
-  selectedAction.value = null;
-});
-watch(selectedAction, value => dialogOpen.value = !!value);
 
 const getActionId = (url: string): number => Number(url.split("=")[1] ?? -1);
 </script>
@@ -52,8 +46,12 @@ const getActionId = (url: string): number => Number(url.split("=")[1] ?? -1);
       </UiDropdownMenu>
 
       <ActionActivityDialog
-        v-model:open="dialogOpen"
-        :action-id="selectedAction"
+        v-for="(result, index) in content.activity.results"
+        :key="`modal-${result.label}.${index}`"
+
+        :open="selectedAction === getActionId(result.internalUrl)"
+        :action-id="getActionId(result.internalUrl)"
+        @close="selectedAction = null"
       />
     </template>
     <CreateActionDialog

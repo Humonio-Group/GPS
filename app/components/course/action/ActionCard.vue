@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Action } from "~/types/entities/action";
 import ActionDetailsDialog from "~/components/course/action/ActionDetailsDialog.vue";
+import ActionActivityDialog from "~/components/course/action/ActionActivityDialog.vue";
 
 interface ActionCardProps {
   action: Action;
@@ -26,7 +27,7 @@ const late = computed(() => isOnOrBefore(end.value));
 </script>
 
 <template>
-  <ActionDetailsDialog :action="action">
+  <ActionActivityDialog :action-id="action.id">
     <UiCard class="p-4 gap-4 flex-row cursor-pointer">
       <UiCardHeader class="px-0 flex-1 flex flex-col gap-1 overflow-hidden">
         <UiCardTitle class="truncate w-full">
@@ -46,5 +47,5 @@ const late = computed(() => isOnOrBefore(end.value));
         <UiCircularProgress :model-value="action.progression * 100" />
       </UiCardFooter>
     </UiCard>
-  </ActionDetailsDialog>
+  </ActionActivityDialog>
 </template>
