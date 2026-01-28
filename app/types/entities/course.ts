@@ -4,6 +4,7 @@ import type { Badges } from "~/types/entities/badge";
 import type { Manager, Peoples } from "~/types/entities/user";
 import type { Events } from "~/types/entities/event";
 import type {
+  ActivityAction,
   ActivityPages,
   ActivityResults,
   ActivityTasks,
@@ -70,6 +71,7 @@ export interface ContentActivity {
   blended?: BlendedActivity;
   tasks?: ActivityTasks;
   pages?: ActivityPages;
+  action?: ActivityAction;
   results: ActivityResults;
 }
 export interface ContentNavigation {

@@ -6,7 +6,7 @@ import type { Badge } from "~/types/entities/badge";
 import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
-import type { PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
+import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -24,6 +24,7 @@ interface CoursesState {
       events: boolean;
       inviteManager: boolean;
       updateManager: boolean;
+      creatingAction: boolean;
     };
   };
 }
@@ -232,12 +233,29 @@ function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
     extensions,
   };
 }
+function buildActionActivity(data: any, included: any): ContentActivity["action"] {
+  const link = data.attributes.specific.links.container.embedContent[0];
+
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const embedContent = relatedContent.relationships.embedContent.data[0].id;
+
+  return {
+    id: embedContent,
+    reference: data.relationships.content.data[0]!.id,
+    label: link!.label,
+    main: link!.isMain,
+    disabled: link!.disabled,
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
-      ? data.attributes.specific.links.results.map((r: any) => ({
+      ? data.attributes.specific.links.results.map((r: any): ActivityResult => ({
           label: r.label,
           url: r.link.external,
+          internalUrl: r.link.internal,
+          main: r.isMain,
+          disabled: r.disabled,
         }))
       : [],
   };
@@ -272,6 +290,14 @@ function buildContentEntity(data: any, included: any): Content {
   if (data.attributes.specific.subtype === 2 || data.attributes.specific.type === 4 || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)) {
     const form = buildFormActivity(data);
     if (form) activity = { ...activity, embed: form };
+  }
+  // action
+  if (data.attributes.specific.type === 8 && data.attributes.specific.subtype === 2) {
+    const action = buildActionActivity(data, included);
+    if (action) {
+      if (activity.embed) delete activity.embed;
+      activity = { ...activity, action };
+    }
   }
   // Workshop
   if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) {
@@ -343,6 +369,7 @@ export const useCoursesStore = defineStore("courses", {
         events: false,
         inviteManager: false,
         updateManager: false,
+        creatingAction: false,
       },
     },
   }),
@@ -923,6 +950,77 @@ export const useCoursesStore = defineStore("courses", {
       finally {
         this.loading.specific.updateManager = false;
       }
+    },
+
+    async createAction(actionId: number, payload: {
+      objective: number;
+      description: string;
+      deadline: Date;
+      tasks: { checked: boolean; label: string }[];
+      visibility: "public" | "private";
+    }): Promise<boolean> {
+      if (!this.selectedCourse) return false;
+
+      this.loading.specific.creatingAction = true;
+      let state = true;
+
+      try {
+        const response = await this.api.post("/actions", { version: 2, endpointVersion: 1 }, {
+          body: {
+            data: {
+              type: EntityType.ACTION,
+              attributes: {
+                dates: {
+                  endAction:
+                    `${payload.deadline.getFullYear()}-${(payload.deadline.getMonth() + 1).toString().padStart(2, "0")}-${(payload.deadline.getDate()).toString().padStart(2, "0")}`,
+                },
+                description: payload.description,
+                tasklist: payload.tasks.map(t => ({ name: t.label, done: t.checked })),
+              },
+              relationships: {
+                changr: {
+                  data: {
+                    id: actionId,
+                    type: EntityType.CHANGR,
+                  },
+                },
+                impactMapCategory4: {
+                  data: {
+                    id: payload.objective,
+                    type: EntityType.STRATEGY,
+                  },
+                },
+                journey: {
+                  data: {
+                    id: this.selectedCourse.id,
+                    type: EntityType.JOURNEY,
+                  },
+                },
+                topic: {
+                  data: {
+                    type: EntityType.TOPIC,
+                    attributes: {
+                      isPublic: payload.visibility === "public",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        useLogger().log(response);
+      }
+      catch (e) {
+        useLogger().error(e);
+        state = false;
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.creatingAction = false;
+      }
+
+      return state;
     },
   },
 });

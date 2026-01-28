@@ -4,6 +4,7 @@
     "next-content": "Contenu suivant",
     "previous-content": "Contenu précédent",
     "see-my-results": "Voir mes résultats",
+    "know-more": "En savoir plus",
     "save": "Enregistrer",
     "cancel": "Annuler",
     "add": {
@@ -63,6 +64,7 @@
       "ended": "Terminé {time} | Terminée {time}"
     },
     "date-time": {
+      "today": "aujourd'hui",
       "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
       "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
       "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
@@ -102,15 +104,27 @@
     "locked": "Bloqué | Bloquée",
     "placeholder": {
       "search": "Rechercher...",
+      "task": "Tâche...",
       "generic": {
         "email": "Ex: john.doe.at.example.xyz"
       }
+    },
+    "fields": {
+      "objective": "Objectif",
+      "description": "Description",
+      "deadline": "Date de réalisation",
+      "tasks": "Tâches",
+      "visibility": "Visibilité"
     },
     "form-errors": {
       "email": {
         "required": "Adresse e-mail requise.",
         "invalid": "Adresse e-mail invalide.",
         "other-than-yours": "Utilisez une autre adresse e-mail que la votre."
+      },
+      "tasks": {
+        "task-label-non-empty": "L'intitulé de la tâche doit être renseigné.",
+        "description-required": "La description est requise."
       }
     },
     "notification": {
@@ -125,6 +139,17 @@
       "max-size": "Taille maximale : {value}{unit}",
       "allowed-extensions": "Extension acceptée : {extensions} | Extensions acceptées : {extensions}",
       "selected-files": "1 fichier sélectionné | {files} fichiers sélectionnés"
+    },
+    "visibility": {
+      "public": "Public | Publique",
+      "private": "Privé | Privée"
+    }
+  },
+  "dialogs": {
+    "create-action": {
+      "title": "Créer une action",
+      "description": "Créez une action pour montrer votre implication au sein de la formation.",
+      "markdown-handled": "Syntaxe markdown supportée. {link}"
     }
   },
   "navigation": {
@@ -228,8 +253,8 @@
           "description": "Il semblerait qu'il n'y ait aucune action..."
         },
         "tasklist": "Liste de tâches",
-        "to-finish-for": "À terminer pour le {date}",
-        "count": "{done} / {total} tâches"
+        "to-finish-for": "À terminer pour aujourd'hui | À terminer pour le {date}",
+        "count": "{done} / {total} tâche | {done} / {total} tâches"
       },
       "results": {
         "title": "Résultats - {name}",

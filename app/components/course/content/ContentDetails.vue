@@ -10,6 +10,7 @@ import ContentMap from "~/components/course/content/elements/ContentMap.vue";
 import ContentTasklist from "~/components/course/content/elements/ContentTasklist.vue";
 import ContentMemo from "~/components/course/content/elements/ContentMemo.vue";
 import ContentDropFile from "~/components/course/content/elements/ContentDropFile.vue";
+import ContentAction from "~/components/course/content/elements/ContentAction.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -54,6 +55,12 @@ defineProps<ContentDetailsProps>();
     />
     <ContentEmbed
       v-if="content.activity.embed"
+      :content="content"
+    />
+
+    <!-- actions -->
+    <ContentAction
+      v-if="content.activity.action"
       :content="content"
     />
 

@@ -11,6 +11,10 @@ export enum EntityType {
   CONTENT = "contents",
   MEMO = "memos",
   NOTIFICATION = "notifications",
+  TOPIC = "topics",
+  // Actions
+  ACTION = "actions",
+  ACTION_PLAN = "actionPlans",
   // Badges
   BADGE = "badges",
   USER_BADGE = "userBadges",
@@ -22,4 +26,6 @@ export enum EntityType {
   TICKET_CATEGORY = "ticketCategories",
   // Events
   USER_EVENT = "userEvents",
+  // OLD
+  CHANGR = "changrs",
 }
