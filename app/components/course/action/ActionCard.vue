@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Action } from "~/types/entities/action";
-import ActionDetailsDialog from "~/components/course/action/ActionDetailsDialog.vue";
 import ActionActivityDialog from "~/components/course/action/ActionActivityDialog.vue";
 
 interface ActionCardProps {
