@@ -467,9 +467,9 @@ describe("useStrategyStore", () => {
       { version: 2, endpointVersion: 1 },
       expect.objectContaining({
         query: expect.objectContaining({
-          "contents": 999,
-          "journey": 200,
-          "sections": 4,
+          contents: 999,
+          journey: 200,
+          sections: 4,
         }),
       }),
     );

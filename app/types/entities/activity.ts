@@ -69,3 +69,37 @@ export interface ActivityResult {
   disabled: boolean;
 }
 export type ActivityResults = ActivityResult[];
+
+export type ScormVersion = "1.2" | "2004" | "cmi5";
+export type ScormCompletionStatus = "incomplete" | "completed" | "not attempted" | "unknown";
+export type ScormSuccessStatus = "passed" | "failed" | "unknown";
+export type ScormLessonStatus = "passed" | "completed" | "failed" | "incomplete" | "browsed" | "not attempted";
+
+export interface ScormMetadata {
+  version: ScormVersion;
+  completionStatus?: ScormCompletionStatus;
+  successStatus?: ScormSuccessStatus;
+  lessonStatus?: ScormLessonStatus;
+  score?: number;
+  progress?: number;
+  suspendData?: string;
+  totalTime?: string;
+  location?: string;
+}
+
+export interface ScormActivityButton {
+  main: boolean;
+  disabled: boolean;
+  url: string;
+  internalUrl: string;
+  label: string;
+}
+export interface ScormActivityRefs {
+  courseId: number;
+  contentId: number;
+}
+export interface ScormActivity {
+  isEcho: boolean;
+  button: ScormActivityButton;
+  refs: ScormActivityRefs;
+}

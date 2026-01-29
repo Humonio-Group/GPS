@@ -247,6 +247,24 @@ function buildActionActivity(data: any, included: any): ContentActivity["action"
     disabled: link!.disabled,
   };
 }
+function buildScormActivity(data: any): ContentActivity["scorm"] {
+  const link = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    isEcho: data.attributes.specific.type === 13,
+    button: {
+      main: link.isMain,
+      disabled: link.disabled,
+      url: link.link.external,
+      internalUrl: link.link.internal,
+      label: link.label,
+    },
+    refs: {
+      courseId: data.relationships.journey.data[0]!.id,
+      contentId: data.id,
+    },
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
@@ -318,6 +336,15 @@ function buildContentEntity(data: any, included: any): Content {
   if (data.attributes.specific.type === 11) {
     const dropFile = buildDropFileActivity(data);
     if (dropFile) activity = { ...activity, dropFile };
+  }
+  // SCORM
+  // Type 12 or 13 (ECHO) or any content with scorm data in specific
+  if (
+    data.attributes.specific.type === 13
+    || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 6)
+  ) {
+    const scorm = buildScormActivity(data);
+    if (scorm) activity = { ...activity, scorm };
   }
 
   return {

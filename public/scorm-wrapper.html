@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SCORM Player Wrapper</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+    }
+    #scorm-iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+      display: block;
+    }
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 16px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading" id="loading">Chargement du contenu SCORM...</div>
+  <iframe id="scorm-iframe" style="display:none;"></iframe>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ==============================================
+      // 0. Set document.domain for cross-subdomain access
+      // ==============================================
+      try {
+        // Detect if we're on qigu.app domain (or any other base domain)
+        const hostname = window.location.hostname;
+
+        // Extract base domain (e.g., qigu.app from staging.qigu.app or localhost.qigu.app)
+        if (hostname.includes('qigu.app')) {
+          document.domain = 'qigu.app';
+          console.log('[SCORM Wrapper] document.domain set to qigu.app for cross-subdomain access');
+        }
+      } catch (e) {
+        console.warn('[SCORM Wrapper] Cannot set document.domain:', e);
+      }
+
+      // ==============================================
+      // 1. Configuration et contexte depuis URL params
+      // ==============================================
+      const urlParams = new URLSearchParams(window.location.search);
+      const scormUrl = urlParams.get('scormUrl');
+      const journeyId = parseInt(urlParams.get('journeyId') || '0', 10);
+      const contentId = parseInt(urlParams.get('contentId') || '0', 10);
+      const learnerId = parseInt(urlParams.get('learnerId') || '0', 10);
+      const isEcho = urlParams.get('isEcho') === 'true';
+      const useDirectLoad = urlParams.get('useDirectLoad') !== 'false';
+      const env = urlParams.get('env') || 'production';
+
+      // Helper function for conditional logging
+      const isDev = env === 'development';
+      function debugLog(...args) {
+        if (isDev) console.log(...args);
+      }
+
+      // Auto-detect SCORM version - will be determined after content loads
+      let scormVersion = 'auto'; // Will be '1.2' or '2004' after detection
+
+      debugLog('[SCORM Wrapper] Configuration:', {
+        scormUrl,
+        scormVersion,
+        journeyId,
+        contentId,
+        learnerId,
+        isEcho,
+        useDirectLoad
+      });
+
+      // Expose context to SCORM content
+      window.scormContext = {
+        journeyId,
+        contentId,
+        learnerId,
+        isEcho,
+        version: scormVersion
+      };
+
+      if (!scormUrl) {
+        console.error('[SCORM Wrapper] Missing scormUrl parameter');
+        document.getElementById('loading').textContent = 'Erreur: URL SCORM manquante';
+        return;
+      }
+
+      // ==============================================
+      // 2. SCORM API Implementation - Local fallback
+      // ==============================================
+
+      /**
+       * SCORM 1.2 API Implementation
+       */
+      const SCORM_1_2_API = {
+        _initialized: false,
+        _terminated: false,
+        _initInProgress: false,
+        _queuedCalls: [],
+        _data: {
+          'cmi.core.student_id': String(learnerId),
+          'cmi.core.student_name': 'Learner',
+          'cmi.core.lesson_location': '',
+          'cmi.core.lesson_status': 'not attempted',
+          'cmi.core.score.raw': '',
+          'cmi.core.score.min': '0',
+          'cmi.core.score.max': '100',
+          'cmi.suspend_data': '',
+          'cmi.launch_data': '',
+          'cmi.core.entry': 'ab-initio',
+          'cmi.core.total_time': '0000:00:00.00',
+          'cmi.core.session_time': '0000:00:00.00',
+          'cmi.core.exit': ''
+        },
+        _listeners: {
+          Initialize: [],
+          SetValue: [],
+          Terminate: [],
+          GetValue: []
+        },
+
+        LMSInitialize: function(param) {
+          console.log('[SCORM 1.2 API] LMSInitialize called', param);
+
+          if (this._initialized) {
+            console.warn('[SCORM 1.2 API] Already initialized');
+            return 'false';
+          }
+
+          this._initInProgress = true;
+          this._initialized = true;
+
+          // Notify parent
+          window.parent.postMessage({
+            type: 'SCORM_EVENT',
+            event: 'LMSInitialize',
+            apiVersion: '1.2',
+            journeyId,
+            contentId,
+            learnerId
+          }, '*');
+
+          // Trigger listeners
+          this._listeners.Initialize.forEach(fn => {
+            try { fn(param); } catch (e) { console.error(e); }
+          });
+
+          // Process queued calls
+          this._initInProgress = false;
+          while (this._queuedCalls.length > 0) {
+            const fn = this._queuedCalls.shift();
+            try { fn(); } catch (e) { console.error('[Queue] Error:', e); }
+          }
+
+          return 'true';
+        },
+
+        LMSFinish: function(param) {
+          console.log('[SCORM 1.2 API] LMSFinish called', param);
+
+          if (!this._initialized) {
+            console.warn('[SCORM 1.2 API] Not initialized');
+            return 'false';
+          }
+
+          this._terminated = true;
+
+          // Send final data to parent
+          window.parent.postMessage({
+            type: 'SCORM_EVENT',
+            event: 'LMSFinish',
+            apiVersion: '1.2',
+            journeyId,
+            contentId,
+            learnerId,
+            data: {
+              lessonStatus: this._data['cmi.core.lesson_status'],
+              score: this._data['cmi.core.score.raw'],
+              suspendData: this._data['cmi.suspend_data'],
+              location: this._data['cmi.core.lesson_location'],
+              totalTime: this._data['cmi.core.total_time']
+            }
+          }, '*');
+
+          // Trigger listeners
+          this._listeners.Terminate.forEach(fn => {
+            try { fn(param); } catch (e) { console.error(e); }
+          });
+
+          return 'true';
+        },
+
+        LMSGetValue: function(element) {
+          if (!this._initialized) {
+            console.warn('[SCORM 1.2 API] Not initialized - GetValue:', element);
+            return '';
+          }
+
+          const value = this._data[element] !== undefined ? this._data[element] : '';
+          console.log('[SCORM 1.2 API] LMSGetValue:', element, '=', value);
+
+          // Trigger listeners
+          this._listeners.GetValue.forEach(fn => {
+            try { fn(element, value); } catch (e) { console.error(e); }
+          });
+
+          return value;
+        },
+
+        LMSSetValue: function(element, value) {
+          const doSetValue = () => {
+            if (!this._initialized) {
+              console.warn('[SCORM 1.2 API] Not initialized - SetValue:', element);
+              return 'false';
+            }
+
+            if (this._terminated) {
+              console.warn('[SCORM 1.2 API] Already terminated - SetValue:', element);
+              return 'false';
+            }
+
+            console.log('[SCORM 1.2 API] LMSSetValue:', element, '=', value);
+            this._data[element] = value;
+
+            // Notify parent (except for ECHO during session)
+            const shouldNotify = !isEcho || element === 'cmi.core.lesson_status' || element === 'cmi.core.exit';
+
+            if (shouldNotify) {
+              window.parent.postMessage({
+                type: 'SCORM_EVENT',
+                event: 'LMSSetValue',
+                apiVersion: '1.2',
+                element: element,
+                value: value,
+                journeyId,
+                contentId,
+                learnerId,
+                isEcho
+              }, '*');
+            }
+
+            // Trigger listeners
+            this._listeners.SetValue.forEach(fn => {
+              try { fn(element, value); } catch (e) { console.error(e); }
+            });
+
+            return 'true';
+          };
+
+          // Queue if initialization in progress
+          if (this._initInProgress) {
+            console.log('[SCORM 1.2 API] Queuing SetValue until Initialize completes');
+            this._queuedCalls.push(doSetValue);
+            return 'true';
+          }
+
+          return doSetValue();
+        },
+
+        LMSCommit: function(param) {
+          console.log('[SCORM 1.2 API] LMSCommit called', param);
+
+          if (!this._initialized) {
+            return 'false';
+          }
+
+          // Persist data (already sent via SetValue)
+          return 'true';
+        },
+
+        LMSGetLastError: function() {
+          return '0';
+        },
+
+        LMSGetErrorString: function(errorCode) {
+          return 'No error';
+        },
+
+        LMSGetDiagnostic: function(errorCode) {
+          return '';
+        },
+
+        on: function(event, callback) {
+          if (this._listeners[event]) {
+            this._listeners[event].push(callback);
+          }
+        }
+      };
+
+      /**
+       * SCORM 2004 API Implementation
+       */
+      const SCORM_2004_API = {
+        _initialized: false,
+        _terminated: false,
+        _initInProgress: false,
+        _queuedCalls: [],
+        _data: {
+          'cmi.learner_id': String(learnerId),
+          'cmi.learner_name': 'Learner',
+          'cmi.location': '',
+          'cmi.completion_status': 'incomplete',
+          'cmi.success_status': 'unknown',
+          'cmi.score.raw': '',
+          'cmi.score.min': '0',
+          'cmi.score.max': '100',
+          'cmi.score.scaled': '',
+          'cmi.suspend_data': '',
+          'cmi.launch_data': '',
+          'cmi.entry': 'ab-initio',
+          'cmi.total_time': 'PT0H0M0S',
+          'cmi.session_time': 'PT0H0M0S',
+          'cmi.exit': '',
+          'cmi.progress_measure': ''
+        },
+        _listeners: {
+          Initialize: [],
+          SetValue: [],
+          Terminate: [],
+          GetValue: []
+        },
+
+        Initialize: function(param) {
+          console.log('[SCORM 2004 API] Initialize called', param);
+
+          if (this._initialized) {
+            console.warn('[SCORM 2004 API] Already initialized');
+            return 'false';
+          }
+
+          this._initInProgress = true;
+          this._initialized = true;
+
+          // Notify parent
+          window.parent.postMessage({
+            type: 'SCORM_EVENT',
+            event: 'Initialize',
+            apiVersion: '2004',
+            journeyId,
+            contentId,
+            learnerId
+          }, '*');
+
+          // Trigger listeners
+          this._listeners.Initialize.forEach(fn => {
+            try { fn(param); } catch (e) { console.error(e); }
+          });
+
+          // Process queued calls
+          this._initInProgress = false;
+          while (this._queuedCalls.length > 0) {
+            const fn = this._queuedCalls.shift();
+            try { fn(); } catch (e) { console.error('[Queue] Error:', e); }
+          }
+
+          return 'true';
+        },
+
+        Terminate: function(param) {
+          console.log('[SCORM 2004 API] Terminate called', param);
+
+          if (!this._initialized) {
+            console.warn('[SCORM 2004 API] Not initialized');
+            return 'false';
+          }
+
+          this._terminated = true;
+
+          // Send final data to parent
+          window.parent.postMessage({
+            type: 'SCORM_EVENT',
+            event: 'Terminate',
+            apiVersion: '2004',
+            journeyId,
+            contentId,
+            learnerId,
+            data: {
+              completionStatus: this._data['cmi.completion_status'],
+              successStatus: this._data['cmi.success_status'],
+              score: this._data['cmi.score.raw'],
+              scoreScaled: this._data['cmi.score.scaled'],
+              suspendData: this._data['cmi.suspend_data'],
+              location: this._data['cmi.location'],
+              totalTime: this._data['cmi.total_time'],
+              progressMeasure: this._data['cmi.progress_measure']
+            }
+          }, '*');
+
+          // Trigger listeners
+          this._listeners.Terminate.forEach(fn => {
+            try { fn(param); } catch (e) { console.error(e); }
+          });
+
+          return 'true';
+        },
+
+        GetValue: function(element) {
+          if (!this._initialized) {
+            console.warn('[SCORM 2004 API] Not initialized - GetValue:', element);
+            return '';
+          }
+
+          const value = this._data[element] !== undefined ? this._data[element] : '';
+          console.log('[SCORM 2004 API] GetValue:', element, '=', value);
+
+          // Trigger listeners
+          this._listeners.GetValue.forEach(fn => {
+            try { fn(element, value); } catch (e) { console.error(e); }
+          });
+
+          return value;
+        },
+
+        SetValue: function(element, value) {
+          const doSetValue = () => {
+            if (!this._initialized) {
+              console.warn('[SCORM 2004 API] Not initialized - SetValue:', element);
+              return 'false';
+            }
+
+            if (this._terminated) {
+              console.warn('[SCORM 2004 API] Already terminated - SetValue:', element);
+              return 'false';
+            }
+
+            console.log('[SCORM 2004 API] SetValue:', element, '=', value);
+            this._data[element] = value;
+
+            // Notify parent (except for ECHO during session)
+            const shouldNotify = !isEcho || element === 'cmi.completion_status' || element === 'cmi.exit';
+
+            if (shouldNotify) {
+              window.parent.postMessage({
+                type: 'SCORM_EVENT',
+                event: 'SetValue',
+                apiVersion: '2004',
+                element: element,
+                value: value,
+                journeyId,
+                contentId,
+                learnerId,
+                isEcho
+              }, '*');
+            }
+
+            // Trigger listeners
+            this._listeners.SetValue.forEach(fn => {
+              try { fn(element, value); } catch (e) { console.error(e); }
+            });
+
+            return 'true';
+          };
+
+          // Queue if initialization in progress
+          if (this._initInProgress) {
+            console.log('[SCORM 2004 API] Queuing SetValue until Initialize completes');
+            this._queuedCalls.push(doSetValue);
+            return 'true';
+          }
+
+          return doSetValue();
+        },
+
+        Commit: function(param) {
+          console.log('[SCORM 2004 API] Commit called', param);
+
+          if (!this._initialized) {
+            return 'false';
+          }
+
+          // Persist data (already sent via SetValue)
+          return 'true';
+        },
+
+        GetLastError: function() {
+          return '0';
+        },
+
+        GetErrorString: function(errorCode) {
+          return 'No error';
+        },
+
+        GetDiagnostic: function(errorCode) {
+          return '';
+        },
+
+        on: function(event, callback) {
+          if (this._listeners[event]) {
+            this._listeners[event].push(callback);
+          }
+        }
+      };
+
+      // Expose BOTH APIs - the content will choose which one to use
+      window.API = SCORM_1_2_API;
+      window.API_1484_11 = SCORM_2004_API;
+
+      // Also expose on window.top for cross-origin iframes to find
+      if (window.top && window.top !== window) {
+        try {
+          window.top.API = SCORM_1_2_API;
+          window.top.API_1484_11 = SCORM_2004_API;
+          console.log('[SCORM Wrapper] APIs also exposed on window.top for cross-origin access');
+        } catch (e) {
+          console.log('[SCORM Wrapper] Could not expose on window.top (cross-origin)');
+        }
+      }
+
+      console.log('[SCORM Wrapper] Both SCORM APIs exposed (1.2 and 2004) - will auto-detect which is used');
+
+      // ==============================================
+      // 3. Load SCORM Content
+      // ==============================================
+
+      const iframe = document.getElementById('scorm-iframe');
+      const loading = document.getElementById('loading');
+
+      if (useDirectLoad) {
+        // Direct load mode - external content or cross-origin
+        console.log('[SCORM Wrapper] Loading SCORM content (direct mode):', scormUrl);
+
+        iframe.src = scormUrl;
+        iframe.style.display = 'block';
+        loading.style.display = 'none';
+
+        iframe.addEventListener('load', function() {
+          console.log('[SCORM Wrapper] SCORM content loaded');
+
+          // Try to inject bridge if same-origin (will fail for cross-origin, which is expected)
+          try {
+            injectBridgeIntoIframe(iframe);
+          } catch (e) {
+            console.log('[SCORM Wrapper] Cannot inject bridge (cross-origin - expected):', e.message);
+          }
+        });
+      } else {
+        // Fetch mode - same-origin content, fetch and inject bridge
+        console.log('[SCORM Wrapper] Fetching SCORM content (fetch mode):', scormUrl);
+
+        fetch(scormUrl)
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            return response.text();
+          })
+          .then(html => {
+            console.log('[SCORM Wrapper] SCORM content fetched, size:', html.length, 'bytes');
+            console.log('[SCORM Wrapper] Injecting bridge...');
+
+            const bridgeScript = generateBridgeScript();
+            const injectedHtml = injectBridgeIntoHtml(html, bridgeScript);
+
+            console.log('[SCORM Wrapper] Injected HTML size:', injectedHtml.length, 'bytes');
+            console.log('[SCORM Wrapper] Setting srcdoc...');
+
+            // Use srcdoc for all content (including ECHO) to ensure bridge APIs are accessible
+            iframe.srcdoc = injectedHtml;
+
+            iframe.style.display = 'block';
+            loading.style.display = 'none';
+
+            console.log('[SCORM Wrapper] SCORM content loaded with bridge');
+          })
+          .catch(error => {
+            console.error('[SCORM Wrapper] Failed to load SCORM content:', error);
+            loading.textContent = 'Erreur de chargement du contenu SCORM: ' + error.message;
+          });
+      }
+
+      // ==============================================
+      // 4. Bridge Injection Functions
+      // ==============================================
+
+      function generateBridgeScript() {
+        // Generate bridge for BOTH SCORM versions - matches Angular implementation
+        var script = '<' + 'script>';
+        script += 'var isDev = ' + isDev + ';';  // Pass isDev flag to bridge
+        script += 'function debugLog() { if (isDev) console.log.apply(console, arguments); }';
+        script += 'debugLog("[SCORM Bridge] Injecting dual bridge (1.2 + 2004)");';
+
+        // Patch history API to prevent errors in srcdoc context (silently ignore errors)
+        script += 'try {';
+        script += '  var originalPushState = history.pushState;';
+        script += '  var originalReplaceState = history.replaceState;';
+        script += '  history.pushState = function() { try { return originalPushState.apply(history, arguments); } catch(e) { /* Silently ignore - expected in srcdoc */ } };';
+        script += '  history.replaceState = function() { try { return originalReplaceState.apply(history, arguments); } catch(e) { /* Silently ignore - expected in srcdoc */ } };';
+        script += '  debugLog("[SCORM Bridge] History API patched (errors will be silently ignored)");';
+        script += '} catch(e) { if (isDev) console.warn("[SCORM Bridge] Could not patch history API:", e); }';
+
+        // Patch fetch to rewrite relative URLs to absolute (for Nuxt build manifest, etc.)
+        script += 'try {';
+        script += '  var scormBaseUrl = "' + scormUrl.split('?')[0].split('#')[0].substring(0, scormUrl.split('?')[0].split('#')[0].lastIndexOf('/') + 1) + '";';
+        script += '  var originalFetch = window.fetch;';
+        script += '  window.fetch = function(url, options) {';
+        script += '    if (typeof url === "string" && !url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("data:") && !url.startsWith("blob:")) {';
+        script += '      var absoluteUrl = url.startsWith("/") ? scormBaseUrl + url.substring(1) : scormBaseUrl + url;';
+        script += '      debugLog("[SCORM Bridge] Rewriting fetch URL:", url, "->", absoluteUrl);';
+        script += '      return originalFetch.call(window, absoluteUrl, options);';
+        script += '    }';
+        script += '    return originalFetch.apply(window, arguments);';
+        script += '  };';
+        script += '  debugLog("[SCORM Bridge] Fetch API patched for URL rewriting");';
+        script += '} catch(e) { if (isDev) console.warn("[SCORM Bridge] Could not patch fetch API:", e); }';
+
+        // Simple assignment like Angular - no IIFE, no Object.defineProperty
+        script += 'window.API = {';
+        script += 'LMSInitialize: function(p) { debugLog("[SCORM Bridge] API.LMSInitialize called"); window.parent.postMessage({ type: "SCORM_API_CALL", method: "LMSInitialize", args: [p], apiVersion: "1.2" }, "*"); return "true"; },';
+        script += 'LMSFinish: function(p) { debugLog("[SCORM Bridge] API.LMSFinish called"); window.parent.postMessage({ type: "SCORM_API_CALL", method: "LMSFinish", args: [p], apiVersion: "1.2" }, "*"); return "true"; },';
+        script += 'LMSGetValue: function(e) { window.parent.postMessage({ type: "SCORM_API_CALL", method: "LMSGetValue", args: [e], apiVersion: "1.2" }, "*"); return ""; },';
+        script += 'LMSSetValue: function(e, v) { window.parent.postMessage({ type: "SCORM_API_CALL", method: "LMSSetValue", args: [e, v], apiVersion: "1.2" }, "*"); return "true"; },';
+        script += 'LMSCommit: function(p) { window.parent.postMessage({ type: "SCORM_API_CALL", method: "LMSCommit", args: [p], apiVersion: "1.2" }, "*"); return "true"; },';
+        script += 'LMSGetLastError: function() { return "0"; },';
+        script += 'LMSGetErrorString: function(c) { return "No error"; },';
+        script += 'LMSGetDiagnostic: function(c) { return ""; }';
+        script += '};';
+
+        script += 'window.API_1484_11 = {';
+        script += '_initialized: false,';
+        script += '_initInProgress: false,';
+        script += '_queuedCalls: [],';
+        script += 'Initialize: function(p) { debugLog("[SCORM Bridge] API_1484_11.Initialize called"); window.parent.postMessage({ type: "SCORM_API_CALL", method: "Initialize", args: [p], apiVersion: "2004" }, "*"); return "true"; },';
+        script += 'Terminate: function(p) { debugLog("[SCORM Bridge] API_1484_11.Terminate called"); window.parent.postMessage({ type: "SCORM_API_CALL", method: "Terminate", args: [p], apiVersion: "2004" }, "*"); return "true"; },';
+        script += 'GetValue: function(e) { window.parent.postMessage({ type: "SCORM_API_CALL", method: "GetValue", args: [e], apiVersion: "2004" }, "*"); return ""; },';
+        script += 'SetValue: function(e, v) { debugLog("[SCORM Bridge] API_1484_11.SetValue called:", e, "=", v); window.parent.postMessage({ type: "SCORM_API_CALL", method: "SetValue", args: [e, v], apiVersion: "2004" }, "*"); return "true"; },';
+        script += 'Commit: function(p) { debugLog("[SCORM Bridge] API_1484_11.Commit called"); window.parent.postMessage({ type: "SCORM_API_CALL", method: "Commit", args: [p], apiVersion: "2004" }, "*"); return "true"; },';
+        script += 'GetLastError: function() { return "0"; },';
+        script += 'GetErrorString: function(c) { return "No error"; },';
+        script += 'GetDiagnostic: function(c) { return ""; }';
+        script += '};';
+
+        script += 'debugLog("[SCORM Bridge] APIs installed - window.API:", typeof window.API, "window.API_1484_11:", typeof window.API_1484_11);';
+
+        script += '<' + '/script>';
+
+        return script;
+      }
+
+      function injectBridgeIntoHtml(html, bridgeScript) {
+        // Get base URL for converting relative URLs to absolute
+        // Remove query params and hash, then get directory path
+        const urlWithoutParams = scormUrl.split('?')[0].split('#')[0];
+        const baseUrl = urlWithoutParams.substring(0, urlWithoutParams.lastIndexOf('/') + 1);
+
+        // For non-ECHO content, add <base> tag instead of rewriting URLs
+        // For ECHO content, rewrite URLs because <base> tag causes origin conflicts
+        var baseTagOrRewrite = '';
+
+        if (isEcho) {
+          // ECHO: Convert relative URLs to absolute (no <base> tag)
+          html = html
+            // src="..." and src='...'
+            .replace(/src=["'](?!https?:\/\/|data:|blob:)([^"']+)["']/gi, function(match, url) {
+              return 'src="' + baseUrl + url.replace(/^\.?\//, '') + '"';
+            })
+            // href="..." and href='...'
+            .replace(/href=["'](?!https?:\/\/|#|data:|blob:|mailto:|tel:)([^"']+)["']/gi, function(match, url) {
+              return 'href="' + baseUrl + url.replace(/^\.?\//, '') + '"';
+            });
+
+          debugLog('[SCORM Wrapper] Converted relative URLs to absolute (ECHO) with base:', baseUrl);
+        } else {
+          // Non-ECHO: Use <base> tag to resolve relative URLs
+          baseTagOrRewrite = '<base href="' + baseUrl + '">';
+          debugLog('[SCORM Wrapper] Adding <base> tag for non-ECHO content:', baseUrl);
+        }
+
+        // Inject bridge script at the beginning of <head>
+        const headMatch = html.match(/<head[^>]*>/i);
+        if (headMatch) {
+          return html.replace(/<head[^>]*>/i, headMatch[0] + baseTagOrRewrite + bridgeScript);
+        }
+
+        const scriptMatch = html.match(/<script/i);
+        if (scriptMatch) {
+          return html.replace(/<script/i, bridgeScript + '<script');
+        }
+
+        // Fallback: inject at beginning of body
+        const bodyMatch = html.match(/<body[^>]*>/i);
+        if (bodyMatch) {
+          return html.replace(/<body[^>]*>/i, bodyMatch[0] + bridgeScript);
+        }
+
+        return bridgeScript + html;
+      }
+
+      function injectBridgeIntoIframe(iframe) {
+        const doc = iframe.contentDocument || iframe.contentWindow.document;
+        const bridgeScript = doc.createElement('script');
+        bridgeScript.textContent = generateBridgeScript().replace(/<\/?script>/g, '');
+
+        if (doc.head) {
+          doc.head.insertBefore(bridgeScript, doc.head.firstChild);
+        } else if (doc.body) {
+          doc.body.insertBefore(bridgeScript, doc.body.firstChild);
+        }
+      }
+
+      // ==============================================
+      // 5. Handle API calls from bridge and ECHO content
+      // ==============================================
+
+      window.addEventListener('message', function(event) {
+        // Handle bridge API calls (from injected bridge)
+        if (event.data && event.data.type === 'SCORM_API_CALL') {
+          const { method, args, callId, apiVersion } = event.data;
+          console.log('[SCORM Wrapper] Received API call from bridge:', method, args);
+
+          let result;
+          const api = apiVersion === '1.2' ? window.API : window.API_1484_11;
+
+          if (api && typeof api[method] === 'function') {
+            result = api[method].apply(api, args);
+          } else {
+            console.warn('[SCORM Wrapper] Method not found:', method);
+            result = 'false';
+          }
+
+          // Send response back to bridge
+          event.source.postMessage({
+            type: 'SCORM_API_RESPONSE',
+            callId: callId,
+            result: result
+          }, '*');
+        }
+
+        // Handle direct SCORM API requests (from ECHO or other cross-origin content)
+        if (event.data && event.data.type === 'SCORM_REQUEST') {
+          const { method, args, requestId, apiVersion } = event.data;
+          console.log('[SCORM Wrapper] Received SCORM_REQUEST from cross-origin iframe:', method, args);
+
+          let result;
+          const api = apiVersion === '1.2' ? window.API : window.API_1484_11;
+
+          if (api && typeof api[method] === 'function') {
+            result = api[method].apply(api, args);
+          } else {
+            console.warn('[SCORM Wrapper] Method not found:', method);
+            result = apiVersion === '1.2' ? 'false' : 'false';
+          }
+
+          // Send response back to requesting iframe
+          event.source.postMessage({
+            type: 'SCORM_RESPONSE',
+            requestId: requestId,
+            result: result,
+            method: method
+          }, '*');
+        }
+      });
+
+      console.log('[SCORM Wrapper] Initialization complete');
+    })();
+  </script>
+</body>
+</html>

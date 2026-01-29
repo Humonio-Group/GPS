@@ -97,6 +97,25 @@
         "description": "Ce fournisseur vidéo n'est pas supporté."
       }
     },
+    "scorm": {
+      "loading": "Chargement du contenu SCORM...",
+      "player": "Lecteur SCORM",
+      "launch": "Lancer le contenu",
+      "error": {
+        "title": "Erreur de chargement",
+        "description": "Impossible de charger le contenu SCORM. Veuillez réessayer plus tard."
+      },
+      "echo-info": "Ce contenu est hébergé sur une plateforme externe (ECHO). Votre progression sera synchronisée automatiquement.",
+      "external-info": "Ce contenu est hébergé sur une plateforme externe. Votre progression sera synchronisée automatiquement.",
+      "completion": {
+        "initialized": "Contenu initialisé",
+        "progressed": "Progression enregistrée",
+        "completed": "Contenu complété avec succès !",
+        "passed": "Vous avez réussi !",
+        "failed": "Échec de la validation",
+        "suspended": "Progression sauvegardée"
+      }
+    },
     "table-of-contents": "Table des matières",
     "duration": "Durée",
     "workshop-date": "Date de l'événement",

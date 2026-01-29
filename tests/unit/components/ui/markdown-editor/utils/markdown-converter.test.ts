@@ -40,13 +40,13 @@ describe("markdown-converter", () => {
     it("should convert links", () => {
       const markdown = "[Google](https://google.com)";
       const html = markdownToHTML(markdown);
-      expect(html).toContain('<a href="https://google.com">Google</a>');
+      expect(html).toContain("<a href=\"https://google.com\">Google</a>");
     });
 
     it("should convert images", () => {
       const markdown = "![Alt text](https://example.com/image.jpg)";
       const html = markdownToHTML(markdown);
-      expect(html).toContain('<img src="https://example.com/image.jpg" alt="Alt text">');
+      expect(html).toContain("<img src=\"https://example.com/image.jpg\" alt=\"Alt text\">");
     });
 
     it("should convert code blocks", () => {
@@ -100,7 +100,7 @@ describe("markdown-converter", () => {
     it("should linkify URLs automatically", () => {
       const markdown = "Visit https://example.com";
       const html = markdownToHTML(markdown);
-      expect(html).toContain('<a href="https://example.com">https://example.com</a>');
+      expect(html).toContain("<a href=\"https://example.com\">https://example.com</a>");
     });
 
     it("should handle typographer options", () => {
@@ -195,19 +195,19 @@ describe("markdown-converter", () => {
     });
 
     it("should convert links", () => {
-      const html = '<a href="https://google.com">Google</a>';
+      const html = "<a href=\"https://google.com\">Google</a>";
       const markdown = htmlToMarkdown(html);
       expect(markdown).toBe("[Google](https://google.com)");
     });
 
     it("should convert images with alt text", () => {
-      const html = '<img src="https://example.com/image.jpg" alt="Alt text" />';
+      const html = "<img src=\"https://example.com/image.jpg\" alt=\"Alt text\" />";
       const markdown = htmlToMarkdown(html);
       expect(markdown).toBe("![Alt text](https://example.com/image.jpg)");
     });
 
     it("should convert images without alt text", () => {
-      const html = '<img src="https://example.com/image.jpg" />';
+      const html = "<img src=\"https://example.com/image.jpg\" />";
       const markdown = htmlToMarkdown(html);
       expect(markdown).toBe("![](https://example.com/image.jpg)");
     });
@@ -229,7 +229,7 @@ describe("markdown-converter", () => {
     });
 
     it("should convert task lists", () => {
-      const html = '<ul data-type="taskList"><li data-checked="true"><label><input type="checkbox" checked><span>Done task</span></label></li><li data-checked="false"><label><input type="checkbox"><span>Todo task</span></label></li></ul>';
+      const html = "<ul data-type=\"taskList\"><li data-checked=\"true\"><label><input type=\"checkbox\" checked><span>Done task</span></label></li><li data-checked=\"false\"><label><input type=\"checkbox\"><span>Todo task</span></label></li></ul>";
       const markdown = htmlToMarkdown(html);
       expect(markdown).toContain("Done task");
       expect(markdown).toContain("Todo task");
@@ -251,7 +251,7 @@ describe("markdown-converter", () => {
     it("should decode HTML entities", () => {
       const html = "<p>&quot;Hello&quot; &amp; &lt;World&gt;</p>";
       const markdown = htmlToMarkdown(html);
-      expect(markdown).toContain('"Hello"');
+      expect(markdown).toContain("\"Hello\"");
       expect(markdown).toContain("&");
       expect(markdown).toContain("<World>");
     });
