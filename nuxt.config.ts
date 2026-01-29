@@ -42,6 +42,10 @@ export default defineNuxtConfig({
         execute: "",
         develop: "",
       },
+      pusher: {
+        key: "",
+        cluster: "",
+      },
     },
   },
   compatibilityDate: "2025-07-15",
