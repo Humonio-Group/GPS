@@ -51,6 +51,7 @@
     "embla-carousel-vue": "^8.6.0",
     "eslint": "^9.0.0",
     "flag-icons": "^7.5.0",
+    "h5p-standalone": "^3.8.0",
     "lucide-vue-next": "^0.562.0",
     "markdown-it": "^14.1.0",
     "markdown-it-abbr": "^2.0.0",
