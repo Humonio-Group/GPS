@@ -39,6 +39,8 @@ const props = withDefaults(defineProps<Props>(), {
   dialog: true,
 });
 
+const { locale } = useI18n();
+
 const scale = ref(props.initialScale);
 const currentPage = ref(1);
 const pageCount = ref(0);
@@ -135,7 +137,7 @@ const print = async () => {
     iframeDoc.open();
     iframeDoc.write(`
       <!DOCTYPE html>
-      <html>
+      <html lang="${locale.value">
         <head>
           <title>Print PDF</title>
           <style>
