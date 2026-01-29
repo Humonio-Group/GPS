@@ -53,7 +53,7 @@ const mockAction = {
 
 const globalMocks = {
   mocks: {
-    $t: (key: string, ...args: any[]) => key,
+    $t: (key: string, ..._args: any[]) => key,
   },
   stubs: {
     MarkdownRenderer: true,
@@ -119,7 +119,7 @@ describe("ActionActivityDialog", () => {
         query: {
           include: "impactMapCategory4",
         },
-      }
+      },
     );
   });
 
