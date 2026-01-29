@@ -137,7 +137,7 @@ const print = async () => {
     iframeDoc.open();
     iframeDoc.write(`
       <!DOCTYPE html>
-      <html lang="${locale.value">
+      <html lang="${locale.value}">
         <head>
           <title>Print PDF</title>
           <style>
