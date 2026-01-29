@@ -1,11 +1,12 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, Contents, Course, RichCourse, Stages, VideoProvider } from "~/types/entities/course";
+import type { Content, ContentActivity, Contents, Course, RichCourse, Stages } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
 import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
+import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -23,6 +24,7 @@ interface CoursesState {
       events: boolean;
       inviteManager: boolean;
       updateManager: boolean;
+      creatingAction: boolean;
     };
   };
 }
@@ -126,6 +128,295 @@ function extractBasicInfo(data: any): {
   };
 }
 
+function buildFileActivity(data: any): ContentActivity["document"] | ContentActivity["image"] {
+  const fileName = data.attributes.specific.data.translations?.[0].fileName;
+  const link = data.attributes.specific.data.translations?.[0].fullSize;
+
+  if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) return link;
+  return {
+    name: fileName,
+    url: link,
+    permissions: {
+      download: true,
+      zoom: true,
+    }, // todo: handle permissions from server return - loic
+  };
+}
+function buildLinkActivity(data: any): ContentActivity["link"] {
+  return data.attributes.specific.data.translations?.[0].data;
+}
+function buildVideoActivity(data: any): Nullable<ContentActivity["video"]> {
+  const provider = detectProvider(data.attributes.specific.data.origin);
+  return provider
+    ? {
+        provider,
+        code: data.attributes.specific.data.translations?.[0].data,
+        url: data.attributes.specific.data.translations?.[0].url,
+      }
+    : null;
+}
+function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const embedContent = included.find((c: any) => c.type === EntityType.MEMO && c.id === relatedContent?.relationships.embedContent.data[0]?.id);
+
+  return embedContent?.attributes.specific.xmlContent?.pages
+    .map((page: any) => ({
+      id: page.id,
+      title: page.title,
+      elements: page.elements.map((element: any, index: number): PageElement => ({
+        order: index,
+        type: element.type as PageElementType,
+        text: element.text,
+        url: element.url || null,
+      })),
+    }));
+}
+function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
+  const embedContent = data.attributes.specific.links.container.embedContent[0];
+  return embedContent
+    ? {
+        main: embedContent.isMain,
+        disabled: embedContent.disabled,
+        label: embedContent.label,
+        url: embedContent.link.external,
+        embedded: true,
+      }
+    : null;
+}
+function buildWorkshopActivity(activity: Content["activity"], data: any, included: any): Nullable<{
+  embed: ContentActivity["embed"];
+  blended: ContentActivity["blended"];
+}> {
+  const relatedLocationId = data.relationships.location?.data[0]?.id;
+  const includedLocation = included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
+  const { start, end } = data.attributes.dates;
+
+  if (start && end) {
+    // workshop content
+    if (includedLocation) return {
+      blended: {
+        start: new Date(data.attributes.dates.start),
+        end: new Date(data.attributes.dates.end),
+        map: includedLocation.googleMapsIframe,
+      },
+      embed: {
+        main: true,
+        disabled: false,
+        label: useNuxtApp().$i18n.t("btn.open.map"),
+        embedded: false,
+        url: includedLocation.googleMapsLink,
+      },
+    };
+
+    // videoconference content
+    return {
+      blended: {
+        start: new Date(data.attributes.dates.start),
+        end: new Date(data.attributes.dates.end),
+      },
+      embed: {
+        ...activity.embed!,
+        embedded: false,
+      },
+    };
+  }
+  return null;
+}
+function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
+  return data.attributes.specific.tasks.map((task: any) => ({
+    id: task.id,
+    label: task.name,
+    impact: task.percent,
+    checked: task.checked,
+  }));
+}
+function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
+  const extensions = data.attributes.specific.links.container.embedContent[0]!.specific.upload.extensions.split(",") as string[];
+
+  return {
+    extensions,
+  };
+}
+function buildActionActivity(data: any, included: any): ContentActivity["action"] {
+  const link = data.attributes.specific.links.container.embedContent[0];
+
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const embedContent = relatedContent.relationships.embedContent.data[0].id;
+
+  return {
+    id: embedContent,
+    reference: data.relationships.content.data[0]!.id,
+    label: link!.label,
+    main: link!.isMain,
+    disabled: link!.disabled,
+  };
+}
+function buildScormActivity(data: any): ContentActivity["scorm"] {
+  const link = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    isEcho: data.attributes.specific.type === 13,
+    button: {
+      main: link.isMain,
+      disabled: link.disabled,
+      url: link.link.external,
+      internalUrl: link.link.internal,
+      label: link.label,
+    },
+    refs: {
+      courseId: data.relationships.journey.data[0]!.id,
+      contentId: data.id,
+    },
+  };
+}
+function buildH5PActivity(data: any): ContentActivity["h5p"] {
+  const embed = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    main: embed.isMain,
+    disabled: embed.disabled,
+    label: embed.label,
+    url: embed.link.external,
+  };
+}
+function buildCertificateActivity(data: any): ContentActivity["certificate"] {
+  const embed = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    main: embed.isMain,
+    disabled: embed.disabled,
+    label: embed.label,
+    url: embed.link.external,
+  };
+}
+function buildContentEntity(data: any, included: any): Content {
+  let activity: Content["activity"] = {
+    results: data.attributes.specific.links.results?.length
+      ? data.attributes.specific.links.results.map((r: any): ActivityResult => ({
+          label: r.label,
+          url: r.link.external,
+          internalUrl: r.link.internal,
+          main: r.isMain,
+          disabled: r.disabled,
+        }))
+      : [],
+  };
+  const previousActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.previousActivityUser.data[0]?.id);
+  const nextActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.nextActivityUser.data[0]?.id);
+
+  // Embed content
+  // Image / Document
+  if (data.attributes.specific.data.type === 3) {
+    const document = buildFileActivity(data);
+    if (typeof document === "string") activity = { ...activity, image: document as string };
+    else if (document) activity = { ...activity, document };
+  }
+  // Link
+  if (data.attributes.specific.data.type === 4) {
+    const link = buildLinkActivity(data);
+    if (link) activity = { ...activity, link };
+  }
+  // Video
+  if (data.attributes.specific.data.type === 5) {
+    const video = buildVideoActivity(data);
+    if (video) activity = { ...activity, video };
+  }
+  // Memo
+  if (data.attributes.specific.type === 5) {
+    const pages = buildMemoActivity(data, included);
+    if (pages) activity = { ...activity, pages };
+  }
+
+  // Interactive contents
+  // Forms
+  if (
+    data.attributes.specific.subtype === 2
+    || data.attributes.specific.type === 4
+    || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)
+    || (data.attributes.specific.type === 7 && data.attributes.specific.subtype === 3)
+  ) {
+    const form = buildFormActivity(data);
+    if (form) activity = { ...activity, embed: form };
+  }
+  // action
+  if (data.attributes.specific.type === 8 && data.attributes.specific.subtype === 2) {
+    const action = buildActionActivity(data, included);
+    if (action) {
+      if (activity.embed) delete activity.embed;
+      activity = { ...activity, action };
+    }
+  }
+  // Workshop
+  if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) {
+    const workshop = buildWorkshopActivity(activity, data, included);
+    if (workshop) activity = { ...activity, ...workshop };
+    else {
+      const certificate = buildCertificateActivity(data);
+      if (certificate) activity = { ...activity, certificate };
+    }
+  }
+  // Tasklist
+  if (data.attributes.type.value === 4) {
+    const tasks = buildTasklistActivity(data);
+    if (tasks) activity = { ...activity, tasks };
+  }
+  // Drop file
+  if (data.attributes.specific.type === 11) {
+    const dropFile = buildDropFileActivity(data);
+    if (dropFile) activity = { ...activity, dropFile };
+  }
+  // SCORM
+  // Type 12 or 13 (ECHO) or any content with scorm data in specific
+  if (
+    data.attributes.specific.type === 13
+    || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 6)
+  ) {
+    const scorm = buildScormActivity(data);
+    if (scorm) activity = { ...activity, scorm };
+  }
+  // H5P
+  if (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 8) {
+    const h5p = buildH5PActivity(data);
+    if (h5p) activity = { ...activity, h5p };
+  }
+
+  return {
+    id: data.id,
+    order: data.attributes.specific.order,
+    duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
+    name: data.attributes.title,
+    description: data.attributes.description,
+    conditions: [],
+    locked: data.attributes.permissions.isLocked,
+    picture: data.attributes.design.picture.thumbnail ?? null,
+    progress: {
+      viewed: data.attributes.specific.progression.isViewed,
+      value: data.attributes.specific.progression.progression,
+    },
+    dates: {
+      start: data.attributes.dates.start ? new Date(data.attributes.dates.start) : null,
+      end: data.attributes.dates.end ? new Date(data.attributes.dates.end) : null,
+    },
+    permissions: {
+      rateable: data.attributes.permissions.isRateable,
+      commentable: data.attributes.permissions.isCommentable,
+    },
+    stats: {
+      likes: 0,
+      comments: 0,
+      followers: 0,
+      ratings: 0,
+      rate: null,
+      shares: 0,
+    },
+    activity,
+    navigation: {
+      previous: previousActivity?.id ?? null,
+      next: nextActivity?.id ?? null,
+    },
+  };
+}
+
 export const useCoursesStore = defineStore("courses", {
   state: (): CoursesState => ({
     courses: null,
@@ -143,6 +434,7 @@ export const useCoursesStore = defineStore("courses", {
         events: false,
         inviteManager: false,
         updateManager: false,
+        creatingAction: false,
       },
     },
   }),
@@ -350,164 +642,25 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
 
       try {
-        const { data: _contents } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/activity_users"), {
-          headers: this.api.headers(),
-          query: this.api.params({
+        const response = await this.api.get("/activity_users", { version: 2, endpointVersion: 1 }, {
+          query: {
             "journeys": this.selectedCourse.id,
             "sort": "content_order",
             "stages": stageId,
             "types": "3,4",
             "limit": -1,
-            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser",
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
             "fields[contents]": "activation",
-          }),
-          credentials: "include",
+            "fields[memos]": "specific.xmlContent",
+          },
         });
 
-        if (!_contents.value) return;
+        if (!response) return;
 
-        const contents: Contents = [];
-        _contents.value.data.forEach((c: any) => {
-          let activity: Content["activity"] = {
-            results: [],
-          };
-          const previousActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.previousActivityUser.data[0]?.id);
-          const nextActivity = _contents.value.included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === c.relationships.nextActivityUser.data[0]?.id);
+        const data = response.data;
+        const included = response.included;
 
-          // ONE CONTENT
-          // image
-          if (c.attributes.specific.data.type === 3) {
-            const fileName = c.attributes.specific.data.translations?.[0].fileName;
-            const link = c.attributes.specific.data.translations?.[0].fullSize;
-            if (new RegExp("(.*?).(jpg|jpeg|png|gif|bmp|webp)$").test(link)) activity = {
-              ...activity,
-              image: link,
-            };
-            else activity = {
-              ...activity,
-              document: {
-                name: fileName,
-                url: link,
-              },
-            };
-          }
-          // link
-          if (c.attributes.specific.data.type === 4)
-            activity = {
-              ...activity,
-              link: c.attributes.specific.data.translations?.[0].data,
-            };
-          // video
-          if (c.attributes.specific.data.type === 5) {
-            const provider = detectProvider(c.attributes.specific.data.origin);
-            if (provider) activity = {
-              ...activity,
-              video: {
-                provider,
-                code: c.attributes.specific.data.translations?.[0].data,
-                url: c.attributes.specific.data.translations?.[0].url,
-              },
-            };
-          }
-
-          // EMBED CONTENT
-          // forms
-          if (c.attributes.specific.subtype === 2 || c.attributes.specific.type === 4) {
-            const embedContent = c.attributes.specific.links.container.embedContent[0];
-            if (embedContent) activity = {
-              ...activity,
-              embed: {
-                main: embedContent.isMain,
-                disabled: embedContent.disabled,
-                label: embedContent.label,
-                url: embedContent.link.external,
-                embedded: true,
-              },
-            };
-          }
-          // workshop
-          if (c.attributes.specific.subtype === 2 && c.attributes.specific.type === 6) {
-            const relatedLocationId = c.relationships.location?.data[0]?.id;
-            const includedLocation = _contents.value.included.find((l: any) => l.type === EntityType.LOCATION && l.id === relatedLocationId)?.attributes;
-            const { start, end } = c.attributes.dates;
-
-            if (start && end) {
-              // workshop content
-              if (includedLocation) activity = {
-                ...activity,
-                blended: {
-                  start: new Date(c.attributes.dates.start),
-                  end: new Date(c.attributes.dates.end),
-                  map: includedLocation.googleMapsIframe,
-                },
-                embed: {
-                  main: true,
-                  disabled: false,
-                  label: useNuxtApp().$i18n.t("btn.open.map"),
-                  embedded: false,
-                  url: includedLocation.googleMapsLink,
-                },
-              };
-
-              // videoconference content
-              else activity = {
-                ...activity,
-                blended: {
-                  start: new Date(c.attributes.dates.start),
-                  end: new Date(c.attributes.dates.end),
-                },
-                embed: {
-                  ...activity.embed!,
-                  embedded: false,
-                },
-              };
-            }
-          }
-
-          contents.push({
-            id: c.id,
-            order: c.attributes.specific.order,
-            duration: c.attributes.specific.duration ? Number(c.attributes.specific.duration) : null,
-            name: c.attributes.title,
-            description: c.attributes.description,
-            conditions: [],
-            locked: c.attributes.permissions.isLocked,
-            picture: c.attributes.design.picture.thumbnail ?? null,
-            progress: {
-              viewed: c.attributes.specific.progression.isViewed,
-              value: c.attributes.specific.progression.progression,
-            },
-            dates: {
-              start: c.attributes.dates.start ? new Date(c.attributes.dates.start) : null,
-              end: c.attributes.dates.end ? new Date(c.attributes.dates.end) : null,
-            },
-            permissions: {
-              rateable: c.attributes.permissions.isRateable,
-              commentable: c.attributes.permissions.isCommentable,
-            },
-            stats: {
-              likes: 0,
-              comments: 0,
-              followers: 0,
-              ratings: 0,
-              rate: null,
-              shares: 0,
-            },
-            activity: {
-              ...activity,
-              results: c.attributes.specific.links.results?.length
-                ? c.attributes.specific.links.results.map((r: any) => ({
-                    label: r.label,
-                    url: r.link.external,
-                  }))
-                : [],
-            },
-            navigation: {
-              previous: previousActivity?.id ?? null,
-              next: nextActivity?.id ?? null,
-            },
-          });
-        });
+        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included));
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {
@@ -862,6 +1015,77 @@ export const useCoursesStore = defineStore("courses", {
       finally {
         this.loading.specific.updateManager = false;
       }
+    },
+
+    async createAction(actionId: number, payload: {
+      objective: number;
+      description: string;
+      deadline: Date;
+      tasks: { checked: boolean; label: string }[];
+      visibility: "public" | "private";
+    }): Promise<boolean> {
+      if (!this.selectedCourse) return false;
+
+      this.loading.specific.creatingAction = true;
+      let state = true;
+
+      try {
+        const response = await this.api.post("/actions", { version: 2, endpointVersion: 1 }, {
+          body: {
+            data: {
+              type: EntityType.ACTION,
+              attributes: {
+                dates: {
+                  endAction:
+                    `${payload.deadline.getFullYear()}-${(payload.deadline.getMonth() + 1).toString().padStart(2, "0")}-${(payload.deadline.getDate()).toString().padStart(2, "0")}`,
+                },
+                description: payload.description,
+                tasklist: payload.tasks.map(t => ({ name: t.label, done: t.checked })),
+              },
+              relationships: {
+                changr: {
+                  data: {
+                    id: actionId,
+                    type: EntityType.CHANGR,
+                  },
+                },
+                impactMapCategory4: {
+                  data: {
+                    id: payload.objective,
+                    type: EntityType.STRATEGY,
+                  },
+                },
+                journey: {
+                  data: {
+                    id: this.selectedCourse.id,
+                    type: EntityType.JOURNEY,
+                  },
+                },
+                topic: {
+                  data: {
+                    type: EntityType.TOPIC,
+                    attributes: {
+                      isPublic: payload.visibility === "public",
+                    },
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        useLogger().log(response);
+      }
+      catch (e) {
+        useLogger().error(e);
+        state = false;
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.creatingAction = false;
+      }
+
+      return state;
     },
   },
 });

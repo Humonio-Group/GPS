@@ -7,6 +7,12 @@ import ContentDocument from "~/components/course/content/elements/ContentDocumen
 import ContentVideo from "~/components/course/content/elements/ContentVideo.vue";
 import ContentEmbed from "~/components/course/content/elements/ContentEmbed.vue";
 import ContentMap from "~/components/course/content/elements/ContentMap.vue";
+import ContentTasklist from "~/components/course/content/elements/ContentTasklist.vue";
+import ContentMemo from "~/components/course/content/elements/ContentMemo.vue";
+import ContentDropFile from "~/components/course/content/elements/ContentDropFile.vue";
+import ContentAction from "~/components/course/content/elements/ContentAction.vue";
+import ContentScorm from "~/components/course/content/elements/ContentScorm.vue";
+import ContentH5P from "~/components/course/content/elements/ContentH5P.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -22,6 +28,7 @@ defineProps<ContentDetailsProps>();
       :content="content"
     />
 
+    <!-- reading -->
     <ContentLink
       v-if="content.activity.link"
       :content="content"
@@ -38,12 +45,44 @@ defineProps<ContentDetailsProps>();
       v-if="content.activity.video"
       :content="content"
     />
+    <ContentMemo
+      v-if="content.activity.pages?.length"
+      :content="content"
+    />
+
+    <!-- embed contents -->
     <ContentMap
       v-if="content.activity.blended?.map"
       :content="content"
     />
     <ContentEmbed
       v-if="content.activity.embed"
+      :content="content"
+    />
+    <ContentScorm
+      v-if="content.activity.scorm"
+      :content="content"
+    />
+    <ContentH5P
+      v-if="content.activity.h5p"
+      :content="content"
+    />
+
+    <!-- actions -->
+    <ContentAction
+      v-if="content.activity.action"
+      :content="content"
+    />
+
+    <!-- tasklists -->
+    <ContentTasklist
+      v-if="content.activity.tasks"
+      :content="content"
+    />
+
+    <!-- drop file -->
+    <ContentDropFile
+      v-if="content.activity.dropFile"
       :content="content"
     />
   </main>

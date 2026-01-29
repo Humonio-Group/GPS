@@ -62,7 +62,7 @@ const workshop = computed(() => {
     </nav>
 
     <div
-      v-if="loading.specific.activity"
+      v-if="loading.specific.activity && !content"
       class="h-24 w-full grid place-items-center"
     >
       <UiSpinner />

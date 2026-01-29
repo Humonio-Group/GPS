@@ -65,6 +65,7 @@ const totalCount = computed(() => tasks.value.length);
               <UiCheckbox
                 :id="`a${action.id}-task#${task.name.substring(0, 8)}`"
                 v-model="task.done"
+                class="size-5"
               /> <!-- todo: update task/action to sync with server -->
 
               <span :class="{ 'text-muted-foreground line-through': task.done }">

@@ -16,56 +16,6 @@ store.loadActions();
     :name="`courses.specimen.${id}.actions`"
     class="text-sm text-muted-foreground grid gap-4"
   >
-    <header
-      v-if="false"
-      class="flex items-center justify-between"
-    >
-      <!-- todo: tabs - loic -->
-      <div class="flex gap-2">
-        <UiButton
-          variant="outline"
-          size="sm"
-        >
-          Personnelles
-          <UiBadge
-            class="text-[0.55rem]! px-1.5"
-            variant="secondary"
-          >
-            {{ course!.actions.length }}
-          </UiBadge>
-        </UiButton>
-        <UiButton
-          variant="outline"
-          size="sm"
-        >
-          Publiques
-          <UiBadge
-            class="text-[0.55rem]! px-1.5"
-            variant="secondary"
-          >
-            {{ course!.actions.length }}
-          </UiBadge>
-        </UiButton>
-        <UiButton
-          variant="outline"
-          size="sm"
-        >
-          Suivies
-          <UiBadge
-            class="text-[0.55rem]! px-1.5"
-            variant="secondary"
-          >
-            {{ course!.actions.length }}
-          </UiBadge>
-        </UiButton>
-      </div>
-
-      <UiButton>
-        <Plus />
-        {{ $t("btn.create.action") }}
-      </UiButton>
-    </header>
-
     <div
       v-if="course!.actions.length > 0"
       class="grid gap-4"
