@@ -116,6 +116,22 @@
         "suspended": "Progression sauvegardée"
       }
     },
+    "h5p": {
+      "loading": "Chargement du contenu H5P...",
+      "player": "Lecteur H5P",
+      "launch": "Lancer le contenu",
+      "error": {
+        "title": "Erreur de chargement",
+        "description": "Impossible de charger le contenu H5P. Veuillez réessayer plus tard."
+      },
+      "completion": {
+        "initialized": "Contenu initialisé",
+        "progressed": "Progression enregistrée",
+        "completed": "Contenu complété avec succès !",
+        "passed": "Vous avez réussi !",
+        "failed": "Échec de la validation"
+      }
+    },
     "table-of-contents": "Table des matières",
     "duration": "Durée",
     "workshop-date": "Date de l'événement",

@@ -75,18 +75,6 @@ export type ScormCompletionStatus = "incomplete" | "completed" | "not attempted"
 export type ScormSuccessStatus = "passed" | "failed" | "unknown";
 export type ScormLessonStatus = "passed" | "completed" | "failed" | "incomplete" | "browsed" | "not attempted";
 
-export interface ScormMetadata {
-  version: ScormVersion;
-  completionStatus?: ScormCompletionStatus;
-  successStatus?: ScormSuccessStatus;
-  lessonStatus?: ScormLessonStatus;
-  score?: number;
-  progress?: number;
-  suspendData?: string;
-  totalTime?: string;
-  location?: string;
-}
-
 export interface ScormActivityButton {
   main: boolean;
   disabled: boolean;
@@ -102,4 +90,11 @@ export interface ScormActivity {
   isEcho: boolean;
   button: ScormActivityButton;
   refs: ScormActivityRefs;
+}
+
+export interface H5PActivity {
+  main: boolean;
+  disabled: boolean;
+  url: string;
+  label: string;
 }
