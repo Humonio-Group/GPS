@@ -279,6 +279,16 @@ function buildH5PActivity(data: any): ContentActivity["h5p"] {
     url: embed.link.external,
   };
 }
+function buildCertificateActivity(data: any): ContentActivity["certificate"] {
+  const embed = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    main: embed.isMain,
+    disabled: embed.disabled,
+    label: embed.label,
+    url: embed.link.external,
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
@@ -340,6 +350,10 @@ function buildContentEntity(data: any, included: any): Content {
   if (data.attributes.specific.subtype === 2 && data.attributes.specific.type === 6) {
     const workshop = buildWorkshopActivity(activity, data, included);
     if (workshop) activity = { ...activity, ...workshop };
+    else {
+      const certificate = buildCertificateActivity(data);
+      if (certificate) activity = { ...activity, certificate };
+    }
   }
   // Tasklist
   if (data.attributes.type.value === 4) {

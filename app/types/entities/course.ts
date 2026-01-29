@@ -8,7 +8,7 @@ import type {
   ActivityPages,
   ActivityResults,
   ActivityTasks,
-  BlendedActivity,
+  BlendedActivity, CertificateActivity,
   DocumentActivity, DropFileActivity,
   EmbedActivity, H5PActivity,
   ScormActivity,
@@ -72,6 +72,7 @@ export interface ContentActivity {
   blended?: BlendedActivity;
   scorm?: ScormActivity;
   h5p?: H5PActivity;
+  certificate?: CertificateActivity;
   tasks?: ActivityTasks;
   pages?: ActivityPages;
   action?: ActivityAction;
