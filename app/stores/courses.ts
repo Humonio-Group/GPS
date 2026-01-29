@@ -136,6 +136,10 @@ function buildFileActivity(data: any): ContentActivity["document"] | ContentActi
   return {
     name: fileName,
     url: link,
+    permissions: {
+      download: true,
+      zoom: true,
+    }, // todo: handle permissions from server return - loic
   };
 }
 function buildLinkActivity(data: any): ContentActivity["link"] {

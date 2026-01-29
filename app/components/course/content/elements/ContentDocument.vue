@@ -17,25 +17,25 @@ defineProps<ContentDocumentProps>();
       </p>
 
       <div class="flex items-center gap-1">
-        <UiButton
-          size="icon"
-          variant="outline"
-          disabled
-        >
-          <Eye />
-        </UiButton>
-        <UiButton
-          size="icon"
-          variant="outline"
-          as-child
-        >
-          <NuxtLink
-            :to="content.activity.document!.url"
-            external
-          >
-            <SquareArrowOutUpRight />
-          </NuxtLink>
-        </UiButton>
+        <UiDialog>
+          <UiDialogTrigger as-child>
+            <UiButton
+              size="icon"
+              variant="outline"
+            >
+              <Eye />
+            </UiButton>
+          </UiDialogTrigger>
+          <UiDialogContent class="max-w-[calc(100dvw-2rem)]! w-full h-[calc(100dvh-2rem)] p-0">
+            <UiPdfViewer
+              class="size-full!"
+              :source="content.activity.document!.url"
+              :allow-print="content.activity.document!.permissions.download"
+              :allow-download="content.activity.document!.permissions.download"
+              :allow-zoom="content.activity.document!.permissions.zoom"
+            />
+          </UiDialogContent>
+        </UiDialog>
       </div>
     </UiCardContent>
   </UiCard>
