@@ -96,9 +96,11 @@ export interface ScormActivity {
   refs: ScormActivityRefs;
 }
 
-export interface H5PActivity {
+export interface ActivityLink {
   main: boolean;
   disabled: boolean;
   url: string;
   label: string;
 }
+export type H5PActivity = ActivityLink;
+export type CertificateActivity = ActivityLink;
