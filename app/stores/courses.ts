@@ -265,6 +265,16 @@ function buildScormActivity(data: any): ContentActivity["scorm"] {
     },
   };
 }
+function buildH5PActivity(data: any): ContentActivity["h5p"] {
+  const embed = data.attributes.specific.links.container.embedContent[0]!;
+
+  return {
+    main: embed.isMain,
+    disabled: embed.disabled,
+    label: embed.label,
+    url: embed.link.external,
+  };
+}
 function buildContentEntity(data: any, included: any): Content {
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
@@ -345,6 +355,11 @@ function buildContentEntity(data: any, included: any): Content {
   ) {
     const scorm = buildScormActivity(data);
     if (scorm) activity = { ...activity, scorm };
+  }
+  // H5P
+  if (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 8) {
+    const h5p = buildH5PActivity(data);
+    if (h5p) activity = { ...activity, h5p };
   }
 
   return {

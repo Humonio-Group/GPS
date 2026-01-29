@@ -10,7 +10,7 @@ import type {
   ActivityTasks,
   BlendedActivity,
   DocumentActivity, DropFileActivity,
-  EmbedActivity,
+  EmbedActivity, H5PActivity,
   ScormActivity,
   VideoActivity,
 } from "~/types/entities/activity";
@@ -71,6 +71,7 @@ export interface ContentActivity {
   embed?: EmbedActivity;
   blended?: BlendedActivity;
   scorm?: ScormActivity;
+  h5p?: H5PActivity;
   tasks?: ActivityTasks;
   pages?: ActivityPages;
   action?: ActivityAction;

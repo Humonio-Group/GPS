@@ -12,6 +12,7 @@ import ContentMemo from "~/components/course/content/elements/ContentMemo.vue";
 import ContentDropFile from "~/components/course/content/elements/ContentDropFile.vue";
 import ContentAction from "~/components/course/content/elements/ContentAction.vue";
 import ContentScorm from "~/components/course/content/elements/ContentScorm.vue";
+import ContentH5P from "~/components/course/content/elements/ContentH5P.vue";
 
 interface ContentDetailsProps {
   content: Content;
@@ -60,6 +61,10 @@ defineProps<ContentDetailsProps>();
     />
     <ContentScorm
       v-if="content.activity.scorm"
+      :content="content"
+    />
+    <ContentH5P
+      v-if="content.activity.h5p"
       :content="content"
     />
 
