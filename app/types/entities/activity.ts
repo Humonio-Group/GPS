@@ -3,6 +3,10 @@ import type { Nullable } from "~/types/primitives/objects";
 export interface DocumentActivity {
   name: string;
   url: string;
+  permissions: {
+    download: boolean;
+    zoom: boolean;
+  };
 }
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
