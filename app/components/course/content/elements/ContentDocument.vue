@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Eye, SquareArrowOutUpRight } from "lucide-vue-next";
+import { Eye } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 
 interface ContentDocumentProps {
