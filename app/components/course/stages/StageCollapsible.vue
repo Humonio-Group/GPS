@@ -14,7 +14,9 @@ const { loading: loads } = storeToRefs(store);
 
 const loading = computed(() => loads.value.specific.stageContents.includes(props.stage.reference));
 
-onMounted(() => store.loadContents(props.stage.reference));
+onMounted(() => {
+  if (!props.stage.contents.length) store.loadContents(props.stage.reference);
+});
 </script>
 
 <template>
