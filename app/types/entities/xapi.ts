@@ -1,6 +1,5 @@
 import type { Content, Course } from "~/types/entities/course";
 import type { User } from "~/types/entities/user";
-import { v4 as uuid } from "uuid";
 
 export type XApiVerbType = "initialized" | "progressed" | "completed" | "suspended" | "passed" | "failed" | "answered" | "experienced";
 
@@ -98,7 +97,7 @@ export class StatementFactory {
     this.course = course;
   }
 
-  prepare(verb: XApiVerb, progress: number, score?: XApiResult["score"]): {
+  prepare(verb: XApiVerb, progress?: number, score?: XApiResult["score"]): {
     statement: XApiStatement;
     headers?: Record<string, string>;
   } {
@@ -121,10 +120,10 @@ export class StatementFactory {
     };
     if (score) body.result = { ...body.result, score };
 
-    body.result = {
+    if (body.result) body.result = {
       ...body.result,
       extensions: {
-        [`${useRuntimeConfig().public.urls.lrs}/extension/progression`]: Math.round(100000 * progress) / 100000,
+        [`${useRuntimeConfig().public.urls.lrs}/extension/progression`]: Math.round(100000 * (progress ?? 0)) / 100000,
       },
     };
 

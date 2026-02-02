@@ -23,6 +23,7 @@ watch(open, (val) => {
   loadAction();
 });
 
+const store = useCoursesStore();
 const action = ref<Nullable<Action>>(null);
 const loading = ref<boolean>(false);
 const updating = ref<boolean>(false);
@@ -93,6 +94,8 @@ async function updateAction() {
         },
       },
     });
+    action.value.progression = tasks.value.filter(t => t.done).length / totalCount.value;
+    store.updateAction(props.actionId, action.value);
   }
   catch (e) {
     console.error(e);

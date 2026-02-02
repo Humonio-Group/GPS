@@ -93,6 +93,7 @@ export interface Content {
   name: string;
   description: string;
   locked: boolean;
+  completeOnOpen: boolean;
   conditions: unknown[];
   lrs?: Nullable<ContentLRS>;
   duration: Nullable<number>;

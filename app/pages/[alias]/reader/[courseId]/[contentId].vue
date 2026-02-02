@@ -3,6 +3,7 @@ import { ArrowLeft, ArrowRight, Calendar, Clock, X } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import ContentDetails from "~/components/course/content/ContentDetails.vue";
 import ContentDetailItem from "~/components/course/content/header/ContentDetailItem.vue";
+import { StatementFactory } from "~/types/entities/xapi";
 
 const { t } = useI18n();
 
@@ -18,9 +19,37 @@ const { selectedCourse: course, allContents, loading } = storeToRefs(store);
 
 const contentId = useRoute().params.contentId;
 const content = computed(() => allContents.value.find(c => c.id === Number(contentId)));
-watch(content, val => useHead({
-  title: `${val?.name} - ${course.value!.name}`,
-}), { immediate: true });
+watch(content, async (val) => {
+  if (!val) return;
+
+  useHead({
+    title: `${val?.name} - ${course.value!.name}`,
+  });
+  const statementFactory = new StatementFactory(val);
+
+  useLogger().log(val.completeOnOpen);
+
+  if (val.completeOnOpen && val.progress.value < 1) {
+    const { statement, headers } = statementFactory.prepare({
+      id: "http://adlnet.gov/expapi/verbs/completed",
+      display: {
+        "en-US": "completed",
+        "fr-FR": "complété",
+      },
+    });
+    await store.sendXAPIStatement(val.reference, 1, statement, headers);
+    return;
+  }
+
+  const { statement, headers } = statementFactory.prepare({
+    id: "http://adlnet.gov/expapi/verbs/initialized",
+    display: {
+      "en-US": "initialized",
+      "fr-FR": "initalisé",
+    },
+  });
+  await store.sendXAPIStatement(val.reference, 0, statement, headers);
+}, { immediate: true });
 const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(contentId))));
 
 const { formatDate, sameDate } = useDateUtils();

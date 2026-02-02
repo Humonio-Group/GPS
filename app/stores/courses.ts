@@ -1,5 +1,5 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, ContentActivity, Contents, Course, RichCourse, Stages } from "~/types/entities/course";
+import type { Content, ContentActivity, Contents, Course, RichCourse, Stage } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
@@ -51,6 +51,17 @@ function detectStatus(origin: number): Manager["invitationStatus"] {
     case 2: return "declined";
     default: return "pending";
   }
+}
+function detectAutoComplete(data: any, activity: ContentActivity): boolean {
+  const { attributes } = data;
+
+  const hasTypeOrSubtype = attributes.specific.type || attributes.specific.subtype;
+  const hasEmbedContent = !!attributes.specific.links.container.embedContent;
+  const completeOnOpen = attributes.specific.sendCompletionOnOpen;
+  const isWYSIWYG = !hasTypeOrSubtype && !hasEmbedContent && attributes.specific.data.type === 0;
+  const isImage = !hasTypeOrSubtype && attributes.specific.data.type === 3 && !!activity.image;
+
+  return completeOnOpen || isWYSIWYG || isImage;
 }
 function buildCourseEntity(journey: any, program: any): Course {
   return {
@@ -173,6 +184,11 @@ function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
 }
 function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
+
+  const shouldComplete
+    = (data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2)
+  ;
+
   return embedContent
     ? {
         main: embedContent.isMain,
@@ -180,6 +196,7 @@ function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
         label: embedContent.label,
         url: embedContent.link.external,
         embedded: true,
+        completeOnOpen: shouldComplete,
       }
     : null;
 }
@@ -287,6 +304,7 @@ function buildCertificateActivity(data: any): ContentActivity["certificate"] {
     disabled: embed.disabled,
     label: embed.label,
     url: embed.link.external,
+    completeOnOpen: true,
   };
 }
 function buildContentEntity(data: any, included: any): Content {
@@ -352,7 +370,7 @@ function buildContentEntity(data: any, included: any): Content {
     if (workshop) activity = { ...activity, ...workshop };
     else {
       const certificate = buildCertificateActivity(data);
-      if (certificate) activity = { ...activity, certificate };
+      if (certificate) activity = { ...activity, certificate }; // todo: embed undefined when certificate emits d of the gear - loic
     }
   }
   // Tasklist
@@ -389,6 +407,7 @@ function buildContentEntity(data: any, included: any): Content {
     description: data.attributes.description,
     conditions: [],
     locked: data.attributes.permissions.isLocked,
+    completeOnOpen: detectAutoComplete(data, activity),
     picture: data.attributes.design.picture.thumbnail ?? null,
     progress: {
       viewed: data.attributes.specific.progression.isViewed,
@@ -602,13 +621,15 @@ export const useCoursesStore = defineStore("courses", {
         const journeyStages = response.data;
         const programStages = response.included.filter((e: any) => e.type === "programStages");
 
-        const stages: Stages = [];
-        journeyStages
-          .filter((js: any) => !js.attributes.isHidden)
-          .forEach((stage: any) => {
-            const programStage = programStages.find((ps: any) => ps.id === stage.relationships.programStage.data[0].id);
+        const existingStages = this.selectedCourse.stages;
 
-            stages.push({
+        this.selectedCourse.stages = journeyStages
+          .filter((js: any) => !js.attributes.isHidden)
+          .map((stage: any) => {
+            const programStage = programStages.find((ps: any) => ps.id === stage.relationships.programStage.data[0].id);
+            const existing = existingStages.find(s => s.id === stage.id);
+
+            return {
               id: stage.id,
               reference: programStage.id,
               order: programStage.attributes.position,
@@ -621,14 +642,10 @@ export const useCoursesStore = defineStore("courses", {
               },
               locked: stage.attributes.isLocked,
               conditions: [],
-              contents: this.selectedCourse!.stages.find(s => s.id === stage.id)?.contents ?? [],
-            });
-          });
-
-        this.selectedCourse = {
-          ...this.selectedCourse,
-          stages: stages.sort((a, b) => a.order - b.order),
-        };
+              contents: existing?.contents ?? [],
+            };
+          })
+          .sort((a: Stage, b: Stage) => a.order - b.order);
       }
       catch (e) {
         this.logger.error(e);
@@ -1088,6 +1105,15 @@ export const useCoursesStore = defineStore("courses", {
       }
 
       return state;
+    },
+    updateAction(actionId: number, action: Action) {
+      if (!this.selectedCourse) return;
+
+      this.selectedCourse.actions = this.selectedCourse.actions.map(a => a.id === actionId
+        ? {
+            ...action,
+          }
+        : a);
     },
 
     async sendXAPIStatement(id: number, progress: number, statement: XApiStatement, headers?: Record<string, string>) {
