@@ -12,6 +12,7 @@ export enum EntityType {
   MEMO = "memos",
   NOTIFICATION = "notifications",
   TOPIC = "topics",
+  GEAR = "gears",
   // Actions
   ACTION = "actions",
   ACTION_PLAN = "actionPlans",

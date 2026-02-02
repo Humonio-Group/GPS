@@ -3,6 +3,12 @@ import type { User } from "~/types/entities/user";
 
 export type XApiVerbType = "initialized" | "progressed" | "completed" | "suspended" | "passed" | "failed" | "answered" | "experienced";
 
+export enum XApiId {
+  INITIALIZED = "http://adlnet.gov/expapi/verbs/initialized",
+  PROGRESSED = "http://adlnet.gov/expapi/verbs/progressed",
+  COMPLETED = "http://adlnet.gov/expapi/verbs/completed",
+}
+
 export interface XApiActor {
   objectType: "Agent";
   name?: string;

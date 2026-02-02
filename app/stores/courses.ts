@@ -182,12 +182,12 @@ function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
       })),
     }));
 }
-function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
+function buildFormActivity(data: any, included: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
+  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
+  const gear = included.find((c: any) => c.type === EntityType.GEAR && c.id === relatedContent?.relationships.embedContent.data[0]?.id);
 
-  const shouldComplete
-    = (data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2)
-  ;
+  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && !gear;
 
   return embedContent
     ? {
@@ -353,7 +353,7 @@ function buildContentEntity(data: any, included: any): Content {
     || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)
     || (data.attributes.specific.type === 7 && data.attributes.specific.subtype === 3)
   ) {
-    const form = buildFormActivity(data);
+    const form = buildFormActivity(data, included);
     if (form) activity = { ...activity, embed: form };
   }
   // action
@@ -1156,14 +1156,14 @@ export const useCoursesStore = defineStore("courses", {
       try {
         const response = await this.api.get(`/activity_users/${contentId}`, { version: 2, endpointVersion: 1 }, {
           query: {
-            "journeys": courseId,
-            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent,journeyStages",
+            "journeys": this.selectedCourse.id,
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
             "fields[contents]": "activation",
             "fields[memos]": "specific.xmlContent",
           },
         });
 
-        this.selectedCourse.stages = [...this.selectedCourse.stages.map(s => s.id === stageId
+        this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
           ? {
               ...s,
               progress: {
@@ -1172,7 +1172,7 @@ export const useCoursesStore = defineStore("courses", {
               },
               contents: [...s.contents, buildContentEntity(response.data, response.included)].sort((a, b) => a.order - b.order),
             }
-          : s)];
+          : s);
       }
       catch (e) {
         this.logger.error(e);
@@ -1182,16 +1182,20 @@ export const useCoursesStore = defineStore("courses", {
       if (!this.selectedCourse) return;
       if (courseId !== this.selectedCourse.id) return;
 
-      this.selectedCourse.stages = [...this.selectedCourse.stages.map(s => s.id === stageId
-        ? {
-            ...s,
-            progress: {
-              ...s.progress,
-              total: s.progress.total - 1,
-            },
-            contents: s.contents.filter(c => c.reference !== contentId),
-          }
-        : s)];
+      this.selectedCourse.stages = this.selectedCourse.stages.map((s) => {
+        const contents = s.contents.filter(c => c.reference !== contentId);
+        const completed = contents.filter(c => c.progress.value >= 1).length;
+        const total = contents.length;
+
+        return {
+          ...s,
+          progress: {
+            completed,
+            total,
+          },
+          contents,
+        };
+      });
     },
     lockContent(courseId: number, stageId: number, contentId: number) {
       if (!this.selectedCourse) return;

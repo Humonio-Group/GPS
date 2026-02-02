@@ -1,12 +1,28 @@
 <script setup lang="ts">
 import { Eye } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
+import { StatementFactory } from "~/types/entities/xapi";
 
 interface ContentDocumentProps {
   content: Content;
 }
 
-defineProps<ContentDocumentProps>();
+const props = defineProps<ContentDocumentProps>();
+const store = useCoursesStore();
+
+async function handleOpen(value: boolean) {
+  if (!value) return;
+  if (props.content.progress.value >= 1) return;
+
+  const { statement, headers } = new StatementFactory(props.content).prepare({
+    id: "http://adlnet.gov/expapi/verbs/completed",
+    display: {
+      "en-US": "completed",
+      "fr-FR": "complété",
+    },
+  });
+  await store.sendXAPIStatement(props.content.id, 1, statement, headers);
+}
 </script>
 
 <template>
@@ -17,7 +33,7 @@ defineProps<ContentDocumentProps>();
       </p>
 
       <div class="flex items-center gap-1">
-        <UiDialog>
+        <UiDialog @update:open="handleOpen">
           <UiDialogTrigger as-child>
             <UiButton
               size="icon"
