@@ -40,6 +40,7 @@ watch(content, async (val) => {
     await store.sendXAPIStatement(val.reference, 1, statement, headers);
     return;
   }
+  if (val.progress.viewed) return;
 
   const { statement, headers } = statementFactory.prepare({
     id: "http://adlnet.gov/expapi/verbs/initialized",

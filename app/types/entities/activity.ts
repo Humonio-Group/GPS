@@ -55,7 +55,9 @@ export interface PageActivity {
 export type ActivityPages = PageActivity[];
 
 export interface DropFileActivity {
+  type: number;
   extensions: string[];
+  link?: string;
 }
 
 export interface ActivityAction {

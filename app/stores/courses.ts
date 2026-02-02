@@ -248,10 +248,14 @@ function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
   }));
 }
 function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
-  const extensions = data.attributes.specific.links.container.embedContent[0]!.specific.upload.extensions.split(",") as string[];
+  const upload = data.attributes.specific.links.container.embedContent[0]!.specific.upload;
+  const extensions = upload?.extensions.split(",") as string[];
+  const type = upload?.type as number;
 
   return {
-    extensions,
+    type: type ?? -1,
+    extensions: extensions ?? [],
+    ...(upload ? { link: data.attributes.specific.links.container.embedContent[0]!.link.external } : {}),
   };
 }
 function buildActionActivity(data: any, included: any): ContentActivity["action"] {

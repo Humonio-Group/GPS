@@ -17,7 +17,8 @@
     "open": {
       "map": "Ouvrir la carte",
       "link": "Ouvrir le lien",
-      "ticket": "Ouvrir un ticket"
+      "ticket": "Ouvrir un ticket",
+      "file": "Ouvrir le fichier"
     },
     "close": {
       "default": "Fermer",

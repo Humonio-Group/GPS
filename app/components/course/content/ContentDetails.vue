@@ -84,6 +84,7 @@ defineProps<ContentDetailsProps>();
     <ContentDropFile
       v-if="content.activity.dropFile"
       :content="content"
+      :can-remove="false"
     />
 
     <!-- certificate -->
