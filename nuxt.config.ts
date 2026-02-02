@@ -34,6 +34,7 @@ export default defineNuxtConfig({
       },
       platform: "",
       urls: {
+        lrs: "",
         auth: "",
         coordinator: "",
         facilitate: "",

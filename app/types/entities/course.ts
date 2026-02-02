@@ -82,13 +82,19 @@ export interface ContentNavigation {
   previous: Nullable<number>;
   next: Nullable<number>;
 }
+export interface ContentLRS {
+  actor: any;
+  authToken: any;
+}
 export interface Content {
   id: number;
+  reference: number;
   order: number;
   name: string;
   description: string;
   locked: boolean;
   conditions: unknown[];
+  lrs?: Nullable<ContentLRS>;
   duration: Nullable<number>;
   picture: Nullable<string>;
   dates: ContentDates;

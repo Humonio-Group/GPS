@@ -1,18 +1,14 @@
 export function useLogger() {
   const env = useRuntimeConfig().public.env;
 
-  const log = (...args: any) => {
+  const call = (cb: (...args: any) => void) => {
     if (env !== "development") return;
-    console.log("[DEBUG LOGGER]", args);
+    cb();
   };
-  const error = (...args: any) => {
-    if (env !== "development") return;
-    console.error("[DEBUG LOGGER]", args);
-  };
-  const warn = (...args: any) => {
-    if (env !== "development") return;
-    console.warn("[DEBUG LOGGER]", args);
-  };
+
+  const log = (...args: any) => call(() => console.log(...args));
+  const error = (...args: any) => call(() => console.error(...args));
+  const warn = (...args: any) => call(() => console.warn(...args));
 
   return {
     log,

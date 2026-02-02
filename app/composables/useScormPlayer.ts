@@ -13,7 +13,6 @@ interface ScormState {
 }
 
 export function useScormPlayer() {
-  const $api = useApi();
   const logger = useLogger();
 
   // State management per content
@@ -169,6 +168,7 @@ export function useScormPlayer() {
 
     // Create xAPI statement
     const statement = createXApiStatement(
+      state,
       scorm,
       "initialized",
       {
@@ -232,7 +232,6 @@ export function useScormPlayer() {
 
         case "cmi.core.score.raw":
           updatedScore = parseFloat(value) || 0;
-          state.score = updatedScore;
           // If score >= 100, consider completed
           if (updatedScore >= 100) {
             updatedProgress = 1.0;
@@ -242,6 +241,11 @@ export function useScormPlayer() {
           else if (updatedScore > state.score) {
             statementType = "PROGRESSED";
           }
+
+          state.score = updatedScore;
+          updatedProgress = updatedScore / 100;
+          state.progress = updatedProgress;
+          logger.log("[SCORM Player] Update progressed!", updatedProgress);
           break;
 
         case "cmi.suspend_data":
@@ -284,7 +288,7 @@ export function useScormPlayer() {
         case "cmi.score.raw":
         case "cmi.score.scaled":
           updatedScore = parseFloat(value) || 0;
-          state.score = updatedScore;
+
           // If score >= 100, consider completed
           if (updatedScore >= 100) {
             updatedProgress = 1.0;
@@ -294,6 +298,11 @@ export function useScormPlayer() {
           else if (updatedScore > state.score) {
             statementType = "PROGRESSED";
           }
+
+          state.score = updatedScore;
+          updatedProgress = updatedScore / 100;
+          state.progress = updatedProgress;
+          logger.log("[SCORM Player] Update progressed!", updatedProgress);
           break;
 
         case "cmi.progress_measure":
@@ -350,14 +359,14 @@ export function useScormPlayer() {
     }
 
     // Send statement if needed
-    if (shouldSendStatement && statementType) {
+    if (shouldSendStatement && statementType && ["initialized", "progressed", "completed", "passed", "answered"].includes(statementType.toLowerCase())) {
       const statement = createXApiStatement(
+        state,
         scorm,
         mapEventTypeToVerb(statementType),
         {
-          score: state.score > 0 ? { raw: state.score, scaled: state.score / 100 } : undefined,
+          score: state.score >= 100 ? { raw: state.score, scaled: state.score / 100 } : undefined,
           completion: state.completionStatus === "completed",
-          success: state.successStatus === "passed" ? true : state.successStatus === "failed" ? false : undefined,
         },
       );
 
@@ -375,7 +384,7 @@ export function useScormPlayer() {
         statement,
       };
 
-      sendXApiStatement(statement, scorm);
+      sendXApiStatement(statement, scorm, updatedProgress);
       onEvent?.(event);
     }
   }
@@ -425,6 +434,7 @@ export function useScormPlayer() {
 
     // Create final xAPI statement
     const statement = createXApiStatement(
+      state,
       scorm,
       state.completionStatus === "completed" ? "completed" : "suspended",
       {
@@ -448,7 +458,7 @@ export function useScormPlayer() {
       statement,
     };
 
-    sendXApiStatement(statement, scorm);
+    sendXApiStatement(statement, scorm, 1);
     onEvent?.(event);
   }
 
@@ -456,6 +466,7 @@ export function useScormPlayer() {
    * Create xAPI statement
    */
   function createXApiStatement(
+    state: ScormState,
     scorm: ScormActivity,
     verb: string,
     result?: {
@@ -499,15 +510,13 @@ export function useScormPlayer() {
     const statement: XApiStatement = {
       actor: {
         objectType: "Agent",
-        account: {
-          homePage: window.location.origin,
-          name: String(user.value!.id),
-        },
+        name: user.value!.name.full,
+        mbox: `mailto:${user.value!.contact.email}`,
       },
       verb: xapiVerb,
       object: {
         objectType: "Activity",
-        id: scorm.button.url,
+        id: `${useRuntimeConfig().public.api["1"]}/v2/contents/${scorm.refs.contentId}`,
         definition: {
           type: "http://adlnet.gov/expapi/activities/lesson",
           name: { "en-US": `SCORM Content ${scorm.refs.contentId}` },
@@ -525,12 +534,22 @@ export function useScormPlayer() {
       };
     }
 
+    statement.result = {
+      ...statement.result,
+      extensions: {
+        [`${useRuntimeConfig().public.urls.lrs}/extension/progression`]: state.progress,
+      },
+    };
+
     // Add context
     statement.context = {
       contextActivities: {
         parent: [{
+          definition: {
+            type: "http://id.tincanapi.com/activitytype/tutor-session",
+          },
           objectType: "Activity",
-          id: `${window.location.origin}/journey/${scorm.refs.courseId}`,
+          id: `${useRuntimeConfig().public.api["1"]}/v2/journeys/${scorm.refs.courseId}`,
         }],
       },
     };
@@ -541,21 +560,14 @@ export function useScormPlayer() {
   /**
    * Send xAPI statement to backend
    */
-  async function sendXApiStatement(statement: XApiStatement, scorm: ScormActivity): Promise<void> {
+  async function sendXApiStatement(statement: XApiStatement, scorm: ScormActivity, progress: number = 0): Promise<void> {
     try {
       logger.log("[SCORM Player] Sending xAPI statement", statement);
 
       // Use your API to send the statement
       // Adjust the endpoint based on your backend API
-      const { user } = storeToRefs(useUserStore());
-      await $api.post("/xapi/statements", { version: 1, endpointVersion: 1 }, {
-        body: {
-          statement,
-          journey_id: scorm.refs.courseId,
-          content_id: scorm.refs.contentId,
-          learner_id: user.value!.id,
-        },
-      });
+      const store = useCoursesStore();
+      await store.sendXAPIStatement(scorm.refs.contentId, progress, statement);
 
       logger.log("[SCORM Player] xAPI statement sent successfully");
     }

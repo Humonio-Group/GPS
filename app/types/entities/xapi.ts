@@ -1,3 +1,7 @@
+import type { Content, Course } from "~/types/entities/course";
+import type { User } from "~/types/entities/user";
+import { v4 as uuid } from "uuid";
+
 export type XApiVerbType = "initialized" | "progressed" | "completed" | "suspended" | "passed" | "failed" | "answered" | "experienced";
 
 export interface XApiActor {
@@ -72,4 +76,100 @@ export interface ScormXApiEvent {
   successStatus?: string;
   suspendData?: string;
   statement?: XApiStatement;
+}
+
+export class StatementFactory {
+  content: Content;
+  course: Course;
+  user: User;
+  store;
+
+  constructor(content: Content) {
+    this.content = content;
+
+    const user = unref(storeToRefs(useUserStore()).user);
+    if (!user) throw new Error("User not found!");
+    this.user = user;
+
+    this.store = useCoursesStore();
+
+    const course = unref(storeToRefs(this.store).selectedCourse);
+    if (!course) throw new Error("Course not found!");
+    this.course = course;
+  }
+
+  prepare(verb: XApiVerb, progress: number, score?: XApiResult["score"]): {
+    statement: XApiStatement;
+    headers?: Record<string, string>;
+  } {
+    const { actor, headers } = this.Actor;
+
+    const body: XApiStatement = {
+      actor,
+      verb,
+      object: this.ContentActivity,
+      timestamp: new Date().toISOString(),
+      context: {
+        contextActivities: {
+          parent: [this.CourseActivity],
+        },
+      },
+    };
+    if (Number.isFinite(progress)) body.result = {
+      completion: progress === 1,
+      score: score ?? undefined,
+    };
+    if (score) body.result = { ...body.result, score };
+
+    body.result = {
+      ...body.result,
+      extensions: {
+        [`${useRuntimeConfig().public.urls.lrs}/extension/progression`]: Math.round(100000 * progress) / 100000,
+      },
+    };
+
+    return {
+      statement: body,
+      headers,
+    };
+  }
+
+  private get Actor(): { actor: XApiActor; headers?: Record<string, string> } {
+    let headers: Record<string, string> = {};
+    let actor: XApiActor = {
+      objectType: "Agent",
+      name: this.user.name.full,
+      mbox: `mailto:${this.user.contact.email}`,
+    };
+
+    if (this.content.lrs) {
+      actor = this.content.lrs.actor as XApiActor;
+      headers = {
+        Authorization: `Basic ${this.content.lrs.authToken}`,
+      };
+    }
+
+    return { actor, headers };
+  }
+
+  private get CourseActivity() {
+    return {
+      id: `${useRuntimeConfig().public.api["1"]}/v2/journeys/${this.course.id}`,
+      objectType: "Activity" as XApiObject["objectType"],
+      definition: {
+        type: "http://id.tincanapi.com/activitytype/tutor-session",
+      },
+    };
+  }
+
+  private get ContentActivity() {
+    return {
+      id: `${useRuntimeConfig().public.api["1"]}/v2/contents/${this.content.reference}`,
+      objectType: "Activity" as XApiObject["objectType"],
+      definition: {
+        type: "http://adlnet.gov/expapi/activities/lesson",
+        name: { "en-US": `SCORM Content ${this.content.reference}` },
+      },
+    };
+  }
 }

@@ -7,6 +7,8 @@ import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
+import type { XApiStatement } from "~/types/entities/xapi";
+import { v4 as uuid } from "uuid";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -101,8 +103,6 @@ function buildActionEntity(data: any, included: any): Action {
 function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
   const { id, attributes } = extractBasicInfo(data);
   const locale = useNuxtApp().$i18n.locale;
-
-  useLogger().log(attributes.translations);
 
   return {
     id,
@@ -265,7 +265,7 @@ function buildScormActivity(data: any): ContentActivity["scorm"] {
     },
     refs: {
       courseId: data.relationships.journey.data[0]!.id,
-      contentId: data.id,
+      contentId: data.relationships.content.data[0]!.id,
     },
   };
 }
@@ -382,6 +382,7 @@ function buildContentEntity(data: any, included: any): Content {
 
   return {
     id: data.id,
+    reference: data.relationships.content.data[0]!.id,
     order: data.attributes.specific.order,
     duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
     name: data.attributes.title,
@@ -440,6 +441,8 @@ export const useCoursesStore = defineStore("courses", {
   }),
   getters: {
     api: () => useApi(),
+    logger: () => useLogger(),
+
     hasFirstLoadedCourses: state => state.courses !== null,
     hasStagesLoaded: state => state.selectedCourse?.stages.length,
     hasActivitiesLoaded: state => state.selectedCourse?.stages.map(s => s.contents).reduce((acc, val) => {
@@ -509,7 +512,7 @@ export const useCoursesStore = defineStore("courses", {
         this.courses = [...list];
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.coursesList = false;
@@ -538,7 +541,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectCourse(id);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.specimen = false;
@@ -547,14 +550,12 @@ export const useCoursesStore = defineStore("courses", {
     async loadCourseContents() {
       if (!this.selectedCourse) return;
 
-      useLogger().log("loading activities");
-
       this.loading.specific.activity = true;
       try {
         await Promise.all(this.selectedCourse.stages.map(stage => this.loadContents(stage.reference)));
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -562,7 +563,9 @@ export const useCoursesStore = defineStore("courses", {
       }
     },
     async selectCourse(id: number) {
+      this.logger.log("[COURSE] Try to select course", id, this.selectedCourse);
       if (this.selectedCourse?.id === id) return;
+      this.logger.log("[COURSE] Select course", id, this.selectedCourse);
 
       const course = this.courses?.find(c => c.id === id);
       if (!course) return await this.loadCourse(id);
@@ -585,21 +588,19 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.specific.stages = true;
 
       try {
-        const { data: _stages } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/journey_stages"), {
-          headers: this.api.headers(),
-          query: this.api.params({
+        const response = await this.api.get("/journey_stages", { version: 2, endpointVersion: 1, vanilla: !!this.selectedCourse }, {
+          query: {
             "journey": this.selectedCourse.id,
             "include": "programStage",
             "fields[journeyStages]": "default,stats.all",
             "fields[programStages]": "default,position",
-          }),
-          credentials: "include",
+          },
         });
 
-        if (!_stages.value) return;
+        if (!response) return;
 
-        const journeyStages = _stages.value.data;
-        const programStages = _stages.value.included.filter((e: any) => e.type === "programStages");
+        const journeyStages = response.data;
+        const programStages = response.included.filter((e: any) => e.type === "programStages");
 
         const stages: Stages = [];
         journeyStages
@@ -620,7 +621,7 @@ export const useCoursesStore = defineStore("courses", {
               },
               locked: stage.attributes.isLocked,
               conditions: [],
-              contents: [],
+              contents: this.selectedCourse!.stages.find(s => s.id === stage.id)?.contents ?? [],
             });
           });
 
@@ -630,13 +631,14 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.stages = false;
       }
     },
     async loadContents(stageId: number) {
+      this.logger.log();
       if (!this.selectedCourse) return;
 
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
@@ -664,7 +666,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.stageContents = this.loading.specific.stageContents.filter(s => s !== stageId);
@@ -691,7 +693,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.actions = _actions.data.map((a: any) => buildActionEntity(a, included)) as Actions;
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -727,7 +729,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.badges = _badges.data.map((b: any) => buildBadgeEntity(b, unlockedBadges.find((ub: any) => ub.id === b.id)?.unlockedAt));
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -852,7 +854,7 @@ export const useCoursesStore = defineStore("courses", {
         }
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -869,7 +871,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.events = response.data.map(buildEventEntity);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -943,7 +945,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         state = false;
         // todo: toast it - loic
       }
@@ -1009,7 +1011,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -1074,10 +1076,10 @@ export const useCoursesStore = defineStore("courses", {
           },
         });
 
-        useLogger().log(response);
+        this.logger.log(response);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         state = false;
         // todo: toast it - loic
       }
@@ -1086,6 +1088,125 @@ export const useCoursesStore = defineStore("courses", {
       }
 
       return state;
+    },
+
+    async sendXAPIStatement(id: number, progress: number, statement: XApiStatement, headers?: Record<string, string>) {
+      this.logger.log("[XAPI STATEMENT] Verifying course");
+      if (!this.selectedCourse) return;
+
+      this.logger.log("[XAPI STATEMENT] Searching for content");
+      const content = this.selectedCourse.stages
+        .map(s => s.contents)
+        .reduce((acc, val) => {
+          acc = [...acc, ...val];
+          return acc;
+        }, [])
+        .find(c => c.id === id || c.reference === id);
+      if (!content) return;
+      this.logger.log("[XAPI STATEMENT] Verifying progress", progress);
+      if (content.progress.value > progress) return;
+      this.logger.log("[XAPI STATEMENT] Send statement", progress, statement);
+
+      try {
+        const response = await this.api.post(`/contents/${content.reference}/xAPI/statements`, { version: 1, endpointVersion: 3 }, {
+          headers,
+          body: {
+            ...statement,
+            id: uuid(),
+            key: useRuntimeConfig().public.api.key,
+          },
+        });
+        this.logger.log("[XAPI STATEMENT] Statement sent to back-end", response);
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+    },
+
+    async addContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (courseId !== this.selectedCourse.id) return;
+
+      try {
+        const response = await this.api.get(`/activity_users/${contentId}`, { version: 2, endpointVersion: 1 }, {
+          query: {
+            "journeys": courseId,
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent,journeyStages",
+            "fields[contents]": "activation",
+            "fields[memos]": "specific.xmlContent",
+          },
+        });
+
+        this.selectedCourse.stages = [...this.selectedCourse.stages.map(s => s.id === stageId
+          ? {
+              ...s,
+              progress: {
+                ...s.progress,
+                total: s.progress.total + 1,
+              },
+              contents: [...s.contents, buildContentEntity(response.data, response.included)].sort((a, b) => a.order - b.order),
+            }
+          : s)];
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+    },
+    removeContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (courseId !== this.selectedCourse.id) return;
+
+      this.selectedCourse.stages = [...this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            progress: {
+              ...s.progress,
+              total: s.progress.total - 1,
+            },
+            contents: s.contents.filter(c => c.reference !== contentId),
+          }
+        : s)];
+    },
+    lockContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId ? { ...c, locked: true } : c),
+          }
+        : s);
+    },
+    unlockContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId ? { ...c, locked: false } : c),
+          }
+        : s);
+    },
+    updateContentProgression(courseId: number, stageId: number, contentId: number, progression: { isViewed: boolean; value: number }) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId
+              ? {
+                  ...c,
+                  progress: {
+                    viewed: progression.isViewed,
+                    value: progression.value,
+                  },
+                }
+              : c),
+          }
+        : s);
     },
   },
 });

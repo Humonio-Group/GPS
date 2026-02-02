@@ -5,6 +5,9 @@ import type { AvailableLocale, Locale } from "~/types/misc/language";
 import type { Theme, ThemeObject } from "~/types/misc/theme";
 import type { Terms } from "~/types/entities/terms";
 import { EntityType } from "~/types/entities/entities";
+import { availablePusherChannels } from "~/assets/pusher-channels";
+import type { PusherEventType } from "~/types/pusher";
+import { PusherEventFactory } from "~/types/pusher";
 
 interface UserState {
   user: Nullable<User>;
@@ -95,6 +98,7 @@ export const useUserStore = defineStore("user", {
   }),
   getters: {
     api: () => useApi(),
+    pusher: () => usePusher(),
     isLoggedIn: state => !!state.user,
     activeRoles: (state): UserRole[] => {
       const { company } = storeToRefs(useCompanyStore());
@@ -172,6 +176,7 @@ export const useUserStore = defineStore("user", {
         this.user = buildUserEntity(response.data, response.included);
         this.availableCompanies = buildAvailableCompaniesMap(response.included);
         await setupInterfaceWithUserSettings(this.user!);
+        this.subscribeToPusherNotifications();
       }
       catch (e) {
         useLogger().error(e);
@@ -414,6 +419,26 @@ export const useUserStore = defineStore("user", {
       finally {
         this.loading.terms.revoking = null;
       }
+    },
+
+    subscribeToPusherNotifications() {
+      if (!this.user) return;
+
+      const { public: config } = useRuntimeConfig();
+      const prefix = `updates_${this.user.id}`;
+
+      useLogger().log(`[PUSHER] Subscribing to "${`${config.env === "development" ? "staging" : config.env}.${prefix}`}"...`);
+      const channel = this.pusher.subscribe(`${config.env === "development" ? "staging" : config.env}.${prefix}`);
+
+      const factory = new PusherEventFactory();
+
+      availablePusherChannels.forEach((name: string) => {
+        useLogger().log(`[PUSHER] Binding channel "${name}"...`);
+        channel.bind(name, (_data: string | any) => {
+          const data = typeof _data === "string" ? JSON.parse(_data) : _data;
+          factory.create(name as PusherEventType).handleNotification(data);
+        });
+      });
     },
   },
 });
