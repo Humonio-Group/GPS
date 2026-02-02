@@ -111,10 +111,13 @@ const centerPdfHorizontally = () => {
 };
 
 const print = async () => {
-  if (!props.allowPrint || !pdfDocument.value) return;
+  if (!props.allowPrint) return;
 
   try {
-    // Créer un iframe caché pour l'impression
+    const response = await fetch(props.source);
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
     const iframe = document.createElement("iframe");
     iframe.style.position = "fixed";
     iframe.style.right = "0";
@@ -122,45 +125,17 @@ const print = async () => {
     iframe.style.width = "0";
     iframe.style.height = "0";
     iframe.style.border = "0";
+    iframe.src = blobUrl;
     document.body.appendChild(iframe);
 
-    // Charger le PDF dans l'iframe
-    const iframeDoc = iframe.contentWindow?.document;
-    if (!iframeDoc) return;
-
-    // Créer un blob URL pour le PDF
-    const response = await fetch(props.source);
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
-
-    // Insérer un embed du PDF dans l'iframe
-    iframeDoc.open();
-    iframeDoc.write(`
-      <!DOCTYPE html>
-      <html lang="${locale.value}">
-        <head>
-          <title>Print PDF</title>
-          <style>
-            body { margin: 0; }
-            embed { width: 100%; height: 100vh; }
-          </style>
-        </head>
-        <body>
-          <embed src="${blobUrl}" type="application/pdf" />
-        </body>
-      </html>
-    `);
-    iframeDoc.close();
-
-    // Attendre que le PDF soit chargé puis imprimer
     iframe.onload = () => {
+      iframe.contentWindow?.focus();
+      iframe.contentWindow?.print();
+    };
+    iframe.onblur = () => {
       setTimeout(() => {
-        iframe.contentWindow?.print();
-        // Nettoyer après l'impression
-        setTimeout(() => {
-          URL.revokeObjectURL(blobUrl);
-          document.body.removeChild(iframe);
-        }, 100);
+        URL.revokeObjectURL(blobUrl);
+        document.body.removeChild(iframe);
       }, 100);
     };
   }
