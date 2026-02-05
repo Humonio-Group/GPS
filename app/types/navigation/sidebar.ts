@@ -17,6 +17,7 @@ export interface NavigationItem {
   icon: LucideIcon;
   path: string;
   exact?: boolean;
+  separator?: boolean;
   version?: Version;
   actions?: Component;
   children?: NavigationChild[];

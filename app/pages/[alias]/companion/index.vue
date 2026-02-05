@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Send, Mic } from "lucide-vue-next";
+import { Send } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import IaGif from "~/assets/images/ia.gif";
 
@@ -8,12 +8,15 @@ const { t } = useI18n();
 const { company } = storeToRefs(useCompanyStore());
 const { user } = storeToRefs(useUserStore());
 
-const model = ref<string>("gpt-4o-mini");
+const agent = ref<string>("gpt-4o-mini");
 const message = ref<string>("");
 const index = computed(() => Math.floor(Math.random() * 3));
+const canSend = computed(() => message.value.trim().length);
+
+const { handleChatShortcuts } = useKeyboard();
 
 useHead({
-  title: `${t("home.title")} - ${company.value!.name}`,
+  title: `${t("companion.intro.title")} - ${company.value!.name}`,
 });
 </script>
 
@@ -33,12 +36,12 @@ useHead({
           v-model="message"
           class="min-h-9 max-h-48 resize-none"
           :placeholder="$t('companion.intro.ask-question')"
+          @keydown="handleChatShortcuts"
         />
         <div
-          v-if="message.trim().length"
           class="flex justify-between gap-1 md:gap-4"
         >
-          <UiSelect v-model="model">
+          <UiSelect v-model="agent">
             <UiSelectTrigger>
               <UiSelectValue />
             </UiSelectTrigger>
@@ -49,14 +52,10 @@ useHead({
             </UiSelectContent>
           </UiSelect>
 
-          <div class="flex items-center gap-1">
-            <UiButton
-              size="icon"
-              variant="ghost"
-              disabled
-            >
-              <Mic />
-            </UiButton>
+          <div
+            v-if="canSend"
+            class="flex items-center gap-1"
+          >
             <UiButton size="icon">
               <Send />
             </UiButton>
