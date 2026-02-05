@@ -132,7 +132,7 @@ export const useUserStore = defineStore("user", {
         this.availableCompanies = buildAvailableCompaniesMap(response.included);
         await setupInterfaceWithUserSettings(this.user!);
 
-        if (this.availableCompanies.length === 1) navigateTo(localePath(`/${this.availableCompanies[0]!.alias}`));
+        if (this.availableCompanies.length === 1) navigateTo(localePath(`/${this.availableCompanies[0]!.alias}/courses`));
         else navigateTo(localePath("/auth/portal"));
       }
       catch (e) {

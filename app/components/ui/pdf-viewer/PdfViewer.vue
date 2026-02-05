@@ -39,8 +39,6 @@ const props = withDefaults(defineProps<Props>(), {
   dialog: true,
 });
 
-const { locale } = useI18n();
-
 const scale = ref(props.initialScale);
 const currentPage = ref(1);
 const pageCount = ref(0);

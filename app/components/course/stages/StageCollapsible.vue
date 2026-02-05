@@ -36,7 +36,10 @@ onMounted(() => {
             </UiCardDescription>
           </div>
 
-          <StageItemCompletionBadge :contents="stage.progress" />
+          <div class="flex items-center gap-2">
+            <StageItemCompletionBadge :contents="stage.progress" />
+            <UiCircularProgress :model-value="(stage.progress.completed / stage.progress.total) * 100" />
+          </div>
         </UiCardHeader>
       </UiCollapsibleTrigger>
       <UiCollapsibleContent as-child>

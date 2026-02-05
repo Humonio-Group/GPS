@@ -84,6 +84,7 @@ onUnmounted(() => {
     :key="`youtube-${code}`"
     :video-id="code"
     class="aspect-video rounded-lg overflow-hidden"
+    :player-vars="{ rel: 0 }"
     @ready="onReady"
     @state-change="onStateChange"
   />

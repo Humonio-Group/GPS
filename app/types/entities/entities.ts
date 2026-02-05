@@ -6,6 +6,7 @@ export enum EntityType {
   USER = "users",
   LANGUAGE = "languages",
   LOCATION = "locations",
+  PROGRAM_STAGE = "programStages",
   ACTIVITY_USER = "activityUsers",
   STRATEGY = "strategies",
   CONTENT = "contents",

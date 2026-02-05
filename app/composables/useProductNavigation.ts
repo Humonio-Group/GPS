@@ -1,5 +1,5 @@
 import type { NavigationContent } from "~/types/navigation/sidebar";
-import { Book, Home, Calendar } from "lucide-vue-next";
+import { Book, MessageCircle, Calendar } from "lucide-vue-next";
 
 export const useProductNavigation = (): ComputedRef<NavigationContent> => {
   const { t } = useNuxtApp().$i18n;
@@ -8,13 +8,6 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
     {
       type: "group",
       children: [
-        {
-          type: "item",
-          label: t("navigation.home"),
-          icon: Home,
-          path: "/",
-          exact: true,
-        },
         {
           type: "item",
           label: t("navigation.my-courses"),
@@ -26,6 +19,12 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
           label: t("navigation.events"),
           icon: Calendar,
           path: "/events",
+        },
+        {
+          type: "item",
+          label: t("navigation.ai-coach"),
+          icon: MessageCircle,
+          path: "/companion",
         },
       ],
     },

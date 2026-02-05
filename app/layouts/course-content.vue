@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ChevronDown, ChevronUp } from "lucide-vue-next";
+import { Lock, ChevronDown, ChevronUp } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 
 const store = useCoursesStore();
-const { selectedCourse: course, loading } = storeToRefs(store);
+const { availableStages: stages, loading } = storeToRefs(store);
 
 const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
@@ -30,14 +30,29 @@ const contentId = computed(() => route.params.contentId);
             <UiSpinner />
           </UiSidebarGroup>
           <UiCollapsible
-            v-for="stage in course!.stages"
+            v-for="stage in stages"
             v-else
             v-slot="{ open }"
             :key="`stage-${stage.id}`"
             :default-open="true"
           >
             <UiSidebarGroup>
-              <UiSidebarGroupLabel>{{ stage.name }}</UiSidebarGroupLabel>
+              <div class="flex items-center gap-1">
+                <UiSidebarGroupLabel>
+                  <UiPopover>
+                    <UiPopoverTrigger>
+                      <Lock class="size-3 text-muted-foreground" />
+                    </UiPopoverTrigger>
+                    <UiPopoverContent class="grid gap-2">
+                      <!-- TODO: <div class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground">
+                        <component :is="condition.icon" />
+                        <p class="text-sm">{{ condition.label }}</p>
+                      </div> - loic -->
+                    </UiPopoverContent>
+                  </UiPopover>
+                  {{ stage.name }}
+                </UiSidebarGroupLabel>
+              </div>
 
               <UiCollapsibleTrigger as-child>
                 <UiSidebarGroupAction>
@@ -57,7 +72,30 @@ const contentId = computed(() => route.params.contentId);
                     v-for="content in stage.contents"
                     :key="`stage-${stage.id}-c#${content.id}`"
                   >
-                    <UiSidebarMenuButton as-child>
+                    <UiSidebarMenuButton v-if="content.locked">
+                      <span class="truncate flex-1">{{ content.name }}</span>
+                      <UiPopover>
+                        <UiPopoverTrigger as-child>
+                          <Lock class="size-3 text-muted-foreground" />
+                        </UiPopoverTrigger>
+                        <UiPopoverContent class="grid gap-1.5">
+                          <div
+                            v-for="condition in content.conditions"
+                            :key="`c#${content.id}-condition#${condition.label}`"
+                            class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+                          >
+                            <component :is="condition.icon" />
+                            <p class="text-sm">
+                              {{ condition.label }}
+                            </p>
+                          </div>
+                        </UiPopoverContent>
+                      </UiPopover>
+                    </UiSidebarMenuButton>
+                    <UiSidebarMenuButton
+                      v-else
+                      as-child
+                    >
                       <NuxtLinkLocale
                         :to="`/${alias}/reader/${id}/${content.id}`"
                         active-class="bg-sidebar-accent! text-sidebar-accent-foreground!"

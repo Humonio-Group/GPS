@@ -1,5 +1,5 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, ContentActivity, Contents, Course, RichCourse, Stage } from "~/types/entities/course";
+import type { Content, ContentActivity, Contents, Course, RichCourse, Stage, Stages } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
@@ -9,6 +9,9 @@ import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
 import type { XApiStatement } from "~/types/entities/xapi";
 import { v4 as uuid } from "uuid";
+import { GearType } from "~/types/entities/gear";
+import type { LucideIcon } from "lucide-vue-next";
+import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -127,6 +130,29 @@ function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
     unlockedAt: unlockedAt ?? null,
   };
 }
+function buildStageEntity(stages: Stages, data: any, included: any): Stage {
+  const programStages = included.filter((ps: any) => ps.type === EntityType.PROGRAM_STAGE);
+  const programStage = programStages.find((ps: any) => ps.id === data.relationships.programStage.data[0].id);
+  const existing = stages.find(s => s.id === data.id);
+  const graphics = programStage?.attributes.graphics ?? [];
+
+  return {
+    id: data.id,
+    reference: programStage.id,
+    order: programStage.attributes.position,
+    name: programStage.attributes.displayName,
+    description: programStage.attributes.displayDesc || null,
+    picture: programStage.attributes.webportBanner.thumbnail || null,
+    progress: {
+      completed: data.attributes.stats.nbContentsDone ?? 0,
+      total: data.attributes.stats.nbContents ?? 0,
+    },
+    locked: data.attributes.isLocked,
+    hidden: data.attributes.isHidden,
+    conditions: graphics.filter((g: any) => g.type === 2).map(buildCondition),
+    contents: existing?.contents ?? [],
+  };
+}
 function extractBasicInfo(data: any): {
   id: number;
   attributes: any;
@@ -136,6 +162,41 @@ function extractBasicInfo(data: any): {
     id: data.id,
     attributes: data.attributes,
     relations: data.relationships,
+  };
+}
+
+function buildCondition(graphic: any) {
+  const iconString = graphic.icon;
+  const iconUrl = iconString.split("\"")[1]!;
+  const iconName = iconUrl.split("/").pop().split(".")[0]!;
+  let icon: LucideIcon;
+
+  switch (iconName) {
+    case "blendedSchedule": {
+      icon = Clock;
+      break;
+    }
+    case "blendedContent": {
+      icon = File;
+      break;
+    }
+    case "blendedStage": {
+      icon = Folder;
+      break;
+    }
+    case "blendedVariable": {
+      icon = Gauge;
+      break;
+    }
+    default: {
+      useLogger().log("[CONDITION] Not handled:", iconName);
+      icon = Lock;
+    }
+  }
+
+  return {
+    label: graphic.label,
+    icon,
   };
 }
 
@@ -182,12 +243,9 @@ function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
       })),
     }));
 }
-function buildFormActivity(data: any, included: any): Nullable<ContentActivity["embed"]> {
+function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
-  const relatedContent = included.find((c: any) => c.type === EntityType.CONTENT && c.id === data.relationships.content.data[0]?.id);
-  const gear = included.find((c: any) => c.type === EntityType.GEAR && c.id === relatedContent?.relationships.embedContent.data[0]?.id);
-
-  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && !gear;
+  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && data.attributes.specific.gearType === GearType.IMPACT_LINE;
 
   return embedContent
     ? {
@@ -326,6 +384,9 @@ function buildContentEntity(data: any, included: any): Content {
   const previousActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.previousActivityUser.data[0]?.id);
   const nextActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.nextActivityUser.data[0]?.id);
 
+  const relatedContent = included.find((entity: any) => entity.type === EntityType.CONTENT && entity.id === data.relationships.content.data[0]!.id);
+  const graphics = relatedContent?.attributes?.graphics ?? [];
+
   // Embed content
   // Image / Document
   if (data.attributes.specific.data.type === 3) {
@@ -357,7 +418,7 @@ function buildContentEntity(data: any, included: any): Content {
     || (data.attributes.specific.type === 9 && data.attributes.specific.subtype === 4)
     || (data.attributes.specific.type === 7 && data.attributes.specific.subtype === 3)
   ) {
-    const form = buildFormActivity(data, included);
+    const form = buildFormActivity(data);
     if (form) activity = { ...activity, embed: form };
   }
   // action
@@ -409,7 +470,7 @@ function buildContentEntity(data: any, included: any): Content {
     duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
     name: data.attributes.title,
     description: data.attributes.description,
-    conditions: [],
+    conditions: graphics.filter((graphic: any) => graphic.type === 2).map(buildCondition),
     locked: data.attributes.permissions.isLocked,
     completeOnOpen: detectAutoComplete(data, activity),
     picture: data.attributes.design.picture.thumbnail ?? null,
@@ -499,6 +560,8 @@ export const useCoursesStore = defineStore("courses", {
       return Math.round((completedContents.length / contents.length) * 100) / 100;
     },
 
+    availableStages: state => state.selectedCourse?.stages.filter(s => !s.hidden) ?? [],
+
     unlockedBadges: state => state.selectedCourse?.badges.filter(b => !!b.unlockedAt) ?? [],
 
     nowEvents: state => state.selectedCourse?.events.filter(e => e.status === EventStatus.NOW).sort((a, b) => b.dates.start.getTime() - a.dates.start.getTime()) ?? [],
@@ -575,7 +638,7 @@ export const useCoursesStore = defineStore("courses", {
 
       this.loading.specific.activity = true;
       try {
-        await Promise.all(this.selectedCourse.stages.map(stage => this.loadContents(stage.reference)));
+        await Promise.all(this.selectedCourse.stages.filter(stage => !stage.hidden).map(stage => this.loadContents(stage.reference)));
       }
       catch (e) {
         this.logger.error(e);
@@ -623,32 +686,9 @@ export const useCoursesStore = defineStore("courses", {
         if (!response) return;
 
         const journeyStages = response.data;
-        const programStages = response.included.filter((e: any) => e.type === "programStages");
-
-        const existingStages = this.selectedCourse.stages;
 
         this.selectedCourse.stages = journeyStages
-          .filter((js: any) => !js.attributes.isHidden)
-          .map((stage: any) => {
-            const programStage = programStages.find((ps: any) => ps.id === stage.relationships.programStage.data[0].id);
-            const existing = existingStages.find(s => s.id === stage.id);
-
-            return {
-              id: stage.id,
-              reference: programStage.id,
-              order: programStage.attributes.position,
-              name: programStage.attributes.displayName,
-              description: programStage.attributes.displayDesc || null,
-              picture: programStage.attributes.webportBanner.thumbnail || null,
-              progress: {
-                completed: stage.attributes.stats.nbContentsDone ?? 0,
-                total: stage.attributes.stats.nbContents ?? 0,
-              },
-              locked: stage.attributes.isLocked,
-              conditions: [],
-              contents: existing?.contents ?? [],
-            };
-          })
+          .map((stage: any) => buildStageEntity(this.selectedCourse!.stages, stage, response.included))
           .sort((a: Stage, b: Stage) => a.order - b.order);
       }
       catch (e) {
@@ -1241,6 +1281,19 @@ export const useCoursesStore = defineStore("courses", {
               : c),
           }
         : s);
+    },
+
+    addStage(courseId: number, stageId: number) {
+      this.logger.log("[PUSHER - STAGE] Adding", courseId, stageId);
+    },
+    removeStage(courseId: number, stageId: number) {
+      this.logger.log("[PUSHER - STAGE] Removing", courseId, stageId);
+    },
+    lockStage(courseId: number, stageId: number) {
+      this.logger.log("[PUSHER - STAGE] Locking", courseId, stageId);
+    },
+    unlockStage(courseId: number, stageId: number) {
+      this.logger.log("[PUSHER - STAGE] Unlocking", courseId, stageId);
     },
   },
 });

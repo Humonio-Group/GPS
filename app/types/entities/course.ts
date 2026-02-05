@@ -14,6 +14,7 @@ import type {
   ScormActivity,
   VideoActivity,
 } from "~/types/entities/activity";
+import type { LucideIcon } from "lucide-vue-next";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -33,7 +34,8 @@ export interface Stage {
   description: Nullable<string>;
   picture: Nullable<string>;
   locked: boolean;
-  conditions: unknown[];
+  hidden: boolean;
+  conditions: Conditions;
   progress: {
     completed: number;
     total: number;
@@ -86,6 +88,11 @@ export interface ContentLRS {
   actor: any;
   authToken: any;
 }
+export interface Condition {
+  icon: LucideIcon;
+  label: string;
+}
+export type Conditions = Condition[];
 export interface Content {
   id: number;
   reference: number;
@@ -94,7 +101,7 @@ export interface Content {
   description: string;
   locked: boolean;
   completeOnOpen: boolean;
-  conditions: unknown[];
+  conditions: Conditions;
   lrs?: Nullable<ContentLRS>;
   duration: Nullable<number>;
   picture: Nullable<string>;

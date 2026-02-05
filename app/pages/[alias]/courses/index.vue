@@ -21,7 +21,8 @@ store.loadCourses();
 <template>
   <PageRoot
     name="courses.home"
-    class="grid gap-4"
+    wrapper
+    wrapper-class="mx-auto w-full max-w-4xl grid gap-4"
   >
     <header class="grid gap-4">
       <section>

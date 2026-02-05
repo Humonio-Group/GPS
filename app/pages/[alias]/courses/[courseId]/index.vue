@@ -7,8 +7,7 @@ const { t } = useI18n();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, loading } = storeToRefs(store);
-const stages = computed(() => course.value?.stages ?? []);
+const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
 
 watch(course, val => useHead({
   title: t("courses.specimen.overview.title", { name: val!.name }),

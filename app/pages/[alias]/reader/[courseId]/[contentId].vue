@@ -77,7 +77,7 @@ const workshop = computed(() => {
     name="course.content-reader"
     class="p-6 flex flex-col gap-6 min-h-dvh"
   >
-    <nav class="py-2 bg-background sticky top-0 flex items-center justify-between">
+    <nav class="py-2 bg-background sticky top-0 flex items-center">
       <UiSidebarTrigger />
 
       <UiButton

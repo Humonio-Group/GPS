@@ -41,7 +41,7 @@ export enum PusherEventType {
   CUSTOM_MESSAGE_SENT = "custom_message.sent",
   EXTERNAL_LINK = "external-link",
   NEW_BADGE = "new_badge",
-  STAGE_START = "stage.start",
+  STAGE_START = "stage.start", // todo: remove if unused - loic
 }
 
 export abstract class PusherEvent {
@@ -56,6 +56,7 @@ export abstract class PusherEvent {
   handleNotification(_data: any) {};
 }
 // CUSTOMS
+// contents
 export class ContentActivatedEvent extends PusherEvent {
   constructor() {
     super(PusherEventType.CONTENT_ACTIVATED);
@@ -101,6 +102,43 @@ export class ContentProgressUpdateEvent extends PusherEvent {
     this.store.updateContentProgression(data.journeyId, data.journeyStageId, data.contentId, data.progression);
   }
 }
+// stages
+export class StageActivatedEvent extends PusherEvent {
+  constructor() {
+    super(PusherEventType.STAGE_ACTIVATED);
+  }
+
+  override handleNotification({ data }: any) {
+    useLogger().log(data);
+  }
+}
+export class StageDeactivatedEvent extends PusherEvent {
+  constructor() {
+    super(PusherEventType.STAGE_ACTIVATED);
+  }
+
+  override handleNotification({ data }: any) {
+    useLogger().log(data);
+  }
+}
+export class StageLockedEvent extends PusherEvent {
+  constructor() {
+    super(PusherEventType.STAGE_ACTIVATED);
+  }
+
+  override handleNotification({ data }: any) {
+    useLogger().log(data);
+  }
+}
+export class StageUnlockedEvent extends PusherEvent {
+  constructor() {
+    super(PusherEventType.STAGE_ACTIVATED);
+  }
+
+  override handleNotification({ data }: any) {
+    useLogger().log(data);
+  }
+}
 // custom
 export class CustomMessageSentEvent extends PusherEvent {
   constructor() {
@@ -127,6 +165,11 @@ export class PusherEventFactory {
       case PusherEventType.CONTENT_LOCKED: return new ContentLockedEvent();
       case PusherEventType.CONTENT_UNLOCKED: return new ContentUnlockedEvent();
       case PusherEventType.CONTENT_PROGRESSION_UPDATED: return new ContentProgressUpdateEvent();
+      // stages
+      case PusherEventType.STAGE_ACTIVATED: return new StageActivatedEvent();
+      case PusherEventType.STAGE_DEACTIVATED: return new StageDeactivatedEvent();
+      case PusherEventType.STAGE_LOCKED: return new StageLockedEvent();
+      case PusherEventType.STAGE_UNLOCKED: return new StageUnlockedEvent();
       // other
       default: return new CustomMessageSentEvent();
     }

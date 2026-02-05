@@ -26,7 +26,7 @@ const { availableCompanies: companies } = storeToRefs(store);
         variant="ghost"
         class="h-auto! flex-col text-base!"
       >
-        <NuxtLinkLocale :to="`/${company.alias}`">
+        <NuxtLinkLocale :to="`/${company.alias}/courses`">
           <UiAvatar class="size-16 rounded-lg">
             <UiAvatarImage
               v-if="company.icon"

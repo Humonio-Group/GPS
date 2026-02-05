@@ -2,9 +2,14 @@
 import { ArrowDown, BellOff } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import NotificationLine from "~/components/notifications/NotificationLine.vue";
+import { EntityType } from "~/types/entities/entities";
+import type { Nullable } from "~/types/primitives/objects";
 
 const store = useNotificationStore();
 const { notifications, canLoadMore, loading } = storeToRefs(store);
+
+const selectedFilter = ref<Nullable<EntityType>>(null);
+const filteredNotifications = computed(() => notifications.value.filter(n => n.data.type === selectedFilter.value || !selectedFilter.value));
 
 store.loadNotifications();
 </script>
@@ -14,17 +19,44 @@ store.loadNotifications();
     name="notifications"
     class="grid gap-6 mx-auto w-full max-w-3xl"
   >
-    <header>
+    <header class="flex items-center justify-between">
       <h1 class="text-3xl font-bold">
         {{ $t("notifications.title") }}
       </h1>
+
+      <div class="flex items-center gap-1">
+        <UiButton
+          :variant="selectedFilter === null ? 'secondary' : 'outline'"
+          @click="selectedFilter = null"
+        >
+          Toutes
+        </UiButton>
+        <UiButton
+          :variant="selectedFilter === EntityType.NOTIFICATION ? 'secondary' : 'outline'"
+          @click="selectedFilter = EntityType.NOTIFICATION"
+        >
+          Notifications
+        </UiButton>
+        <UiButton
+          :variant="selectedFilter === EntityType.BADGE ? 'secondary' : 'outline'"
+          @click="selectedFilter = EntityType.BADGE"
+        >
+          Badges
+        </UiButton>
+        <UiButton
+          :variant="selectedFilter === EntityType.CONTENT ? 'secondary' : 'outline'"
+          @click="selectedFilter = EntityType.CONTENT"
+        >
+          Contenus
+        </UiButton>
+      </div>
     </header>
 
     <main class="grid gap-6">
-      <template v-if="notifications.length">
+      <template v-if="filteredNotifications.length">
         <div class="grid divide-y -mx-4 overflow-hidden rounded-lg">
           <NotificationLine
-            v-for="notification in notifications"
+            v-for="notification in filteredNotifications"
             :key="`notification#${notification.id}`"
             :notification="notification"
           />
