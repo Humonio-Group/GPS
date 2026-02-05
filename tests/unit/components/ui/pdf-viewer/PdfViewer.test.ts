@@ -8,7 +8,11 @@ vi.mock("vue-pdf-embed", () => ({
     name: "VuePdfEmbed",
     props: ["source", "width", "disableTextLayer", "disableAnnotationLayer"],
     emits: ["loaded", "page-count"],
-    template: "<div class="vue-pdf-embed" data-testid="pdf-embed"><div class="vue-pdf-embed__page"></div><div class="vue-pdf-embed__page"></div><div class="vue-pdf-embed__page"></div></div>",
+    template: `<div class="vue-pdf-embed" data-testid="pdf-embed">
+      <div class="vue-pdf-embed__page"></div>
+      <div class="vue-pdf-embed__page"></div>
+      <div class="vue-pdf-embed__page"></div>
+    </div>`,
     mounted() {
       // Simulate PDF loading
       this.$nextTick(() => {

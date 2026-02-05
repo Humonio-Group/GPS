@@ -1,5 +1,5 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, ContentActivity, Contents, Course, RichCourse, Stages } from "~/types/entities/course";
+import type { Content, ContentActivity, Contents, Course, RichCourse, Stage, Stages } from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
@@ -7,6 +7,11 @@ import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
+import type { XApiStatement } from "~/types/entities/xapi";
+import { v4 as uuid } from "uuid";
+import { GearType } from "~/types/entities/gear";
+import type { LucideIcon } from "lucide-vue-next";
+import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -49,6 +54,17 @@ function detectStatus(origin: number): Manager["invitationStatus"] {
     case 2: return "declined";
     default: return "pending";
   }
+}
+function detectAutoComplete(data: any, activity: ContentActivity): boolean {
+  const { attributes } = data;
+
+  const hasTypeOrSubtype = attributes.specific.type || attributes.specific.subtype;
+  const hasEmbedContent = !!attributes.specific.links.container.embedContent;
+  const completeOnOpen = attributes.specific.sendCompletionOnOpen;
+  const isWYSIWYG = !hasTypeOrSubtype && !hasEmbedContent && attributes.specific.data.type === 0;
+  const isImage = !hasTypeOrSubtype && attributes.specific.data.type === 3 && !!activity.image;
+
+  return completeOnOpen || isWYSIWYG || isImage;
 }
 function buildCourseEntity(journey: any, program: any): Course {
   return {
@@ -102,8 +118,6 @@ function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
   const { id, attributes } = extractBasicInfo(data);
   const locale = useNuxtApp().$i18n.locale;
 
-  useLogger().log(attributes.translations);
-
   return {
     id,
     name: attributes.displayName,
@@ -116,6 +130,29 @@ function buildBadgeEntity(data: any, unlockedAt?: Date): Badge {
     unlockedAt: unlockedAt ?? null,
   };
 }
+function buildStageEntity(stages: Stages, data: any, included: any): Stage {
+  const programStages = included.filter((ps: any) => ps.type === EntityType.PROGRAM_STAGE);
+  const programStage = programStages.find((ps: any) => ps.id === data.relationships.programStage.data[0].id);
+  const existing = stages.find(s => s.id === data.id);
+  const graphics = programStage?.attributes.graphics ?? [];
+
+  return {
+    id: data.id,
+    reference: programStage.id,
+    order: programStage.attributes.position,
+    name: programStage.attributes.displayName,
+    description: programStage.attributes.displayDesc || null,
+    picture: programStage.attributes.webportBanner.thumbnail || null,
+    progress: {
+      completed: data.attributes.stats.nbContentsDone ?? 0,
+      total: data.attributes.stats.nbContents ?? 0,
+    },
+    locked: data.attributes.isLocked,
+    hidden: data.attributes.isHidden,
+    conditions: graphics.filter((g: any) => g.type === 2).map(buildCondition),
+    contents: existing?.contents ?? [],
+  };
+}
 function extractBasicInfo(data: any): {
   id: number;
   attributes: any;
@@ -125,6 +162,41 @@ function extractBasicInfo(data: any): {
     id: data.id,
     attributes: data.attributes,
     relations: data.relationships,
+  };
+}
+
+function buildCondition(graphic: any) {
+  const iconString = graphic.icon;
+  const iconUrl = iconString.split("\"")[1]!;
+  const iconName = iconUrl.split("/").pop().split(".")[0]!;
+  let icon: LucideIcon;
+
+  switch (iconName) {
+    case "blendedSchedule": {
+      icon = Clock;
+      break;
+    }
+    case "blendedContent": {
+      icon = File;
+      break;
+    }
+    case "blendedStage": {
+      icon = Folder;
+      break;
+    }
+    case "blendedVariable": {
+      icon = Gauge;
+      break;
+    }
+    default: {
+      useLogger().log("[CONDITION] Not handled:", iconName);
+      icon = Lock;
+    }
+  }
+
+  return {
+    label: graphic.label,
+    icon,
   };
 }
 
@@ -173,6 +245,8 @@ function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
 }
 function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
+  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && [GearType.IMPACT_LINE, GearType.CERTIFICATE].includes(data.attributes.specific.gearType);
+
   return embedContent
     ? {
         main: embedContent.isMain,
@@ -180,6 +254,7 @@ function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
         label: embedContent.label,
         url: embedContent.link.external,
         embedded: true,
+        completeOnOpen: shouldComplete,
       }
     : null;
 }
@@ -231,10 +306,14 @@ function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
   }));
 }
 function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
-  const extensions = data.attributes.specific.links.container.embedContent[0]!.specific.upload.extensions.split(",") as string[];
+  const upload = data.attributes.specific.links.container.embedContent[0]!.specific.upload;
+  const extensions = upload?.extensions.split(",") as string[];
+  const type = upload?.type as number;
 
   return {
-    extensions,
+    type: type ?? -1,
+    extensions: extensions ?? [],
+    ...(upload ? { link: data.attributes.specific.links.container.embedContent[0]!.link.external } : {}),
   };
 }
 function buildActionActivity(data: any, included: any): ContentActivity["action"] {
@@ -265,7 +344,7 @@ function buildScormActivity(data: any): ContentActivity["scorm"] {
     },
     refs: {
       courseId: data.relationships.journey.data[0]!.id,
-      contentId: data.id,
+      contentId: data.relationships.content.data[0]!.id,
     },
   };
 }
@@ -287,9 +366,12 @@ function buildCertificateActivity(data: any): ContentActivity["certificate"] {
     disabled: embed.disabled,
     label: embed.label,
     url: embed.link.external,
+    completeOnOpen: true,
   };
 }
-function buildContentEntity(data: any, included: any): Content {
+function buildContentEntity(data: any, included: any, stage: Stage): Content {
+  const t = useNuxtApp().$i18n.t;
+
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
       ? data.attributes.specific.links.results.map((r: any): ActivityResult => ({
@@ -303,6 +385,10 @@ function buildContentEntity(data: any, included: any): Content {
   };
   const previousActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.previousActivityUser.data[0]?.id);
   const nextActivity = included.find((a: any) => a.type === EntityType.ACTIVITY_USER && a.id === data.relationships.nextActivityUser.data[0]?.id);
+
+  const relatedContent = included.find((entity: any) => entity.type === EntityType.CONTENT && entity.id === data.relationships.content.data[0]!.id);
+  const graphics = relatedContent?.attributes?.graphics ?? [];
+  const isStageLocked = stage.locked;
 
   // Embed content
   // Image / Document
@@ -352,7 +438,7 @@ function buildContentEntity(data: any, included: any): Content {
     if (workshop) activity = { ...activity, ...workshop };
     else {
       const certificate = buildCertificateActivity(data);
-      if (certificate) activity = { ...activity, certificate };
+      if (certificate) activity = { ...activity, certificate }; // todo: embed undefined when certificate emits d of the gear - loic
     }
   }
   // Tasklist
@@ -382,12 +468,19 @@ function buildContentEntity(data: any, included: any): Content {
 
   return {
     id: data.id,
+    reference: data.relationships.content.data[0]!.id,
     order: data.attributes.specific.order,
     duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
     name: data.attributes.title,
     description: data.attributes.description,
-    conditions: [],
-    locked: data.attributes.permissions.isLocked,
+    conditions: stage.locked
+      ? [{
+          icon: Folder,
+          label: t("labels.unlock-stage"),
+        }]
+      : graphics.filter((graphic: any) => graphic.type === 2).map(buildCondition),
+    locked: data.attributes.permissions.isLocked || isStageLocked,
+    completeOnOpen: detectAutoComplete(data, activity),
     picture: data.attributes.design.picture.thumbnail ?? null,
     progress: {
       viewed: data.attributes.specific.progression.isViewed,
@@ -440,6 +533,8 @@ export const useCoursesStore = defineStore("courses", {
   }),
   getters: {
     api: () => useApi(),
+    logger: () => useLogger(),
+
     hasFirstLoadedCourses: state => state.courses !== null,
     hasStagesLoaded: state => state.selectedCourse?.stages.length,
     hasActivitiesLoaded: state => state.selectedCourse?.stages.map(s => s.contents).reduce((acc, val) => {
@@ -472,6 +567,8 @@ export const useCoursesStore = defineStore("courses", {
       const completedContents = contents.filter(c => c.progress.value >= 1);
       return Math.round((completedContents.length / contents.length) * 100) / 100;
     },
+
+    availableStages: state => state.selectedCourse?.stages.filter(s => !s.hidden) ?? [],
 
     unlockedBadges: state => state.selectedCourse?.badges.filter(b => !!b.unlockedAt) ?? [],
 
@@ -509,7 +606,7 @@ export const useCoursesStore = defineStore("courses", {
         this.courses = [...list];
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.coursesList = false;
@@ -538,7 +635,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectCourse(id);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.specimen = false;
@@ -547,14 +644,12 @@ export const useCoursesStore = defineStore("courses", {
     async loadCourseContents() {
       if (!this.selectedCourse) return;
 
-      useLogger().log("loading activities");
-
       this.loading.specific.activity = true;
       try {
-        await Promise.all(this.selectedCourse.stages.map(stage => this.loadContents(stage.reference)));
+        await Promise.all(this.selectedCourse.stages.filter(stage => !stage.hidden).map(stage => this.loadContents(stage.reference)));
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -562,7 +657,9 @@ export const useCoursesStore = defineStore("courses", {
       }
     },
     async selectCourse(id: number) {
+      this.logger.log("[COURSE] Try to select course", id, this.selectedCourse);
       if (this.selectedCourse?.id === id) return;
+      this.logger.log("[COURSE] Select course", id, this.selectedCourse);
 
       const course = this.courses?.find(c => c.id === id);
       if (!course) return await this.loadCourse(id);
@@ -585,61 +682,36 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.specific.stages = true;
 
       try {
-        const { data: _stages } = await useFetch<any>(this.api.path(this.api.url(2, 1), "/journey_stages"), {
-          headers: this.api.headers(),
-          query: this.api.params({
+        const response = await this.api.get("/journey_stages", { version: 2, endpointVersion: 1, vanilla: !!this.selectedCourse }, {
+          query: {
             "journey": this.selectedCourse.id,
             "include": "programStage",
             "fields[journeyStages]": "default,stats.all",
             "fields[programStages]": "default,position",
-          }),
-          credentials: "include",
+          },
         });
 
-        if (!_stages.value) return;
+        if (!response) return;
 
-        const journeyStages = _stages.value.data;
-        const programStages = _stages.value.included.filter((e: any) => e.type === "programStages");
+        const journeyStages = response.data;
 
-        const stages: Stages = [];
-        journeyStages
-          .filter((js: any) => !js.attributes.isHidden)
-          .forEach((stage: any) => {
-            const programStage = programStages.find((ps: any) => ps.id === stage.relationships.programStage.data[0].id);
-
-            stages.push({
-              id: stage.id,
-              reference: programStage.id,
-              order: programStage.attributes.position,
-              name: programStage.attributes.displayName,
-              description: programStage.attributes.displayDesc || null,
-              picture: programStage.attributes.webportBanner.thumbnail || null,
-              progress: {
-                completed: stage.attributes.stats.nbContentsDone ?? 0,
-                total: stage.attributes.stats.nbContents ?? 0,
-              },
-              locked: stage.attributes.isLocked,
-              conditions: [],
-              contents: [],
-            });
-          });
-
-        this.selectedCourse = {
-          ...this.selectedCourse,
-          stages: stages.sort((a, b) => a.order - b.order),
-        };
+        this.selectedCourse.stages = journeyStages
+          .map((stage: any) => buildStageEntity(this.selectedCourse!.stages, stage, response.included))
+          .sort((a: Stage, b: Stage) => a.order - b.order);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.stages = false;
       }
     },
     async loadContents(stageId: number) {
+      this.logger.log();
       if (!this.selectedCourse) return;
 
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
+      const stage = this.selectedCourse.stages.find(s => s.reference === stageId);
 
       try {
         const response = await this.api.get("/activity_users", { version: 2, endpointVersion: 1 }, {
@@ -660,11 +732,11 @@ export const useCoursesStore = defineStore("courses", {
         const data = response.data;
         const included = response.included;
 
-        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included));
+        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included, stage!));
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
       }
       finally {
         this.loading.specific.stageContents = this.loading.specific.stageContents.filter(s => s !== stageId);
@@ -691,7 +763,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.actions = _actions.data.map((a: any) => buildActionEntity(a, included)) as Actions;
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -727,7 +799,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.badges = _badges.data.map((b: any) => buildBadgeEntity(b, unlockedBadges.find((ub: any) => ub.id === b.id)?.unlockedAt));
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -852,7 +924,7 @@ export const useCoursesStore = defineStore("courses", {
         }
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -869,7 +941,7 @@ export const useCoursesStore = defineStore("courses", {
         this.selectedCourse.events = response.data.map(buildEventEntity);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -943,7 +1015,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         state = false;
         // todo: toast it - loic
       }
@@ -1009,7 +1081,7 @@ export const useCoursesStore = defineStore("courses", {
         };
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         // todo: toast it - loic
       }
       finally {
@@ -1074,10 +1146,10 @@ export const useCoursesStore = defineStore("courses", {
           },
         });
 
-        useLogger().log(response);
+        this.logger.log(response);
       }
       catch (e) {
-        useLogger().error(e);
+        this.logger.error(e);
         state = false;
         // todo: toast it - loic
       }
@@ -1086,6 +1158,175 @@ export const useCoursesStore = defineStore("courses", {
       }
 
       return state;
+    },
+    updateAction(actionId: number, action: Action) {
+      if (!this.selectedCourse) return;
+
+      this.selectedCourse.actions = this.selectedCourse.actions.map(a => a.id === actionId
+        ? {
+            ...action,
+          }
+        : a);
+    },
+
+    async sendXAPIStatement(id: number, progress: number, statement: XApiStatement, headers?: Record<string, string>) {
+      this.logger.log("[XAPI STATEMENT] Verifying course");
+      if (!this.selectedCourse) return;
+
+      this.logger.log("[XAPI STATEMENT] Searching for content");
+      const content = this.selectedCourse.stages
+        .map(s => s.contents)
+        .reduce((acc, val) => {
+          acc = [...acc, ...val];
+          return acc;
+        }, [])
+        .find(c => c.id === id || c.reference === id);
+      if (!content) return;
+      this.logger.log("[XAPI STATEMENT] Verifying progress", progress);
+      if (content.progress.value > progress) return;
+      this.logger.log("[XAPI STATEMENT] Send statement", progress, statement);
+
+      try {
+        const response = await this.api.post(`/contents/${content.reference}/xAPI/statements`, { version: 1, endpointVersion: 3 }, {
+          headers,
+          body: {
+            ...statement,
+            id: uuid(),
+            key: useRuntimeConfig().public.api.key,
+          },
+        });
+        this.logger.log("[XAPI STATEMENT] Statement sent to back-end", response);
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+    },
+
+    async addContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (courseId !== this.selectedCourse.id) return;
+
+      try {
+        const response = await this.api.get(`/activity_users/${contentId}`, { version: 2, endpointVersion: 1 }, {
+          query: {
+            "journeys": this.selectedCourse.id,
+            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
+            "fields[contents]": "activation",
+            "fields[memos]": "specific.xmlContent",
+          },
+        });
+
+        this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+          ? {
+              ...s,
+              progress: {
+                ...s.progress,
+                total: s.progress.total + 1,
+              },
+              contents: [...s.contents, buildContentEntity(response.data, response.included, s)].sort((a, b) => a.order - b.order),
+            }
+          : s);
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+    },
+    removeContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (courseId !== this.selectedCourse.id) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map((s) => {
+        const contents = s.contents.filter(c => c.reference !== contentId);
+        const completed = contents.filter(c => c.progress.value >= 1).length;
+        const total = contents.length;
+
+        return {
+          ...s,
+          progress: {
+            completed,
+            total,
+          },
+          contents,
+        };
+      });
+    },
+    lockContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId ? { ...c, locked: true } : c),
+          }
+        : s);
+    },
+    unlockContent(courseId: number, stageId: number, contentId: number) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId ? { ...c, locked: false } : c),
+          }
+        : s);
+    },
+    updateContentProgression(courseId: number, stageId: number, contentId: number, progression: { isViewed: boolean; value: number }) {
+      if (!this.selectedCourse) return;
+      if (this.selectedCourse.id !== courseId) return;
+
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            contents: s.contents.map(c => c.reference === contentId
+              ? {
+                  ...c,
+                  progress: {
+                    viewed: progression.isViewed,
+                    value: progression.value,
+                  },
+                }
+              : c),
+          }
+        : s);
+    },
+
+    addStage(courseId: number, stageId: number) {
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            hidden: false,
+          }
+        : s);
+    },
+    removeStage(courseId: number, stageId: number) {
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            hidden: true,
+          }
+        : s);
+    },
+    lockStage(courseId: number, stageId: number) {
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            locked: true,
+          }
+        : s);
+    },
+    unlockStage(courseId: number, stageId: number) {
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            locked: false,
+          }
+        : s);
     },
   },
 });

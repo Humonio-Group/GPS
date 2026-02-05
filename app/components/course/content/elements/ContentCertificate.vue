@@ -10,7 +10,7 @@ const activity = computed(() => props.content.activity.certificate!);
 </script>
 
 <template>
-  <div class="w-full max-w-4xl mx-auto flex items-center gap-2">
+  <div class="w-full max-w-4xl mx-auto flex items-center justify-center gap-2">
     <UiDialog>
       <UiDialogTrigger as-child>
         <UiButton
@@ -23,7 +23,7 @@ const activity = computed(() => props.content.activity.certificate!);
       <UiDialogContent class="w-full max-w-[calc(100dvw-2rem)]! h-[calc(100dvh-2rem)] p-0">
         <UiPdfViewer
           class="size-full!"
-          :source="content.activity.document!.url"
+          :source="content.activity.certificate!.url"
         />
       </UiDialogContent>
     </UiDialog>

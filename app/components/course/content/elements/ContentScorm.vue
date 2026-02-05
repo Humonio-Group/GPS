@@ -118,7 +118,7 @@ const debugInfo = computed(() => {
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] overflow-y-auto p-0">
+      <UiDialogContent class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0">
         <!-- Error State -->
         <UiEmpty v-if="hasError || !hasScorm">
           <UiEmptyHeader>

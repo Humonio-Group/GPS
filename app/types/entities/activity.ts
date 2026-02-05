@@ -22,6 +22,7 @@ export interface EmbedActivity {
   label: string;
   url: string;
   embedded?: boolean;
+  completeOnOpen?: boolean;
 }
 
 export interface BlendedActivity {
@@ -54,7 +55,9 @@ export interface PageActivity {
 export type ActivityPages = PageActivity[];
 
 export interface DropFileActivity {
+  type: number;
   extensions: string[];
+  link?: string;
 }
 
 export interface ActivityAction {
@@ -101,6 +104,7 @@ export interface ActivityLink {
   disabled: boolean;
   url: string;
   label: string;
+  completeOnOpen?: boolean;
 }
 export type H5PActivity = ActivityLink;
 export type CertificateActivity = ActivityLink;

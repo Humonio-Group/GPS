@@ -1,17 +1,36 @@
 <script setup lang="ts">
 import { ChevronDown, SquareArrowOutUpRight, Play } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
+import { StatementFactory } from "~/types/entities/xapi";
 
 interface ContentEmbedProps {
   content: Content;
 }
 
-defineProps<ContentEmbedProps>();
+const props = defineProps<ContentEmbedProps>();
+const store = useCoursesStore();
+
+async function handleOpen(value: boolean) {
+  if (!value) return;
+  if (!props.content.activity.embed!.completeOnOpen || props.content.progress.value >= 1) return;
+
+  const { statement, headers } = new StatementFactory(props.content).prepare({
+    id: "http://adlnet.gov/expapi/verbs/completed",
+    display: {
+      "en-US": "completed",
+      "fr-FR": "complété",
+    },
+  });
+  await store.sendXAPIStatement(props.content.reference, 1, statement, headers);
+}
 </script>
 
 <template>
   <div class="flex flex-col @md:flex-row @md:items-center @md:flex-wrap justify-center gap-2">
-    <UiDialog v-if="content.activity.embed!.embedded">
+    <UiDialog
+      v-if="content.activity.embed!.embedded"
+      @update:open="handleOpen"
+    >
       <UiDialogTrigger as-child>
         <UiButton
           size="lg"

@@ -84,6 +84,14 @@ defineProps<ContentDetailsProps>();
     <ContentDropFile
       v-if="content.activity.dropFile"
       :content="content"
+      :can-remove="false"
     />
+
+    <!-- certificate -->
+    <!-- todo: when content is emitting a PDF instead of the gear - loic
+    <ContentCertificate
+      v-if="content.activity.certificate"
+      :content="content"
+    /> -->
   </main>
 </template>

@@ -3,16 +3,42 @@ import MemoSlide from "~/components/course/content/elements/memo/MemoSlide.vue";
 import type { Content } from "~/types/entities/course";
 import type { CarouselApi } from "~/components/ui/carousel";
 import { watchOnce } from "@vueuse/core";
+import { StatementFactory, XApiId } from "~/types/entities/xapi";
 
 interface ContentMemoProps {
   content: Content;
 }
 
 const props = defineProps<ContentMemoProps>();
+const store = useCoursesStore();
 
 const api = ref<CarouselApi>();
 const totalCount = ref<number>(0);
 const current = ref<number>(0);
+watch(current, async (val, old) => {
+  if (old && val <= old) return;
+
+  const progress = (val + 1) / totalCount.value;
+  if (progress <= props.content.progress.value) return;
+
+  const verb = progress === 1
+    ? {
+        id: XApiId.COMPLETED,
+        display: {
+          "en-US": "completed",
+          "fr-FR": "complété",
+        },
+      }
+    : {
+        id: XApiId.PROGRESSED,
+        display: {
+          "en-US": "progressed",
+          "fr-FR": "progressé",
+        },
+      };
+  const { statement, headers } = new StatementFactory(props.content).prepare(verb, progress);
+  store.sendXAPIStatement(props.content.id, progress, statement, headers).then();
+});
 
 const slides = computed(() => props.content.activity.pages ?? []);
 

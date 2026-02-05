@@ -34,6 +34,7 @@ export default defineNuxtConfig({
       },
       platform: "",
       urls: {
+        lrs: "",
         auth: "",
         coordinator: "",
         facilitate: "",
@@ -41,6 +42,10 @@ export default defineNuxtConfig({
         manage: "",
         execute: "",
         develop: "",
+      },
+      pusher: {
+        key: "",
+        cluster: "",
       },
     },
   },

@@ -7,13 +7,13 @@ const { t } = useI18n();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, loading } = storeToRefs(store);
+const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
 
 watch(course, val => useHead({
   title: t("courses.specimen.overview.title", { name: val!.name }),
 }), { immediate: true });
 
-store.loadStages();
+onMounted(() => store.loadStages());
 </script>
 
 <template>
@@ -22,7 +22,7 @@ store.loadStages();
     class="text-sm text-muted-foreground grid gap-4"
   >
     <StageCollapsible
-      v-for="stage in course!.stages"
+      v-for="stage in stages"
       :key="`stage-${stage.id}`"
       :stage="stage"
     />
