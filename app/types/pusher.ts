@@ -109,7 +109,10 @@ export class StageActivatedEvent extends PusherEvent {
   }
 
   override handleNotification({ data }: any) {
-    useLogger().log(data);
+    const courseId = data.journeyId as number;
+    const stageId = data.journeyStageId as number;
+
+    this.store.addStage(courseId, stageId);
   }
 }
 export class StageDeactivatedEvent extends PusherEvent {
@@ -118,7 +121,10 @@ export class StageDeactivatedEvent extends PusherEvent {
   }
 
   override handleNotification({ data }: any) {
-    useLogger().log(data);
+    const courseId = data.journeyId as number;
+    const stageId = data.journeyStageId as number;
+
+    this.store.removeStage(courseId, stageId);
   }
 }
 export class StageLockedEvent extends PusherEvent {
@@ -127,7 +133,10 @@ export class StageLockedEvent extends PusherEvent {
   }
 
   override handleNotification({ data }: any) {
-    useLogger().log(data);
+    const courseId = data.journeyId as number;
+    const stageId = data.journeyStageId as number;
+
+    this.store.lockStage(courseId, stageId);
   }
 }
 export class StageUnlockedEvent extends PusherEvent {
@@ -136,7 +145,10 @@ export class StageUnlockedEvent extends PusherEvent {
   }
 
   override handleNotification({ data }: any) {
-    useLogger().log(data);
+    const courseId = data.journeyId as number;
+    const stageId = data.journeyStageId as number;
+
+    this.store.unlockStage(courseId, stageId);
   }
 }
 // custom

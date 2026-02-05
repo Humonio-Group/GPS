@@ -179,7 +179,8 @@
     "visibility": {
       "public": "Public | Publique",
       "private": "Privé | Privée"
-    }
+    },
+    "unlock-stage": "Débloquer le module"
   },
   "dialogs": {
     "create-action": {

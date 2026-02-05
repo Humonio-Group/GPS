@@ -37,22 +37,26 @@ const contentId = computed(() => route.params.contentId);
             :default-open="true"
           >
             <UiSidebarGroup>
-              <div class="flex items-center gap-1">
-                <UiSidebarGroupLabel>
-                  <UiPopover>
-                    <UiPopoverTrigger>
-                      <Lock class="size-3 text-muted-foreground" />
-                    </UiPopoverTrigger>
-                    <UiPopoverContent class="grid gap-2">
-                      <!-- TODO: <div class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground">
-                        <component :is="condition.icon" />
-                        <p class="text-sm">{{ condition.label }}</p>
-                      </div> - loic -->
-                    </UiPopoverContent>
-                  </UiPopover>
-                  {{ stage.name }}
-                </UiSidebarGroupLabel>
-              </div>
+              <UiSidebarGroupLabel class="flex items-center gap-1">
+                <UiPopover v-if="stage.locked">
+                  <UiPopoverTrigger>
+                    <Lock class="size-3 text-muted-foreground" />
+                  </UiPopoverTrigger>
+                  <UiPopoverContent class="grid gap-2">
+                    <div
+                      v-for="(condition, index) in stage.conditions"
+                      :key="`stage#${stage.id}-condition#${index}`"
+                      class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+                    >
+                      <component :is="condition.icon" />
+                      <p class="text-sm">
+                        {{ condition.label }}
+                      </p>
+                    </div>
+                  </UiPopoverContent>
+                </UiPopover>
+                {{ stage.name }}
+              </UiSidebarGroupLabel>
 
               <UiCollapsibleTrigger as-child>
                 <UiSidebarGroupAction>
@@ -67,52 +71,71 @@ const contentId = computed(() => route.params.contentId);
                 >
                   <UiSpinner />
                 </div>
-                <UiSidebarMenu v-else>
-                  <UiSidebarMenuItem
-                    v-for="content in stage.contents"
-                    :key="`stage-${stage.id}-c#${content.id}`"
+                <template v-else>
+                  <div
+                    v-if="stage.description || stage.picture"
+                    class="flex flex-col gap-2 px-2 mb-3"
                   >
-                    <UiSidebarMenuButton v-if="content.locked">
-                      <span class="truncate flex-1">{{ content.name }}</span>
-                      <UiPopover>
-                        <UiPopoverTrigger as-child>
-                          <Lock class="size-3 text-muted-foreground" />
-                        </UiPopoverTrigger>
-                        <UiPopoverContent class="grid gap-1.5">
-                          <div
-                            v-for="condition in content.conditions"
-                            :key="`c#${content.id}-condition#${condition.label}`"
-                            class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-                          >
-                            <component :is="condition.icon" />
-                            <p class="text-sm">
-                              {{ condition.label }}
-                            </p>
-                          </div>
-                        </UiPopoverContent>
-                      </UiPopover>
-                    </UiSidebarMenuButton>
-                    <UiSidebarMenuButton
-                      v-else
-                      as-child
+                    <NuxtImg
+                      v-if="stage.picture"
+                      :src="stage.picture"
+                      class="w-full rounded-lg"
+                    />
+                    <p
+                      v-if="stage.description"
+                      class="whitespace-pre-line text-sm text-muted-foreground"
                     >
-                      <NuxtLinkLocale
-                        :to="`/${alias}/reader/${id}/${content.id}`"
-                        active-class="bg-sidebar-accent! text-sidebar-accent-foreground!"
-                      >
-                        <span class="truncate">
-                          {{ content.name }}
-                        </span>
+                      {{ stage.description }}
+                    </p>
+                  </div>
 
-                        <UiCircularProgress
-                          v-if="content.progress.viewed"
-                          class="size-4 ml-auto"
-                          :model-value="content.progress.value * 100"
-                        />
-                      </NuxtLinkLocale>
-                    </UiSidebarMenuButton>
-                  </UiSidebarMenuItem>
-                </UiSidebarMenu>
+                  <UiSidebarMenu>
+                    <UiSidebarMenuItem
+                      v-for="content in stage.contents"
+                      :key="`stage-${stage.id}-c#${content.id}`"
+                    >
+                      <UiSidebarMenuButton v-if="content.locked">
+                        <span class="truncate flex-1">{{ content.name }}</span>
+                        <UiPopover>
+                          <UiPopoverTrigger as-child>
+                            <Lock class="size-3 text-muted-foreground" />
+                          </UiPopoverTrigger>
+                          <UiPopoverContent class="grid gap-1.5">
+                            <div
+                              v-for="condition in content.conditions"
+                              :key="`c#${content.id}-condition#${condition.label}`"
+                              class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+                            >
+                              <component :is="condition.icon" />
+                              <p class="text-sm">
+                                {{ condition.label }}
+                              </p>
+                            </div>
+                          </UiPopoverContent>
+                        </UiPopover>
+                      </UiSidebarMenuButton>
+                      <UiSidebarMenuButton
+                        v-else
+                        as-child
+                      >
+                        <NuxtLinkLocale
+                          :to="`/${alias}/reader/${id}/${content.id}`"
+                          active-class="bg-sidebar-accent! text-sidebar-accent-foreground!"
+                        >
+                          <span class="truncate">
+                            {{ content.name }}
+                          </span>
+
+                          <UiCircularProgress
+                            v-if="content.progress.viewed"
+                            class="size-4 ml-auto"
+                            :model-value="content.progress.value * 100"
+                          />
+                        </NuxtLinkLocale>
+                      </UiSidebarMenuButton>
+                    </UiSidebarMenuItem>
+                  </UiSidebarMenu>
+                </template>
               </UiCollapsibleContent>
             </UiSidebarGroup>
           </UiCollapsible>

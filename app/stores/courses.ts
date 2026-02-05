@@ -245,7 +245,7 @@ function buildMemoActivity(data: any, included: any): ContentActivity["pages"] {
 }
 function buildFormActivity(data: any): Nullable<ContentActivity["embed"]> {
   const embedContent = data.attributes.specific.links.container.embedContent[0];
-  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && data.attributes.specific.gearType === GearType.IMPACT_LINE;
+  const shouldComplete = data.attributes.specific.type === 6 && data.attributes.specific.subtype === 2 && [GearType.IMPACT_LINE, GearType.CERTIFICATE].includes(data.attributes.specific.gearType);
 
   return embedContent
     ? {
@@ -369,7 +369,9 @@ function buildCertificateActivity(data: any): ContentActivity["certificate"] {
     completeOnOpen: true,
   };
 }
-function buildContentEntity(data: any, included: any): Content {
+function buildContentEntity(data: any, included: any, stage: Stage): Content {
+  const t = useNuxtApp().$i18n.t;
+
   let activity: Content["activity"] = {
     results: data.attributes.specific.links.results?.length
       ? data.attributes.specific.links.results.map((r: any): ActivityResult => ({
@@ -386,6 +388,7 @@ function buildContentEntity(data: any, included: any): Content {
 
   const relatedContent = included.find((entity: any) => entity.type === EntityType.CONTENT && entity.id === data.relationships.content.data[0]!.id);
   const graphics = relatedContent?.attributes?.graphics ?? [];
+  const isStageLocked = stage.locked;
 
   // Embed content
   // Image / Document
@@ -470,8 +473,13 @@ function buildContentEntity(data: any, included: any): Content {
     duration: data.attributes.specific.duration ? Number(data.attributes.specific.duration) : null,
     name: data.attributes.title,
     description: data.attributes.description,
-    conditions: graphics.filter((graphic: any) => graphic.type === 2).map(buildCondition),
-    locked: data.attributes.permissions.isLocked,
+    conditions: stage.locked
+      ? [{
+          icon: Folder,
+          label: t("labels.unlock-stage"),
+        }]
+      : graphics.filter((graphic: any) => graphic.type === 2).map(buildCondition),
+    locked: data.attributes.permissions.isLocked || isStageLocked,
     completeOnOpen: detectAutoComplete(data, activity),
     picture: data.attributes.design.picture.thumbnail ?? null,
     progress: {
@@ -703,6 +711,7 @@ export const useCoursesStore = defineStore("courses", {
       if (!this.selectedCourse) return;
 
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
+      const stage = this.selectedCourse.stages.find(s => s.reference === stageId);
 
       try {
         const response = await this.api.get("/activity_users", { version: 2, endpointVersion: 1 }, {
@@ -723,7 +732,7 @@ export const useCoursesStore = defineStore("courses", {
         const data = response.data;
         const included = response.included;
 
-        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included));
+        const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included, stage!));
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
       }
       catch (e) {
@@ -1214,7 +1223,7 @@ export const useCoursesStore = defineStore("courses", {
                 ...s.progress,
                 total: s.progress.total + 1,
               },
-              contents: [...s.contents, buildContentEntity(response.data, response.included)].sort((a, b) => a.order - b.order),
+              contents: [...s.contents, buildContentEntity(response.data, response.included, s)].sort((a, b) => a.order - b.order),
             }
           : s);
       }
@@ -1284,16 +1293,40 @@ export const useCoursesStore = defineStore("courses", {
     },
 
     addStage(courseId: number, stageId: number) {
-      this.logger.log("[PUSHER - STAGE] Adding", courseId, stageId);
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            hidden: false,
+          }
+        : s);
     },
     removeStage(courseId: number, stageId: number) {
-      this.logger.log("[PUSHER - STAGE] Removing", courseId, stageId);
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            hidden: true,
+          }
+        : s);
     },
     lockStage(courseId: number, stageId: number) {
-      this.logger.log("[PUSHER - STAGE] Locking", courseId, stageId);
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            locked: true,
+          }
+        : s);
     },
     unlockStage(courseId: number, stageId: number) {
-      this.logger.log("[PUSHER - STAGE] Unlocking", courseId, stageId);
+      if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
+      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
+        ? {
+            ...s,
+            locked: false,
+          }
+        : s);
     },
   },
 });
