@@ -1,15 +1,19 @@
 <script setup lang="ts">
-import { Lock, ChevronDown, ChevronUp } from "lucide-vue-next";
+import { Lock, ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
+import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 
 const store = useCoursesStore();
-const { availableStages: stages, loading } = storeToRefs(store);
+const { selectedCourse: course, availableStages: stages, allContents, loading } = storeToRefs(store);
 
 const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
 
 const route = useRoute();
 const contentId = computed(() => route.params.contentId);
+
+const content = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
+provide("content", content);
 </script>
 
 <template>
@@ -142,8 +146,31 @@ const contentId = computed(() => route.params.contentId);
         </UiSidebarContent>
       </UiSidebar>
 
-      <UiSidebarInset class="overflow">
-        <NuxtPage :key="contentId as string" />
+      <UiSidebarInset class="flex flex-col">
+        <main class="flex flex-col flex-1 p-6 pt-4">
+          <nav class="sticky top-0 py-2 flex items-center gap-6 justify-between">
+            <div class="flex items-center">
+              <UiSidebarTrigger />
+              <UiButton
+                variant="ghost"
+                size="icon-sm"
+                as-child
+              >
+                <NuxtLinkLocale :to="`/${alias}/courses/${course!.id}`">
+                  <X />
+                </NuxtLinkLocale>
+              </UiButton>
+            </div>
+            <div class="flex items-center">
+              <CommentsDialog
+                v-if="content && (content.permissions.rateable || content.permissions.commentable)"
+                :content="content"
+              />
+            </div>
+          </nav>
+
+          <NuxtPage />
+        </main>
       </UiSidebarInset>
     </UiSidebarProvider>
   </LayoutRoot>

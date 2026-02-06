@@ -506,6 +506,27 @@
     }
   },
 
+  "reader": {
+    "mark-content": "Noter le contenu",
+    "notes": [
+      "Très mauvais",
+      "Mauvais",
+      "Moyen",
+      "Bon",
+      "Très bon"
+    ],
+    "comments": {
+      "label": "Commentaires",
+      "placeholder": "Rédiger un commentaire... (Maj+Entrer pour aller à la ligne)",
+      "empty": "Aucun commentaire pour l'instant. Soyez le premier.",
+      "reply": "Répondre",
+      "replies": {
+        "show": "Voir les réponses",
+        "hide": "Cacher les réponses"
+      }
+    }
+  },
+
   "companion": {
     "intro": {
       "title": "Mon coach IA",
