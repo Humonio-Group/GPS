@@ -80,6 +80,10 @@ export interface ContentActivity {
   action?: ActivityAction;
   results: ActivityResults;
 }
+export interface ContentTopic {
+  id: number;
+  comments: ContentComments;
+}
 export interface ContentNavigation {
   previous: Nullable<number>;
   next: Nullable<number>;
@@ -93,6 +97,25 @@ export interface Condition {
   label: string;
 }
 export type Conditions = Condition[];
+
+export interface ContentComment {
+  id: number;
+  replyTo: Nullable<number>;
+  admin: boolean;
+  content: string;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  stats: {
+    likes: number;
+    replies: number;
+  };
+  liked: boolean;
+  replies: ContentComments;
+}
+export type ContentComments = ContentComment[];
+
 export interface Content {
   id: number;
   reference: number;
@@ -111,6 +134,7 @@ export interface Content {
   progress: ContentProgress;
   activity: ContentActivity;
   navigation: ContentNavigation;
+  topic: ContentTopic;
 }
 export type Contents = Content[];
 
