@@ -5,7 +5,7 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
   const { t } = useNuxtApp().$i18n;
 
   const store = useCompanionStore();
-  const { conversations: allConversations } = storeToRefs(store);
+  const { conversations: allConversations, agents } = storeToRefs(store);
   const conversations = computed(() => allConversations.value.slice(0, 5) || []);
 
   return computed((): NavigationContent => [
@@ -26,33 +26,35 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
         },
       ],
     },
-    {
-      type: "group",
-      label: t("navigation.companion.label"),
-      children: [
-        {
-          type: "item",
-          icon: MessageCirclePlus,
-          label: t("navigation.companion.new-conversation"),
-          path: "/companion",
-          exact: true,
-          separator: true,
-        },
-        ...conversations.value.map((c: any): NavigationItem => ({
-          type: "item",
-          icon: MessageCircle,
-          label: c.title,
-          path: `/companion/${c.slug}`,
-        })),
-        ...(conversations.value.length
-          ? [{
+    ...(agents.value.length
+      ? [{
+          type: "group",
+          label: t("navigation.companion.label"),
+          children: [
+            {
               type: "item",
-              icon: History,
-              label: t("navigation.companion.history"),
-              path: "/companion/history",
-            }] as NavigationItem[]
-          : []),
-      ],
-    },
+              icon: MessageCirclePlus,
+              label: t("navigation.companion.new-conversation"),
+              path: "/companion",
+              exact: true,
+              separator: !!conversations.value.length,
+            },
+            ...conversations.value.map((c: any): NavigationItem => ({
+              type: "item",
+              icon: MessageCircle,
+              label: c.title,
+              path: `/companion/${c.slug}`,
+            })),
+            ...(conversations.value.length
+              ? [{
+                  type: "item",
+                  icon: History,
+                  label: t("navigation.companion.history"),
+                  path: "/companion/history",
+                }] as NavigationItem[]
+              : []),
+          ],
+        }] as NavigationContent
+      : []),
   ]);
 };

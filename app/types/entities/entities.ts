@@ -32,4 +32,8 @@ export enum EntityType {
   USER_EVENT = "userEvents",
   // OLD
   CHANGR = "changrs",
+  // AI
+  CHAT_CONVERSATION = "chatConversations",
+  CHAT_AGENT = "chatAgents",
+  CHAT_MESSAGE = "chatMessages",
 }
