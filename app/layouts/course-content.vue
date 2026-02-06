@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { Lock, ChevronDown, ChevronUp, X, MessageCircle } from "lucide-vue-next";
+import { Lock, ChevronDown, ChevronUp, X } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
-import CommentBubble from "~/components/course/content/comments/CommentBubble.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 
 const store = useCoursesStore();
