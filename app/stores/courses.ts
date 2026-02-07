@@ -1,9 +1,18 @@
 import type { Nullable } from "~/types/primitives/objects";
-import type { Content, ContentActivity, Contents, Course, RichCourse, Stage, Stages } from "~/types/entities/course";
+import type {
+  Content,
+  ContentActivity,
+  ContentComment,
+  Contents,
+  Course,
+  RichCourse,
+  Stage,
+  Stages,
+} from "~/types/entities/course";
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
-import type { Manager, People, Peoples } from "~/types/entities/user";
+import { type Manager, type People, type Peoples, UserRole } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
@@ -22,6 +31,7 @@ interface CoursesState {
       specimen: boolean;
       stages: boolean;
       stageContents: number[];
+      comments: boolean;
       activity: boolean;
       actions: boolean;
       badges: boolean;
@@ -197,6 +207,32 @@ function buildCondition(graphic: any) {
   return {
     label: graphic.label,
     icon,
+  };
+}
+function buildComment(data: any, included: any): ContentComment {
+  const author = included.find((e: any) => e.type === EntityType.USER && e.id === data.relationships.author.data[0]!.id);
+  const children = data.relationships.childComments?.data
+    .map((c: any): number => c.id)
+    .map((c: number) => included.find((e: any) => e.type === EntityType.COMMENT && e.id === c)) ?? [];
+
+  return {
+    id: data.id,
+    replyTo: null,
+    admin: data.attributes.role.value !== UserRole.PARTICIPANT,
+    content: data.attributes.content,
+    author: {
+      name: author.attributes.name,
+      avatar: author.attributes.picture.thumbnail,
+    },
+    stats: {
+      likes: data.attributes.stats.nbLikes,
+      replies: 0,
+    },
+    liked: data.attributes.recipient.isLiked,
+    replies: children.map((c: any) => ({
+      ...buildComment(c, included),
+      replyTo: data.id,
+    })),
   };
 }
 
@@ -389,6 +425,7 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
   const relatedContent = included.find((entity: any) => entity.type === EntityType.CONTENT && entity.id === data.relationships.content.data[0]!.id);
   const graphics = relatedContent?.attributes?.graphics ?? [];
   const isStageLocked = stage.locked;
+  const relatedTopic = included.find((entity: any) => entity.type === EntityType.TOPIC && entity.id === relatedContent.relationships.topic.data[0]!.id);
 
   // Embed content
   // Image / Document
@@ -495,17 +532,21 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
       commentable: data.attributes.permissions.isCommentable,
     },
     stats: {
-      likes: 0,
-      comments: 0,
-      followers: 0,
-      ratings: 0,
-      rate: null,
-      shares: 0,
+      likes: data.attributes.stats.likes,
+      comments: data.attributes.stats.comments,
+      followers: data.attributes.stats.followers,
+      ratings: data.attributes.stats.nbRatings,
+      rate: data.attributes.recipient.rate,
+      shares: data.attributes.stats.sharings,
     },
     activity,
     navigation: {
       previous: previousActivity?.id ?? null,
       next: nextActivity?.id ?? null,
+    },
+    topic: {
+      id: relatedTopic.id,
+      comments: [],
     },
   };
 }
@@ -519,6 +560,7 @@ export const useCoursesStore = defineStore("courses", {
       specific: {
         specimen: false,
         stages: false,
+        comments: false,
         stageContents: [],
         activity: false,
         actions: false,
@@ -721,7 +763,7 @@ export const useCoursesStore = defineStore("courses", {
             "stages": stageId,
             "types": "3,4",
             "limit": -1,
-            "include": "location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
+            "include": "topic,location,facilitator,timezone,content,previousActivityUser,nextActivityUser,content,content.embedContent",
             "fields[contents]": "activation",
             "fields[memos]": "specific.xmlContent",
           },
@@ -946,6 +988,33 @@ export const useCoursesStore = defineStore("courses", {
       }
       finally {
         this.loading.specific.events = false;
+      }
+    },
+    async loadComments(content: Content) {
+      if (!this.selectedCourse) return;
+
+      this.loading.specific.comments = true;
+
+      try {
+        const response = await this.api.get("/comments", { version: 2, endpointVersion: 1, vanilla: true }, {
+          query: {
+            "topic": content.topic.id,
+            "journey": this.selectedCourse.id,
+            "include": "author,childComments",
+            "fields[comments]": "default,recipient.all",
+            "fields[users]": "name,picture",
+          },
+        });
+
+        const { data, included } = response;
+        content.topic.comments = data.map((comment: any) => buildComment(comment, included));
+      }
+      catch (e) {
+        this.logger.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.specific.comments = false;
       }
     },
 
@@ -1327,6 +1396,99 @@ export const useCoursesStore = defineStore("courses", {
             locked: false,
           }
         : s);
+    },
+
+    async createComment(content: Content, message: string, comment?: ContentComment) {
+      if (!this.selectedCourse) return;
+
+      try {
+        const response = await this.api.post("/comments", { version: 2, endpointVersion: 1 }, {
+          query: {
+            "include": "author",
+            "fields[comments]": "default,recipient.all",
+            "fields[users]": "name,picture",
+          },
+          body: {
+            data: {
+              attributes: {
+                content: message,
+              },
+              relationships: {
+                journey: {
+                  data: {
+                    id: this.selectedCourse.id,
+                  },
+                },
+                topic: {
+                  data: {
+                    id: content.topic.id,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        const com = buildComment(response.data, response.included);
+        if (comment) comment.replies = [{ ...com, replyTo: comment.id }, ...comment.replies];
+        else content.topic.comments = [com, ...content.topic.comments];
+      }
+      catch (e) {
+        this.logger.error(e);
+        // todo: toast it - loic
+      }
+    },
+    async likeComment(comment: ContentComment) {
+      if (!this.selectedCourse) return;
+
+      try {
+        await this.api.post(`/comments/${comment.id}/like`, { version: 2, endpointVersion: 1 }, {
+          body: {
+            meta: {
+              journey: this.selectedCourse.id,
+            },
+          },
+        });
+
+        const state = !comment.liked;
+        comment.liked = state;
+        comment.stats.likes = Math.max(comment.stats.likes + (state ? 1 : -1), 0);
+      }
+      catch (e) {
+        this.logger.error(e);
+        // todo: toast it - loic
+      }
+    },
+    async rateContent(content: Content, rate: number) {
+      if (!this.selectedCourse) return;
+
+      try {
+        await this.api.post(`/topics/${content.topic.id}/ratings`, { version: 1, endpointVersion: 2 }, {
+          body: {
+            data: {
+              attributes: {
+                rate,
+              },
+              relationships: {
+                journey: {
+                  data: {
+                    id: this.selectedCourse.id,
+                    type: EntityType.JOURNEY,
+                  },
+                },
+              },
+            },
+            journey: this.selectedCourse.id,
+            requester: storeToRefs(useUserStore()).user.value!.id,
+            requester_type: EntityType.USER,
+          },
+        });
+        content.stats.rate = rate;
+      }
+      catch (e) {
+        this.logger.error(e);
+        // todo: toast it - loic
+      }
     },
   },
 });

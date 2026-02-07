@@ -221,6 +221,83 @@ export const useApi = () => {
     });
   };
 
+  const sse = <T = any>(
+    _path: string,
+    apiOptions: ApiOptions,
+    _fetchBody: FetchBody = {},
+    callbacks: { onMessage?: (data: T) => void; onError?: (error: any) => void; onComplete?: () => void } = {},
+  ): AbortController => {
+    const { headers: h, query: q } = _fetchBody;
+    const controller = new AbortController();
+
+    const endpoint = path(url(apiOptions.version, apiOptions.endpointVersion), _path);
+    const queryString = new URLSearchParams(
+      Object.entries(params(q)).map(([k, v]) => [k, String(v)]),
+    ).toString();
+
+    $fetch.raw(`${endpoint}?${queryString}`, {
+      method: "POST",
+      headers: {
+        ...headers(h),
+        Accept: "text/event-stream",
+      },
+      query: {
+        ...params(q),
+      },
+      ...(_fetchBody.body ? { body: _fetchBody.body } : {}),
+      credentials: "include",
+      signal: controller.signal,
+    })
+      .then(async (response: any) => {
+        if (!response.ok) {
+          if (response.status === 401) {
+            navigateTo(useLocalePath()("/auth/login"));
+            return;
+          }
+          callbacks.onError?.(new Error(`SSE connection failed: ${response.status}`));
+          return;
+        }
+
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) {
+            callbacks.onComplete?.();
+            return;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+          const parts = buffer.split("\n\n");
+          buffer = parts.pop() || "";
+
+          for (const part of parts) {
+            const dataLine = part
+              .split("\n")
+              .find(line => line.startsWith("data: "));
+            if (dataLine) {
+              try {
+                const data = JSON.parse(dataLine.slice(6));
+                callbacks.onMessage?.(data as T);
+              }
+              catch {
+                // non-JSON data, skip
+              }
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        if (error.name !== "AbortError") {
+          callbacks.onError?.(error);
+        }
+      });
+
+    return controller;
+  };
+
   return {
     url,
     path,
@@ -232,5 +309,6 @@ export const useApi = () => {
     patch,
     put,
     destroy,
+    sse,
   };
 };

@@ -2,7 +2,7 @@
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import DefaultSidebar from "~/components/navigation/DefaultSidebar.vue";
 import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
-import { Bell, BellDot, MoreVertical, Plus, Send } from "lucide-vue-next";
+import { Bell, BellDot, MoreVertical, Plus, Send, History } from "lucide-vue-next";
 import CompanionActions from "~/components/companion/CompanionActions.vue";
 
 const { alias } = useWorkspaceUtils();
@@ -14,8 +14,10 @@ const { selectedConversation: conversation, canWrite } = storeToRefs(store);
 const message = ref<string>("");
 
 async function sendMessage() {
-  if (!canWrite.value) return;
-  await store.sendMessage(message.value);
+  const value = message.value.trim();
+  if (!value.length || !canWrite.value) return;
+
+  store.sendMessage(value).then();
   message.value = "";
 }
 </script>
@@ -53,6 +55,20 @@ async function sendMessage() {
             </UiTooltip>
 
             <GettingHelp />
+
+            <UiTooltip>
+              <UiTooltipTrigger as-child>
+                <UiButton
+                  size="icon"
+                  variant="ghost"
+                >
+                  <History />
+                </UiButton>
+              </UiTooltipTrigger>
+              <UiTooltipContent>
+                <p>{{ $t("labels.tooltips.conversation-history") }}</p>
+              </UiTooltipContent>
+            </UiTooltip>
 
             <CompanionActions
               v-if="conversation"

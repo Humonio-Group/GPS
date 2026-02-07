@@ -27,13 +27,24 @@ const contents = useProductNavigation();
         v-for="(content, i) in contents"
         :key="`sb-${i}`"
       >
+        <UiSidebarGroupLabel v-if="content.label?.length">
+          {{ content.label }}
+        </UiSidebarGroupLabel>
+
         <UiSidebarMenu>
-          <DefaultSidebarItem
+          <template
             v-for="(item, j) in content.children"
             :key="`sb-${i}-${j}`"
-            :item="item"
-            :index="j"
-          />
+          >
+            <DefaultSidebarItem
+              :item="item"
+              :index="j"
+            />
+            <UiSidebarSeparator
+              v-if="item.separator"
+              class="w-full mx-0!"
+            />
+          </template>
         </UiSidebarMenu>
       </UiSidebarGroup>
     </UiSidebarContent>

@@ -180,7 +180,10 @@
       "public": "Public | Publique",
       "private": "Privé | Privée"
     },
-    "unlock-stage": "Débloquer le module"
+    "unlock-stage": "Débloquer le module",
+    "tooltips": {
+      "conversation-history": "Historique des conversations"
+    }
   },
   "dialogs": {
     "create-action": {
@@ -193,6 +196,7 @@
     "home": "Accueil",
     "my-courses": "Mes formations",
     "events": "Événements",
+    "ai-coach": "Mon coach IA",
     "course": {
       "overview": "Vue d'ensemble",
       "peoples": "Personnes",
@@ -217,6 +221,11 @@
       "profile": "Mon profil",
       "settings": "Paramètres",
       "log-out": "Déconnexion"
+    },
+    "companion": {
+      "label": "Mon coach IA",
+      "new-conversation": "Nouvelle conversation",
+      "history": "Toutes les conversations"
     }
   },
 
@@ -497,8 +506,30 @@
     }
   },
 
+  "reader": {
+    "mark-content": "Noter le contenu",
+    "notes": [
+      "Très mauvais",
+      "Mauvais",
+      "Moyen",
+      "Bon",
+      "Très bon"
+    ],
+    "comments": {
+      "label": "Commentaires",
+      "placeholder": "Rédiger un commentaire... (Maj+Entrer pour aller à la ligne)",
+      "empty": "Aucun commentaire pour l'instant. Soyez le premier.",
+      "reply": "Répondre",
+      "replies": {
+        "show": "Voir les réponses",
+        "hide": "Cacher les réponses"
+      }
+    }
+  },
+
   "companion": {
     "intro": {
+      "title": "Mon coach IA",
       "greetings": [
         "Bonjour {name}, comment puis-je t'aider aujourd'hui ?",
         "Hey {name}, comment puis-je t'être utile ?",

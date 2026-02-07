@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, Calendar, Clock, X } from "lucide-vue-next";
+import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import ContentDetails from "~/components/course/content/ContentDetails.vue";
 import ContentDetailItem from "~/components/course/content/header/ContentDetailItem.vue";
 import { StatementFactory } from "~/types/entities/xapi";
+import type { Content } from "~/types/entities/course";
 
 const { t } = useI18n();
 
@@ -15,10 +16,9 @@ const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, allContents, loading } = storeToRefs(store);
+const { selectedCourse: course, loading } = storeToRefs(store);
+const content = inject("content") as ComputedRef<Content>;
 
-const contentId = useRoute().params.contentId;
-const content = computed(() => allContents.value.find(c => c.id === Number(contentId)));
 watch(content, async (val) => {
   if (!val) return;
 
@@ -27,7 +27,7 @@ watch(content, async (val) => {
   });
   const statementFactory = new StatementFactory(val);
 
-  useLogger().log(val.completeOnOpen);
+  if (val.permissions.commentable) store.loadComments(val).then();
 
   if (val.completeOnOpen && val.progress.value < 1) {
     const { statement, headers } = statementFactory.prepare({
@@ -51,14 +51,14 @@ watch(content, async (val) => {
   });
   await store.sendXAPIStatement(val.reference, 0, statement, headers);
 }, { immediate: true });
-const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(contentId))));
+const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(content.value.id))));
 
 const { formatDate, sameDate } = useDateUtils();
 const { formatTime } = useTimeUtils();
 
 const workshop = computed(() => {
-  if (!content.value?.activity.blended) return null;
-  const { start, end } = content.value!.activity.blended;
+  if (!content!.value?.activity.blended) return null;
+  const { start, end } = content!.value!.activity.blended;
   const isSame = sameDate(start, end);
 
   return t("labels.date-time.interval", isSame ? 1 : 2, {
@@ -75,22 +75,8 @@ const workshop = computed(() => {
 <template>
   <PageRoot
     name="course.content-reader"
-    class="p-6 flex flex-col gap-6 min-h-dvh"
+    class="p-6 pt-4 flex flex-col gap-6 flex-1"
   >
-    <nav class="py-2 bg-background sticky top-0 flex items-center">
-      <UiSidebarTrigger />
-
-      <UiButton
-        variant="ghost"
-        size="icon"
-        as-child
-      >
-        <NuxtLinkLocale :to="`/${alias}/courses/${id}`">
-          <X />
-        </NuxtLinkLocale>
-      </UiButton>
-    </nav>
-
     <div
       v-if="loading.specific.activity && !content"
       class="h-24 w-full grid place-items-center"

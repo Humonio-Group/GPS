@@ -1,0 +1,248 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - staging
+      - master
+      - demo
+
+jobs:
+  # ============================================
+  # BUILD JOBS
+  # ============================================
+
+  build-staging:
+    name: Build Staging
+    environment: staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Configure NPM token
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create .env file from secret
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Build for staging
+        run: yarn generate
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-dist
+          path: ${{ vars.NUXT_PATH }}
+          retention-days: 1
+
+  build-demo:
+    name: Build Demo
+    environment: demo
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/demo'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Configure NPM token
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create .env file from secret
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Build for demo
+        run: yarn generate
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-dist
+          path: ${{ vars.NUXT_PATH }}
+          retention-days: 1
+
+  build-production:
+    name: Build Production
+    environment: production
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Configure NPM token
+        run: npm config set //registry.npmjs.org/:_authToken ${{ secrets.NPM_TOKEN }}
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Create .env file from secret
+        run: echo "${{ secrets.ENV_FILE }}" > .env
+
+      - name: Build for production
+        run: yarn generate
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-dist
+          path: ${{ vars.NUXT_PATH }}
+          retention-days: 1
+
+  # ============================================
+  # DEPLOY JOBS
+  # ============================================
+
+  deploy-staging:
+    name: Deploy to Staging
+    environment: staging
+    runs-on: ubuntu-latest
+    needs: build-staging
+    if: github.ref == 'refs/heads/staging'
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: staging-dist
+          path: ${{ vars.BUILD_PATH }}
+
+      - name: Setup SSH
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -p $PORT $HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to staging server
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+          USER: ${{ vars.USER }}
+          TMP_PATH: ${{ vars.TMP_PATH }}
+          DEFINITIVE_PATH: ${{ vars.DEFINITIVE_PATH }}
+          BUILD_PATH: ${{ vars.BUILD_PATH }}
+        run: |
+          ssh -p $PORT $USER@$HOST "rm -rf $TMP_PATH ; mkdir -p $TMP_PATH"
+          rsync -avzpt -e "ssh -p $PORT" ./$BUILD_PATH/ $USER@$HOST:$TMP_PATH/
+          ssh -p $PORT $USER@$HOST "rm -rf $DEFINITIVE_PATH ; mv $TMP_PATH $DEFINITIVE_PATH"
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -f ~/.ssh/id_rsa
+
+  deploy-demo:
+    name: Deploy to Demo
+    environment: demo
+    runs-on: ubuntu-latest
+    needs: build-demo
+    if: github.ref == 'refs/heads/demo'
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: demo-dist
+          path: ${{ vars.BUILD_PATH }}
+
+      - name: Setup SSH
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -p $PORT $HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to demo server
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+          USER: ${{ vars.USER }}
+          TMP_PATH: ${{ vars.TMP_PATH }}
+          DEFINITIVE_PATH: ${{ vars.DEFINITIVE_PATH }}
+          BUILD_PATH: ${{ vars.BUILD_PATH }}
+        run: |
+          ssh -p $PORT $USER@$HOST "rm -rf $TMP_PATH ; mkdir -p $TMP_PATH"
+          rsync -avzpt -e "ssh -p $PORT" ./$BUILD_PATH/ $USER@$HOST:$TMP_PATH/
+          ssh -p $PORT $USER@$HOST "rm -rf $DEFINITIVE_PATH ; mv $TMP_PATH $DEFINITIVE_PATH"
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -f ~/.ssh/id_rsa
+
+  deploy-production:
+    name: Deploy to Production
+    environment: production
+    runs-on: ubuntu-latest
+    needs: build-production
+    if: github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: production-dist
+          path: ${{ vars.BUILD_PATH }}
+
+      - name: Setup SSH
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 400 ~/.ssh/id_rsa
+          ssh-keyscan -p $PORT $HOST >> ~/.ssh/known_hosts
+
+      - name: Deploy to production server
+        env:
+          PORT: ${{ vars.PORT }}
+          HOST: ${{ vars.HOST }}
+          USER: ${{ vars.USER }}
+          TMP_PATH: ${{ vars.TMP_PATH }}
+          DEFINITIVE_PATH: ${{ vars.DEFINITIVE_PATH }}
+          BUILD_PATH: ${{ vars.BUILD_PATH }}
+        run: |
+          ssh -p $PORT $USER@$HOST "rm -rf $TMP_PATH ; mkdir -p $TMP_PATH"
+          rsync -avzpt -e "ssh -p $PORT" ./$BUILD_PATH/ $USER@$HOST:$TMP_PATH/
+          ssh -p $PORT $USER@$HOST "rm -rf $DEFINITIVE_PATH ; mv $TMP_PATH $DEFINITIVE_PATH"
+
+      - name: Cleanup SSH
+        if: always()
+        run: rm -f ~/.ssh/id_rsa

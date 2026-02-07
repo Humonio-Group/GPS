@@ -22,7 +22,9 @@ const activeClass = computed(() => props.item.exact
         v-bind="activeClass"
       >
         <component :is="item.icon" />
-        {{ item.label }}
+        <span class="flex-1 truncate">
+          {{ item.label }}
+        </span>
       </NuxtLinkLocale>
     </UiSidebarMenuButton>
     <UiSidebarMenuSub v-if="item.children?.length">
@@ -35,7 +37,9 @@ const activeClass = computed(() => props.item.exact
             :to="`/${alias!}/${path(sub.path)}`"
             v-bind="activeClass"
           >
-            {{ sub.label }}
+            <span class="flex-1 truncate">
+              {{ sub.label }}
+            </span>
           </NuxtLinkLocale>
         </UiSidebarMenuSubButton>
       </UiSidebarMenuSubItem>
