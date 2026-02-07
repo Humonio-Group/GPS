@@ -45,7 +45,7 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
               label: c.title,
               path: `/companion/${c.slug}`,
             })),
-            ...(conversations.value.length
+            ...(conversations.value.length > 5
               ? [{
                   type: "item",
                   icon: History,

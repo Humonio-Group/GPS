@@ -2,22 +2,40 @@
 import { Send } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import IaGif from "~/assets/images/ia.gif";
+import type { Nullable } from "~/types/primitives/objects";
 
 const { t } = useI18n();
 
+const store = useCompanionStore();
+const { agents, loading } = storeToRefs(store);
 const { company } = storeToRefs(useCompanyStore());
 const { user } = storeToRefs(useUserStore());
 
-const agent = ref<string>("gpt-4o-mini");
+const agent = ref<Nullable<number>>(agents.value[0]?.id ?? null);
 const message = ref<string>("");
 const index = computed(() => Math.floor(Math.random() * 3));
 const canSend = computed(() => message.value.trim().length);
+
+watch(agents, (val) => {
+  if (!val || !val.length || agent.value !== null) return;
+
+  agent.value = val[0]!.id;
+});
 
 const { handleChatShortcuts } = useKeyboard();
 
 useHead({
   title: `${t("companion.intro.title")} - ${company.value!.name}`,
 });
+
+function submit(event: KeyboardEvent) {
+  handleChatShortcuts(event, async () => {
+    const value = message.value.trim();
+    if (!value.length || agent.value === null) return;
+
+    await store.createConversation(agent.value!, value);
+  });
+}
 </script>
 
 <template>
@@ -34,20 +52,28 @@ useHead({
       <div class="grid gap-2 w-full mt-12">
         <UiTextarea
           v-model="message"
+          :disabled="loading.creating"
           class="min-h-9 max-h-48 resize-none"
           :placeholder="$t('companion.intro.ask-question')"
-          @keydown="handleChatShortcuts"
+          @keydown="submit"
         />
         <div
           class="flex justify-between gap-1 md:gap-4"
         >
-          <UiSelect v-model="agent">
+          <UiSelect
+            v-model="agent"
+            :disabled="loading.creating"
+          >
             <UiSelectTrigger>
               <UiSelectValue />
             </UiSelectTrigger>
             <UiSelectContent>
-              <UiSelectItem value="gpt-4o-mini">
-                GPT 4o Mini
+              <UiSelectItem
+                v-for="_agent in agents"
+                :key="_agent.key"
+                :value="_agent.id"
+              >
+                {{ _agent.name }}
               </UiSelectItem>
             </UiSelectContent>
           </UiSelect>
@@ -56,8 +82,12 @@ useHead({
             v-if="canSend"
             class="flex items-center gap-1"
           >
-            <UiButton size="icon">
-              <Send />
+            <UiButton
+              size="icon"
+              :disabled="loading.creating"
+            >
+              <UiSpinner v-if="loading.creating" />
+              <Send v-else />
             </UiButton>
           </div>
         </div>

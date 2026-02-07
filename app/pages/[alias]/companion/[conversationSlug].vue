@@ -12,19 +12,19 @@ const { selectedConversation: conversation, loading } = storeToRefs(store);
 const { alias } = useWorkspaceUtils();
 
 const bottomTrigger = useTemplateRef("bottomTrigger");
-watch(conversation, async () => {
+watch(conversation, async (val, old) => {
   await nextTick();
-  bottomTrigger.value?.scrollIntoView({ behavior: "smooth" });
+  bottomTrigger.value?.scrollIntoView({ behavior: val?.id === old?.id ? "smooth" : "instant" });
 }, { immediate: true, deep: true });
 
-store.selectConversation(useRoute().params.conversationSlug as string).then(async () => {
+if (conversation.value?.slug !== useRoute().params.conversationSlug as string) store.selectConversation(useRoute().params.conversationSlug as string).then(async () => {
   await nextTick();
   if (conversation.value) return;
 
   navigateTo(useLocalePath()(`/${alias.value}/companion/history`));
 });
 
-onMounted(() => bottomTrigger.value?.scrollIntoView({ behavior: "smooth" }));
+onMounted(() => bottomTrigger.value?.scrollIntoView({ behavior: "instant" }));
 onBeforeRouteLeave(() => store.selectConversation());
 </script>
 

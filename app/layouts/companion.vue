@@ -14,8 +14,10 @@ const { selectedConversation: conversation, canWrite } = storeToRefs(store);
 const message = ref<string>("");
 
 async function sendMessage() {
-  if (!canWrite.value) return;
-  await store.sendMessage(message.value);
+  const value = message.value.trim();
+  if (!value.length || !canWrite.value) return;
+
+  store.sendMessage(value).then();
   message.value = "";
 }
 </script>

@@ -235,7 +235,7 @@ export const useApi = () => {
       Object.entries(params(q)).map(([k, v]) => [k, String(v)]),
     ).toString();
 
-    $fetch(`${endpoint}?${queryString}`, {
+    $fetch.raw(`${endpoint}?${queryString}`, {
       method: "POST",
       headers: {
         ...headers(h),
