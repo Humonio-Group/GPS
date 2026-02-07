@@ -14,6 +14,9 @@ export default defineNuxtConfig({
   ],
   ssr: false,
   devtools: { enabled: true },
+  app: {
+    baseURL: process.env.APP_BASE_URL || "/",
+  },
   css: ["./tailwind.css"],
   colorMode: {
     classPrefix: "",
@@ -49,6 +52,8 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  srcDir: "app/",
   compatibilityDate: "2025-07-15",
   vite: {
     plugins: [tailwindcss()],
