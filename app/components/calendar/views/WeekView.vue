@@ -59,7 +59,7 @@ const dayPositionedEvents = computed(() => {
     <!-- Time grid -->
     <TimeGrid :days="days">
       <template
-        v-for="(day, dayIndex) in days"
+        v-for="(_day, dayIndex) in days"
         :key="dayIndex"
         #[`day-${dayIndex}`]
       >

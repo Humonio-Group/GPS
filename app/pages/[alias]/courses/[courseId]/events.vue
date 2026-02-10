@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
-import EventCard from "~/components/events/EventCard.vue";
 import { CalendarX } from "lucide-vue-next";
 import CalendarView from "~/components/calendar/CalendarView.vue";
 
