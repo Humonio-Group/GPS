@@ -18,7 +18,8 @@
       "map": "Ouvrir la carte",
       "link": "Ouvrir le lien",
       "ticket": "Ouvrir un ticket",
-      "file": "Ouvrir le fichier"
+      "file": "Ouvrir le fichier",
+      "content": "Ouvrir le contenu"
     },
     "close": {
       "default": "Fermer",
@@ -195,7 +196,7 @@
   "navigation": {
     "home": "Accueil",
     "my-courses": "Mes formations",
-    "events": "Événements",
+    "events": "Calendrier",
     "ai-coach": "Mon coach IA",
     "course": {
       "overview": "Vue d'ensemble",
@@ -319,6 +320,22 @@
           "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
         }
       }
+    }
+  },
+  "calendar": {
+    "today": "Aujourd'hui",
+    "more": "+{count} de plus",
+    "join-video": "Rejoindre la visio",
+    "list-empty": "Aucun événement ce mois-ci.",
+    "filter": {
+      "from": "Du",
+      "to": "au"
+    },
+    "views": {
+      "month": "Mois",
+      "week": "Semaine",
+      "day": "Jour",
+      "list": "Liste"
     }
   },
   "events": {
