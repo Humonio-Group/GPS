@@ -78,7 +78,7 @@ function createLoadingIndicator(opts: Partial<LoadingIndicatorOpts> = {}) {
     if (import.meta.client) {
       hideTimeout = setTimeout(() => {
         isLoading.value = false;
-        resetTimeout = setTimeout(() => { progress.value = 0; }, resetDelay);
+        resetTimeout = setTimeout(() => progress.value = 0, resetDelay);
       }, hideDelay);
     }
   }
@@ -119,7 +119,7 @@ function createLoadingIndicator(opts: Partial<LoadingIndicatorOpts> = {}) {
     let startTimeStamp: number;
 
     function step(timeStamp: number): void {
-      if (done) { return; }
+      if (done) return;
 
       startTimeStamp ??= timeStamp;
       const elapsed = timeStamp - startTimeStamp;
