@@ -30,9 +30,27 @@ async function sendMessage() {
       <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh overflow-y-auto">
         <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
           <UiSidebarTrigger />
-          <h1 class="font-bold">
-            {{ conversation?.title }}
-          </h1>
+          <div>
+            <h1 class="font-bold">
+              {{ conversation?.title }}
+            </h1>
+            <div
+              v-if="conversation"
+              class="flex items-center gap-1 5"
+            >
+              <UiAvatar class="size-5 rounded-sm">
+                <UiAvatarImage
+                  v-if="conversation.agent.avatar"
+                  :src="conversation.agent.avatar"
+                />
+                <UiAvatarFallback>{{ conversation.agent.name.substring(0, 2) }}</UiAvatarFallback>
+              </UiAvatar>
+
+              <p class="text-sm text-muted-foreground">
+                {{ conversation.agent.name }}
+              </p>
+            </div>
+          </div>
 
           <div class="ml-auto flex items-center">
             <UiTooltip>

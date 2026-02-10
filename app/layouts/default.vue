@@ -43,7 +43,7 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
           </div>
         </header>
 
-        <main class="p-2 pt-0 flex-1 flex flex-col">
+        <main class="p-2 pt-0 flex-1 flex flex-col min-h-0">
           <NuxtPage />
         </main>
       </UiSidebarInset>

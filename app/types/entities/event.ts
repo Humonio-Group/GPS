@@ -44,6 +44,7 @@ export interface EventMetadata {
 export interface Event {
   id: string;
   name: string;
+  contentId: number;
   status: EventStatus;
   dates: EventDates;
   metadata: EventMetadata;

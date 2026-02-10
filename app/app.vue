@@ -2,6 +2,7 @@
 import "vue-sonner/style.css";
 import { Toaster } from "~/components/ui/sonner";
 import type { Theme } from "~/types/misc/theme";
+import LoadingIndicator from "~/components/loader/LoadingIndicator.vue";
 
 const theme = computed((): Theme => useColorMode().preference as Theme);
 
@@ -11,7 +12,8 @@ useFancyLeaveTitle();
 <template>
   <div>
     <NuxtRouteAnnouncer />
-    <NuxtLoadingIndicator />
+    <!-- <NuxtLoadingIndicator /> -->
+    <LoadingIndicator />
 
     <NuxtLayout />
 
