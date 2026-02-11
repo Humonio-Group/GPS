@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Heart, Copy, Check, MoreHorizontal, Crown } from "lucide-vue-next";
+import { Heart, Copy, Check, MoreHorizontal, Crown, Reply } from "lucide-vue-next";
 import type { Content, ContentComment } from "~/types/entities/course";
 import { useClipboard } from "@vueuse/core";
 
@@ -9,6 +9,9 @@ interface CommentBubbleProps {
 }
 
 const props = defineProps<CommentBubbleProps>();
+defineEmits<{
+  select: [number];
+}>();
 const store = useCoursesStore();
 
 const open = ref<boolean>(false);
@@ -76,6 +79,13 @@ function sendReply(event: KeyboardEvent) {
                 </UiButton>
               </UiDropdownMenuTrigger>
               <UiDropdownMenuContent>
+                <UiDropdownMenuItem
+                  v-if="!comment.replyTo"
+                  @click="$emit('select', comment.id)"
+                >
+                  <Reply />
+                  {{ $t("reader.comments.reply") }}
+                </UiDropdownMenuItem>
                 <UiDropdownMenuItem @click="copy(comment.content)">
                   <Check v-if="copied" />
                   <Copy v-else />
@@ -110,6 +120,7 @@ function sendReply(event: KeyboardEvent) {
                 variant="ghost"
                 size="sm"
                 class="text-muted-foreground!"
+                @click="$emit('select', comment.id)"
               >
                 {{ $t("reader.comments.reply") }}
               </UiButton>
@@ -121,6 +132,7 @@ function sendReply(event: KeyboardEvent) {
       <UiCollapsibleContent v-if="!comment.replyTo">
         <div class="grid gap-2 pl-10">
           <UiTextarea
+            v-if="false"
             v-model="replyMessage"
             :placeholder="$t('reader.comments.placeholder')"
             :disabled="replying"
