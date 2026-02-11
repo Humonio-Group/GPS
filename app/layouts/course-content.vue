@@ -12,8 +12,8 @@ const { id } = useCourseUtils();
 const route = useRoute();
 const contentId = computed(() => route.params.contentId);
 
-const content = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
-provide("content", content);
+const activeContent = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
+provide("content", activeContent);
 </script>
 
 <template>
