@@ -34,7 +34,7 @@ const today = computed(() => isToday(props.day));
 <template>
   <div
     :class="[
-      'min-h-24 p-1 cursor-pointer transition-colors hover:bg-accent/50',
+      'p-1 cursor-pointer transition-colors hover:bg-accent/50 overflow-hidden',
       !lastRow && 'border-b',
       !lastCol && 'border-r',
       !isCurrentMonth && 'bg-muted/30 text-muted-foreground',

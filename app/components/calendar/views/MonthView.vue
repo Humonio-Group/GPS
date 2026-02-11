@@ -25,9 +25,9 @@ const weekdayHeaders = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col">
+  <div class="h-full flex flex-col">
     <!-- Weekday headers -->
-    <div class="grid grid-cols-7 border-b">
+    <div class="shrink-0 grid grid-cols-7 border-b">
       <div
         v-for="(header, i) in weekdayHeaders"
         :key="i"
@@ -42,20 +42,25 @@ const weekdayHeaders = computed(() => {
 
     <!-- Weeks -->
     <div
-      v-for="(week, weekIndex) in weeks"
-      :key="weekIndex"
-      class="grid grid-cols-7"
+      class="h-full flex-1 min-h-0 grid"
+      :style="{ gridTemplateRows: `repeat(${weeks.length}, 1fr)` }"
     >
-      <MonthDayCell
-        v-for="(day, dayIndex) in week"
-        :key="dayIndex"
-        :day="day"
-        :current-month="currentDate"
-        :events="events"
-        :last-row="weekIndex === weeks.length - 1"
-        :last-col="dayIndex === 6"
-        @select-day="emit('select-day', $event)"
-      />
+      <div
+        v-for="(week, weekIndex) in weeks"
+        :key="weekIndex"
+        class="grid grid-cols-7 min-h-0"
+      >
+        <MonthDayCell
+          v-for="(day, dayIndex) in week"
+          :key="dayIndex"
+          :day="day"
+          :current-month="currentDate"
+          :events="events"
+          :last-row="weekIndex === weeks.length - 1"
+          :last-col="dayIndex === 6"
+          @select-day="emit('select-day', $event)"
+        />
+      </div>
     </div>
   </div>
 </template>
