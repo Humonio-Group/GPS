@@ -28,9 +28,10 @@ async function rate() {
     <Star
       v-for="i in 5"
       :key="`star-${i}`"
+      class="size-5"
       :class="{ 'text-primary': i <= (hover ?? content.stats.rate ?? 0), 'opacity-50 pointer-events-none': rating }"
       @mouseenter="hover = i"
-      @click="rate(i)"
+      @click="rate"
     />
   </div>
 </template>

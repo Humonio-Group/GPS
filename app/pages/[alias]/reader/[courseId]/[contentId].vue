@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ArrowLeft, ArrowRight, Calendar, Clock } from "lucide-vue-next";
+import { Calendar, Clock } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import ContentDetails from "~/components/course/content/ContentDetails.vue";
 import ContentDetailItem from "~/components/course/content/header/ContentDetailItem.vue";
@@ -11,9 +11,6 @@ const { t } = useI18n();
 definePageMeta({
   layout: "course-content",
 });
-
-const { alias } = useWorkspaceUtils();
-const { id } = useCourseUtils();
 
 const store = useCoursesStore();
 const { selectedCourse: course, loading } = storeToRefs(store);
@@ -86,9 +83,24 @@ const workshop = computed(() => {
     <template v-else-if="content">
       <header class="w-full max-w-4xl mx-auto pb-6 border-b flex flex-col gap-6">
         <div class="flex items-center justify-between">
-          <p class="text-2xl font-bold">
-            {{ content!.name }}
-          </p>
+          <div class="flex items-center gap-2 5">
+            <NuxtImg
+              class="block aspect-square size-10 rounded-md bg-primary"
+              :src="content.picture"
+            />
+
+            <div class="grid">
+              <p
+                v-if="stage"
+                class="order-1 @lg:order-0 text-muted-foreground text-xs truncate leading-none"
+              >
+                {{ stage?.name }}
+              </p>
+              <h3 class="text-2xl font-bold leading-none">
+                {{ content!.name }}
+              </h3>
+            </div>
+          </div>
 
           <UiCircularProgress
             v-if="content!.progress.viewed"
@@ -116,51 +128,6 @@ const workshop = computed(() => {
       </header>
 
       <ContentDetails :content="content!" />
-
-      <footer class="w-full max-w-4xl mx-auto flex flex-col @lg:flex-row @lg:items-center @lg:justify-between">
-        <UiButton
-          variant="link"
-          :disabled="!content.navigation.previous"
-          :as-child="content.navigation.previous !== null"
-        >
-          <NuxtLinkLocale
-            v-if="content.navigation.previous"
-            :to="`/${alias}/reader/${id}/${content.navigation.previous}`"
-          >
-            <ArrowLeft />
-            {{ $t("btn.previous-content") }}
-          </NuxtLinkLocale>
-          <template v-else>
-            <ArrowLeft />
-            {{ $t("btn.previous-content") }}
-          </template>
-        </UiButton>
-
-        <p
-          v-if="stage"
-          class="order-1 @lg:order-0 text-muted-foreground text-sm text-center truncate"
-        >
-          {{ stage?.name }}
-        </p>
-
-        <UiButton
-          variant="link"
-          :disabled="!content.navigation.next"
-          :as-child="content.navigation.next !== null"
-        >
-          <NuxtLinkLocale
-            v-if="content.navigation.next"
-            :to="`/${alias}/reader/${id}/${content.navigation.next}`"
-          >
-            {{ $t("btn.next-content") }}
-            <ArrowRight />
-          </NuxtLinkLocale>
-          <template v-else>
-            {{ $t("btn.next-content") }}
-            <ArrowRight />
-          </template>
-        </UiButton>
-      </footer>
     </template>
   </PageRoot>
 </template>

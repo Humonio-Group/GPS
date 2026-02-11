@@ -1,5 +1,5 @@
 import type { NavigationContent, NavigationItem } from "~/types/navigation/sidebar";
-import { Book, Newspaper, Calendar, MessageCircle, History, Folder } from "lucide-vue-next";
+import { Book, Calendar, MessageCircle, History } from "lucide-vue-next";
 
 export const useProductNavigation = (): ComputedRef<NavigationContent> => {
   const { t } = useNuxtApp().$i18n;
@@ -35,7 +35,7 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
         },
       ],
     },
-    ...(agents.value.length
+    ...(agents.value.length && conversations.value.length > 0
       ? [{
           type: "group",
           label: t("navigation.companion.label"),

@@ -31,11 +31,11 @@ const center = computed(() => SVG_SIZE / 2);
 <template>
   <div
     data-slot="circular-progress"
-    :class="cn('relative inline-flex items-center justify-center size-5', props.class)"
+    :class="cn('relative inline-flex items-center justify-center size-5 text-primary', props.class)"
   >
     <Check
       v-if="modelValue >= 100"
-      class="size-5 text-primary"
+      class="size-5"
     />
     <template v-else>
       <svg
@@ -51,7 +51,7 @@ const center = computed(() => SVG_SIZE / 2);
           :cy="center"
           :r="radius"
           :stroke-width="STROKE_WIDTH"
-          class="stroke-primary/20 fill-none"
+          class="stroke-[currentColor]/20 fill-none"
         />
 
         <!-- Progress circle -->
@@ -63,7 +63,7 @@ const center = computed(() => SVG_SIZE / 2);
           :stroke-width="STROKE_WIDTH"
           :stroke-dasharray="circumference"
           :stroke-dashoffset="progress"
-          class="stroke-primary fill-none transition-all"
+          class="stroke-[currentColor] fill-none transition-all"
           stroke-linecap="round"
         />
       </svg>

@@ -1,13 +1,17 @@
 <script setup lang="ts">
+import { Edit2 } from "lucide-vue-next";
 import type { People, User } from "~/types/entities/user";
 
 interface UserProfileProps {
   user: User | People;
 }
 
-defineProps<UserProfileProps>();
+const props = defineProps<UserProfileProps>();
+const { user: me } = storeToRefs(useUserStore());
+const { alias } = useWorkspaceUtils();
 
 const { formatDate } = useDateUtils();
+const isMe = computed(() => me.value?.id === props.user?.id);
 </script>
 
 <template>
@@ -23,9 +27,22 @@ const { formatDate } = useDateUtils();
         </UiAvatarFallback>
       </UiAvatar>
 
-      <p class="text-3xl font-bold">
-        {{ user.name.full }}
-      </p>
+      <div class="flex items-center gap-2">
+        <p class="text-3xl font-bold">
+          {{ user.name.full }}
+        </p>
+
+        <UiButton
+          v-if="isMe"
+          variant="ghost"
+          size="icon-sm"
+          as-child
+        >
+          <NuxtLinkLocale :to="`/${alias}/profile/settings`">
+            <Edit2 />
+          </NuxtLinkLocale>
+        </UiButton>
+      </div>
     </header>
 
     <main class="mx-auto w-full max-w-3xl flex flex-col gap-4">

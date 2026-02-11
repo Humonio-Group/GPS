@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { Content } from "~/types/entities/course";
-import { MessageCircle } from "lucide-vue-next";
+import { MessageCircle, X } from "lucide-vue-next";
 import CommentBubble from "~/components/course/content/comments/CommentBubble.vue";
-import ContentRating from "~/components/course/content/comments/ContentRating.vue";
+import type { Nullable } from "~/types/primitives/objects";
 
 interface CommentsDialogProps {
   content: Content;
@@ -10,10 +10,9 @@ interface CommentsDialogProps {
 
 const props = defineProps<CommentsDialogProps>();
 
-const rateable = computed(() => props.content.permissions.rateable);
-const commentable = computed(() => props.content.permissions.commentable);
-const showSeparator = computed(() => rateable.value && commentable.value);
 const comment = ref<string>("");
+const replyTo = ref<Nullable<number>>(null);
+const commentReplyingTo = computed(() => props.content.topic.comments.find(c => c.id === (replyTo.value ?? -1)) ?? null);
 
 const store = useCoursesStore();
 const adding = ref<boolean>(false);
@@ -26,7 +25,8 @@ function commentEvent(event: KeyboardEvent) {
     if (!value.length) return;
 
     adding.value = true;
-    await store.createComment(props.content, comment.value);
+    await store.createComment(props.content, comment.value, commentReplyingTo.value ?? undefined);
+    if (replyTo.value !== null) replyTo.value = null;
     adding.value = false;
     comment.value = "";
   });
@@ -34,68 +34,72 @@ function commentEvent(event: KeyboardEvent) {
 </script>
 
 <template>
-  <UiDrawer>
-    <UiDrawerTrigger as-child>
+  <UiSheet>
+    <UiSheetTrigger as-child>
       <UiButton
         variant="ghost"
         size="icon-sm"
       >
         <MessageCircle />
       </UiButton>
-    </UiDrawerTrigger>
-    <UiDrawerContent class="after:pointer-events-none!">
-      <main class="max-h-full overflow-y-auto px-6 pt-4 pb-10">
-        <div class="max-w-5xl mx-auto w-full grid gap-8">
-          <section
-            v-if="rateable"
-            class="flex flex-col gap-2 items-center"
+    </UiSheetTrigger>
+    <UiSheetContent class="max-w-2xl!">
+      <UiSheetHeader class="flex flex-col pb-0">
+        <UiSheetTitle>
+          {{ $t("reader.comments.label") }} <span class="text-muted-foreground font-normal">({{ content.topic.comments.length >= 100 ? "99+" : content.topic.comments.length }})</span>
+        </UiSheetTitle>
+      </UiSheetHeader>
+
+      <div class="px-4 flex flex-col h-full">
+        <main class="flex-1 min-h-0 mt-3 grid auto-rows-min gap-2">
+          <CommentBubble
+            v-for="com in content.topic.comments"
+            :key="com.id"
+            :content="content"
+            :comment="com"
+            @select="replyTo = $event"
+          />
+          <p
+            v-if="!content.topic.comments.length"
+            class="mt-3 text-muted-foreground text-sm"
           >
-            <p class="text-sm font-medium">
-              {{ $t("reader.mark-content") }}
-            </p>
+            {{ $t("reader.comments.empty") }}
+          </p>
+        </main>
 
-            <ContentRating :content="content" />
-          </section>
-
-          <UiSeparator v-if="showSeparator" />
-
-          <section
-            v-if="commentable"
-            class="flex flex-col gap-2"
+        <div class="sticky bottom-0 isolate py-4 bg-background">
+          <div
+            v-if="commentReplyingTo"
+            class="flex items-start p-3 pb-4 -mb-1.5 bg-accent text-accent-foreground border-x border-t rounded-t-md -z-10"
           >
-            <UiLabel
-              class="text-sm font-medium"
-              for="comment"
-            >
-              {{ $t("reader.comments.label") }} <span class="text-muted-foreground font-normal">({{ content.topic.comments.length >= 100 ? "99+" : content.topic.comments.length }})</span>
-            </UiLabel>
-
-            <UiTextarea
-              id="comment"
-              v-model="comment"
-              :disabled="adding"
-              :placeholder="$t('reader.comments.placeholder')"
-              class="min-h-9 resize-none"
-              @keydown="commentEvent"
-            />
-
-            <main class="mt-3 grid gap-2">
-              <CommentBubble
-                v-for="com in content.topic.comments"
-                :key="com.id"
-                :content="content"
-                :comment="com"
-              />
-              <p
-                v-if="!content.topic.comments.length"
-                class="mt-3 text-muted-foreground text-sm"
-              >
-                {{ $t("reader.comments.empty") }}
+            <div class="flex-1 grid auto-rows-min">
+              <p class="text-xs font-semibold text-muted-foreground">
+                {{ commentReplyingTo.author.name }}
               </p>
-            </main>
-          </section>
+              <p class="truncate text-sm">
+                {{ commentReplyingTo.content }}
+              </p>
+            </div>
+
+            <UiButton
+              variant="ghost"
+              size="icon-xs"
+              class="shrink-0"
+              @click="replyTo = null"
+            >
+              <X />
+            </UiButton>
+          </div>
+          <UiTextarea
+            id="comment"
+            v-model="comment"
+            :disabled="adding"
+            :placeholder="$t('reader.comments.placeholder')"
+            class="min-h-9 resize-none bg-background"
+            @keydown="commentEvent"
+          />
         </div>
-      </main>
-    </UiDrawerContent>
-  </UiDrawer>
+      </div>
+    </UiSheetContent>
+  </UiSheet>
 </template>

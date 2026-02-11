@@ -5,6 +5,7 @@ import StatCard from "~/components/course/results/stats/StatCard.vue";
 import BadgeIntroCard from "~/components/course/results/badges/BadgeIntroCard.vue";
 import StatsGrid from "~/components/course/results/stats/StatsGrid.vue";
 import CertificationIntroCard from "~/components/course/results/certifications/CertificationIntroCard.vue";
+import ScoresIntroCard from "~/components/course/results/scores/ScoresIntroCard.vue";
 
 const { t } = useI18n();
 
@@ -51,6 +52,8 @@ watch(course, val => useHead({
     </StatsGrid>
 
     <BadgeIntroCard v-if="course!.badges.length" />
+
+    <ScoresIntroCard />
 
     <CertificationIntroCard />
   </PageRoot>

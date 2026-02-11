@@ -316,8 +316,12 @@
           "no-badges": "Vous n'avez encore débloqué aucun badges. Clique sur \"Tous les badges\" pour en voir la liste complète."
         },
         "certifications": {
-          "title": "Mes certifications",
-          "description": "Ci-dessous, l'ensemble de vos certifications liées à la formation."
+          "title": "Mes certificats",
+          "description": "Ci-dessous, l'ensemble de vos certificats liées à la formation."
+        },
+        "scores": {
+          "title": "Mes scores",
+          "description": "Ci-dessous, l'ensemble des scores liées à la formation."
         }
       }
     }
