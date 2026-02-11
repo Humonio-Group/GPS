@@ -720,6 +720,7 @@ export const useCoursesStore = defineStore("courses", {
 
     async loadStages() {
       if (!this.selectedCourse) return;
+      const activeCourse = this.selectedCourse.id;
 
       this.loading.specific.stages = true;
 
@@ -734,9 +735,9 @@ export const useCoursesStore = defineStore("courses", {
         });
 
         if (!response) return;
+        if (this.selectedCourse.id !== activeCourse) return;
 
         const journeyStages = response.data;
-
         this.selectedCourse.stages = journeyStages
           .map((stage: any) => buildStageEntity(this.selectedCourse!.stages, stage, response.included))
           .sort((a: Stage, b: Stage) => a.order - b.order);

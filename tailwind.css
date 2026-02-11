@@ -118,6 +118,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  *::selection {
+    @apply bg-primary/20 text-foreground;
+  }
 }
 
 @layer components {

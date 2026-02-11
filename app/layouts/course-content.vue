@@ -27,9 +27,17 @@ provide("content", activeContent);
         class="overflow-y-auto"
       >
         <UiSidebarHeader class="h-16 flex items-start justify-center px-4">
-          <p class="font-bold truncate">
-            {{ $t("labels.table-of-contents") }}
-          </p>
+          <div class="flex items-center w-full max-w-full overflow-hidden gap-2">
+            <NuxtImg
+              v-if="course!.picture ?? course!.program.picture"
+              :src="course!.picture ?? course!.program.picture"
+              class="aspect-square block size-7 rounded-sm"
+            />
+            <p class="font-bold line-clamp-2 leading-none">
+              <!-- {{ $t("labels.table-of-contents") }} -->
+              {{ course?.name }}
+            </p>
+          </div>
         </UiSidebarHeader>
 
         <UiSidebarContent>
