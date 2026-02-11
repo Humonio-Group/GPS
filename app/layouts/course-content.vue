@@ -15,7 +15,7 @@ const route = useRoute();
 const contentId = computed(() => route.params.contentId);
 
 const activeContent = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
-const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
+const activeStage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
 provide("content", activeContent);
 </script>
 
@@ -180,20 +180,23 @@ provide("content", activeContent);
                       </NuxtLinkLocale>
                     </UiBreadcrumbLink>
                   </UiBreadcrumbItem>
-                  <UiBreadcrumbSeparator>
+                  <UiBreadcrumbSeparator v-if="activeStage || activeContent">
                     <ChevronRight class="opacity-50" />
                   </UiBreadcrumbSeparator>
 
-                  <template v-if="stage">
+                  <template v-if="activeStage">
                     <UiBreadcrumbItem class="*:truncate max-w-20 md:max-w-48">
-                      <span>{{ stage.name }}</span>
+                      <span>{{ activeStage.name }}</span>
                     </UiBreadcrumbItem>
                     <UiBreadcrumbSeparator>
                       <ChevronRight class="opacity-50" />
                     </UiBreadcrumbSeparator>
                   </template>
 
-                  <UiBreadcrumbItem class="*:truncate max-w-20 md:max-w-48">
+                  <UiBreadcrumbItem
+                    v-if="activeContent"
+                    class="*:truncate max-w-20 md:max-w-48"
+                  >
                     <span>{{ activeContent?.name }}</span>
                   </UiBreadcrumbItem>
                 </UiBreadcrumbList>
