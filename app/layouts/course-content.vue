@@ -36,7 +36,6 @@ provide("content", content);
           <template
             v-for="(stage, index) in stages"
             v-else
-            v-slot="{ open }"
             :key="`stage-${stage.id}`"
           >
             <UiSidebarSeparator v-if="index > 0" />
@@ -66,36 +65,36 @@ provide("content", content);
                   {{ stage.name }}
                 </UiSidebarGroupLabel>
 
-              <UiCollapsibleTrigger as-child>
-                <UiSidebarGroupAction>
-                  <ChevronUp v-if="open" />
-                  <ChevronDown v-else />
-                </UiSidebarGroupAction>
-              </UiCollapsibleTrigger>
-              <UiCollapsibleContent>
-                <div
-                  v-if="loading.specific.stageContents.includes(stage.reference)"
-                  class="grid place-items-center"
-                >
-                  <UiSpinner />
-                </div>
-                <template v-else>
+                <UiCollapsibleTrigger as-child>
+                  <UiSidebarGroupAction>
+                    <ChevronUp v-if="open" />
+                    <ChevronDown v-else />
+                  </UiSidebarGroupAction>
+                </UiCollapsibleTrigger>
+                <UiCollapsibleContent>
                   <div
-                    v-if="stage.description || stage.picture"
-                    class="flex flex-col gap-2 px-2 mb-3"
+                    v-if="loading.specific.stageContents.includes(stage.reference)"
+                    class="grid place-items-center"
                   >
-                    <NuxtImg
-                      v-if="stage.picture"
-                      :src="stage.picture"
-                      class="w-full rounded-lg"
-                    />
-                    <p
-                      v-if="stage.description"
-                      class="whitespace-pre-line text-sm text-muted-foreground"
-                    >
-                      {{ stage.description }}
-                    </p>
+                    <UiSpinner />
                   </div>
+                  <template v-else>
+                    <div
+                      v-if="false && (stage.description || stage.picture)"
+                      class="flex flex-col gap-2 px-2 mb-3"
+                    >
+                      <NuxtImg
+                        v-if="stage.picture"
+                        :src="stage.picture"
+                        class="w-full rounded-lg"
+                      />
+                      <p
+                        v-if="stage.description"
+                        class="whitespace-pre-line text-sm text-muted-foreground"
+                      >
+                        {{ stage.description }}
+                      </p>
+                    </div>
 
                     <UiSidebarMenu>
                       <UiSidebarMenuItem
