@@ -14,7 +14,7 @@ export interface NavigationGroup {
 export interface NavigationItem {
   type: "item";
   label: string;
-  icon: LucideIcon;
+  icon?: LucideIcon;
   path: string;
   exact?: boolean;
   separator?: boolean;

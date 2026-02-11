@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { type Event, EventStatus } from "~/types/entities/event";
-import { Video, MapPin, Clock, BookOpen, Users } from "lucide-vue-next";
+import { File, Video, MapPin, Clock, BookOpen, Users } from "lucide-vue-next";
 import { format, startOfMonth, endOfMonth, isToday } from "date-fns";
 import { fr } from "date-fns/locale";
 
@@ -10,6 +10,7 @@ interface ListViewProps {
 }
 
 const props = defineProps<ListViewProps>();
+const { alias } = useWorkspaceUtils();
 
 interface DayGroup {
   date: Date;
@@ -166,6 +167,16 @@ const facilitatorNames = (event: Event): string => {
                 >
                   <MapPin class="size-3.5" />
                   {{ $t("btn.open.map") }}
+                </NuxtLink>
+              </UiButton>
+              <UiButton
+                size="sm"
+                variant="outline"
+                as-child
+              >
+                <NuxtLink :to="`/${alias}/reader/${event.course.id}/${event.contentId}`">
+                  <File class="size-3.5" />
+                  {{ $t("btn.open.content") }}
                 </NuxtLink>
               </UiButton>
             </div>

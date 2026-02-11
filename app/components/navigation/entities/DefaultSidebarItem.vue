@@ -21,7 +21,10 @@ const activeClass = computed(() => props.item.exact
         :to="`/${alias!}/${path(item.path)}`"
         v-bind="activeClass"
       >
-        <component :is="item.icon" />
+        <component
+          :is="item.icon"
+          v-if="item.icon"
+        />
         <span class="flex-1 truncate">
           {{ item.label }}
         </span>

@@ -44,10 +44,6 @@ const dateLabel = computed(() => {
   }
   return `${format(start, "d MMM yyyy HH:mm", { locale: fr })} – ${format(end, "d MMM yyyy HH:mm", { locale: fr })}`;
 });
-
-const facilitatorNames = computed(() => {
-  return props.event.facilitators.map(f => `${f.firstName} ${f.lastName}`).join(", ");
-});
 </script>
 
 <template>
@@ -78,7 +74,26 @@ const facilitatorNames = computed(() => {
         class="flex items-start gap-2 text-muted-foreground"
       >
         <Users class="size-4 shrink-0 mt-0.5" />
-        <span>{{ facilitatorNames }}</span>
+
+        <div class="grid gap-1">
+          <div
+            v-for="(facilitator, index) in event.facilitators"
+            :key="`f#${index}`"
+            class="flex items-center gap-1.5"
+          >
+            <UiAvatar class="size-6 rounded-full">
+              <UiAvatarImage
+                v-if="facilitator.avatar"
+                :src="facilitator.avatar"
+              />
+              <UiAvatarFallback class="text-xs">
+                {{ facilitator.firstName[0] }}{{ facilitator.lastName[0] }}
+              </UiAvatarFallback>
+            </UiAvatar>
+
+            <p>{{ facilitator.firstName }} {{ facilitator.lastName }}</p>
+          </div>
+        </div>
       </div>
 
       <div

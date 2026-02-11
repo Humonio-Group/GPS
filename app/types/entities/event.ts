@@ -22,6 +22,7 @@ export interface EventDates {
 export interface EventFacilitator {
   id: number;
   email: string;
+  avatar: Nullable<string>;
   firstName: string;
   lastName: string;
 }

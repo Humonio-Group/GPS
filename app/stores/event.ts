@@ -34,6 +34,7 @@ export function buildEventEntity(data: any): Event {
     facilitators: data.attributes.facilitators.map((f: any) => ({
       id: f.id,
       email: f.email,
+      avatar: f.picture?.thumbnail || f.avatar || null,
       firstName: f.firstname,
       lastName: f.lastname,
     })),
