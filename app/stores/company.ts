@@ -13,6 +13,8 @@ function bindCompanyColors(company: Company) {
 
   cssRules += `:root { --primary: #${company.colors.first}; }\n`;
   cssRules += `.dark { --primary: #${company.colors.second}; }\n`;
+  cssRules += `:root { --sidebar-primary: #${company.colors.first}; }\n`;
+  cssRules += `.dark { --sidebar-primary: #${company.colors.second}; }\n`;
 
   if (cssRules) {
     const existingStyle = document.getElementById("company-theme");
