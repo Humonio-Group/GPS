@@ -7,6 +7,8 @@ const { t } = useI18n();
 const store = useUserStore();
 const { user } = storeToRefs(store);
 const { company } = storeToRefs(useCompanyStore());
+const { public: config } = useRuntimeConfig();
+const env = config.env;
 
 useHead({
   title: `${t("profile.details.title")} - ${company.value!.name}`,
@@ -22,6 +24,6 @@ const deviceInfo = await useDeviceInfo();
   >
     <UserProfile :user="user!" />
 
-    <pre><code>{{ deviceInfo }}</code></pre>
+    <pre v-if="env === 'development'"><code>{{ deviceInfo }}</code></pre>
   </PageRoot>
 </template>
