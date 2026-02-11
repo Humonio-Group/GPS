@@ -79,23 +79,6 @@ provide("content", activeContent);
                     <UiSpinner />
                   </div>
                   <template v-else>
-                    <div
-                      v-if="false && (stage.description || stage.picture)"
-                      class="flex flex-col gap-2 px-2 mb-3"
-                    >
-                      <NuxtImg
-                        v-if="stage.picture"
-                        :src="stage.picture"
-                        class="w-full rounded-lg"
-                      />
-                      <p
-                        v-if="stage.description"
-                        class="whitespace-pre-line text-sm text-muted-foreground"
-                      >
-                        {{ stage.description }}
-                      </p>
-                    </div>
-
                     <UiSidebarMenu>
                       <UiSidebarMenuItem
                         v-for="content in stage.contents"
