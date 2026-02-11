@@ -1,5 +1,5 @@
 import type { NavigationContent, NavigationItem } from "~/types/navigation/sidebar";
-import { Book, Calendar, MessageCircle, MessageCirclePlus, History } from "lucide-vue-next";
+import { Book, Newspaper, Calendar, MessageCircle, History, Folder } from "lucide-vue-next";
 
 export const useProductNavigation = (): ComputedRef<NavigationContent> => {
   const { t } = useNuxtApp().$i18n;
@@ -18,6 +18,15 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
           icon: Book,
           path: "/courses",
         },
+        ...(agents.value.length
+          ? [{
+              type: "item",
+              icon: MessageCircle,
+              label: t("navigation.ai-coach"),
+              path: "/companion",
+              exact: true,
+            }] as NavigationItem[]
+          : []),
         {
           type: "item",
           label: t("navigation.events"),
@@ -31,17 +40,8 @@ export const useProductNavigation = (): ComputedRef<NavigationContent> => {
           type: "group",
           label: t("navigation.companion.label"),
           children: [
-            {
-              type: "item",
-              icon: MessageCirclePlus,
-              label: t("navigation.companion.new-conversation"),
-              path: "/companion",
-              exact: true,
-              separator: !!conversations.value.length,
-            },
             ...conversations.value.map((c: any): NavigationItem => ({
               type: "item",
-              icon: MessageCircle,
               label: c.title,
               path: `/companion/${c.slug}`,
             })),
