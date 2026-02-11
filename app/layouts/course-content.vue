@@ -51,8 +51,8 @@ provide("content", activeContent);
                     </UiPopoverTrigger>
                     <UiPopoverContent class="grid gap-2">
                       <div
-                        v-for="(condition, index) in stage.conditions"
-                        :key="`stage#${stage.id}-condition#${index}`"
+                        v-for="(condition, i) in stage.conditions"
+                        :key="`stage#${stage.id}-condition#${i}`"
                         class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
                       >
                         <component :is="condition.icon" />
