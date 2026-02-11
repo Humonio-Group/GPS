@@ -66,7 +66,10 @@ const handleSelectDay = (date: Date) => {
       />
     </div>
 
-    <div class="min-h-0 rounded-lg border bg-card text-card-foreground overflow-y-auto">
+    <div
+      class="min-h-0 rounded-lg border bg-card text-card-foreground overflow-y-auto"
+      :class="{ 'flex-1': view !== 'list' }"
+    >
       <div
         v-if="loading && !filteredEvents.length"
         class="flex items-center justify-center h-96"
