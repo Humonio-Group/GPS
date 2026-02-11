@@ -150,8 +150,8 @@ provide("content", activeContent);
             </div>
             <div class="flex items-center">
               <CommentsDialog
-                v-if="content && (content.permissions.rateable || content.permissions.commentable)"
-                :content="content"
+                v-if="activeContent && (activeContent.permissions.rateable || activeContent.permissions.commentable)"
+                :content="activeContent"
               />
             </div>
           </nav>
