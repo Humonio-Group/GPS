@@ -1,8 +1,8 @@
 {
   "btn": {
     "back": "Retour",
-    "next-content": "Contenu suivant",
-    "previous-content": "Contenu précédent",
+    "next-content": "Suivant",
+    "previous-content": "Précédent",
     "see-my-results": "Voir mes résultats",
     "know-more": "En savoir plus",
     "save": "Enregistrer",
@@ -195,9 +195,10 @@
   },
   "navigation": {
     "home": "Accueil",
-    "my-courses": "Mes formations",
+    "my-courses": "Formations",
     "events": "Calendrier",
-    "ai-coach": "Mon coach IA",
+    "ai-coach": "Coach IA",
+    "contents": "Contenus",
     "course": {
       "overview": "Vue d'ensemble",
       "peoples": "Personnes",
@@ -224,8 +225,7 @@
       "log-out": "Déconnexion"
     },
     "companion": {
-      "label": "Mon coach IA",
-      "new-conversation": "Nouvelle conversation",
+      "label": "Dernières conversations",
       "history": "Toutes les conversations"
     }
   },

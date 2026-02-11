@@ -60,7 +60,7 @@ const positionedEvents = computed(() => {
             />
           </UiPopoverTrigger>
           <UiPopoverContent
-            side="right"
+            side="bottom"
             :side-offset="8"
             class="w-80"
           >
