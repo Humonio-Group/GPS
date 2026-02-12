@@ -46,7 +46,7 @@ onMounted(async () => {
             />
             <span class="absolute inset-0 block bg-linear-to-t from-background via-background/85 via-40% to-transparent" />
 
-            <footer class="absolute top-4 left-4 flex items-center flex-wrap gap-2 max-w-2xl flex-wrap">
+            <footer class="absolute top-4 left-4 flex items-center flex-wrap gap-2 max-w-2xl">
               <UiBadge variant="secondary">
                 Application
               </UiBadge>
