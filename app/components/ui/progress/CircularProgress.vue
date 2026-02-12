@@ -31,7 +31,7 @@ const center = computed(() => SVG_SIZE / 2);
 <template>
   <div
     data-slot="circular-progress"
-    :class="cn('relative inline-flex items-center justify-center size-5 text-primary', props.class)"
+    :class="cn('shrink-0 relative inline-flex items-center justify-center size-5 text-primary', props.class)"
   >
     <Check
       v-if="modelValue >= 100"
