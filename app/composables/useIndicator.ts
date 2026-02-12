@@ -168,7 +168,7 @@ function createLoadingIndicator(opts: Partial<LoadingIndicatorOpts> = {}) {
  * composable to handle the loading state of the page
  * @since 3.9.0
  */
-export function useLoadingIndicator(opts: Partial<LoadingIndicatorOpts> = {}): Omit<LoadingIndicator, "_cleanup"> {
+export function useIndicator(opts: Partial<LoadingIndicatorOpts> = {}): Omit<LoadingIndicator, "_cleanup"> {
   const nuxtApp = useNuxtApp();
 
   // Initialise global loading indicator if it doesn't exist already
