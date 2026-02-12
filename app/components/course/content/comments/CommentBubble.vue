@@ -2,6 +2,7 @@
 import { Heart, Copy, Check, MoreHorizontal, Crown, Reply } from "lucide-vue-next";
 import type { Content, ContentComment } from "~/types/entities/course";
 import { useClipboard } from "@vueuse/core";
+import HeartFill from "~/components/icons/HeartFill.vue";
 
 interface CommentBubbleProps {
   content: Content;
@@ -103,7 +104,8 @@ function sendReply(event: KeyboardEvent) {
               :disabled="liking"
               @click="toggleLike"
             >
-              <Heart />
+              <HeartFill v-if="comment.liked" />
+              <Heart v-else />
               {{ comment.stats.likes || 0 }}
             </UiButton>
             <UiCollapsibleTrigger as-child>
