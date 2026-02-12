@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, Lock, ChevronDown, ChevronUp, ArrowUp, ArrowDown, ArrowLeft } from "lucide-vue-next";
+import { Check, ChevronRight, Lock, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, ChartLine, Users, Calendar, HelpCircle, Zap, Newspaper } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
@@ -9,7 +9,6 @@ const { selectedCourse: course, availableStages: stages, allContents, loading } 
 
 const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
-const { isMobile } = useResponsive();
 
 const route = useRoute();
 const contentId = computed(() => route.params.contentId);
@@ -17,30 +16,41 @@ const contentId = computed(() => route.params.contentId);
 const activeContent = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
 const activeStage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
 provide("content", activeContent);
+
+const scrollProgress = ref<number>(0);
+function handleScroll() {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  scrollProgress.value = max > 0 ? (window.scrollY / max) * 100 : 0;
+}
+
+window.addEventListener("scroll", handleScroll);
+onBeforeUnmount(() => {
+  window.addEventListener("scroll", handleScroll);
+});
 </script>
 
 <template>
   <LayoutRoot name="course-content">
     <UiSidebarProvider style="--sidebar-width: 20rem;">
-      <UiSidebar
-        variant="floating"
-        class="overflow-y-auto"
-      >
-        <UiSidebarHeader class="h-16 flex items-start justify-center px-4">
-          <div class="flex items-center w-full max-w-full overflow-hidden gap-2">
-            <NuxtImg
-              v-if="course!.picture ?? course!.program.picture"
-              :src="course!.picture ?? course!.program.picture"
-              class="aspect-square block size-7 rounded-sm"
-            />
-            <p class="font-bold line-clamp-2 leading-none">
-              <!-- {{ $t("labels.table-of-contents") }} -->
-              {{ course?.name }}
-            </p>
-          </div>
+      <UiSidebar class="overflow-y-auto">
+        <UiSidebarHeader class="px-4! pt-5! pb-4! flex flex-col items-start gap-4">
+          <UiButton
+            variant="ghost"
+            size="sm"
+            as-child
+          >
+            <NuxtLinkLocale :to="`/${alias}/courses/${course?.id}`">
+              <ArrowLeft />
+              {{ $t("btn.back") }}
+            </NuxtLinkLocale>
+          </UiButton>
+
+          <p class="font-bold line-clamp-2 leading-none">
+            {{ course?.name }}
+          </p>
         </UiSidebarHeader>
 
-        <UiSidebarContent>
+        <UiSidebarContent class="isolate">
           <UiSidebarGroup
             v-if="loading.specific.stages"
             class="grid place-items-center"
@@ -61,33 +71,40 @@ provide("content", activeContent);
               :default-open="true"
             >
               <UiSidebarGroup>
-                <UiSidebarGroupLabel class="flex items-center gap-1">
-                  <UiPopover v-if="stage.locked">
-                    <UiPopoverTrigger>
-                      <Lock class="size-3 text-muted-foreground" />
-                    </UiPopoverTrigger>
-                    <UiPopoverContent class="grid gap-2">
-                      <div
-                        v-for="(condition, i) in stage.conditions"
-                        :key="`stage#${stage.id}-condition#${i}`"
-                        class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-                      >
-                        <component :is="condition.icon" />
-                        <p class="text-sm">
-                          {{ condition.label }}
-                        </p>
-                      </div>
-                    </UiPopoverContent>
-                  </UiPopover>
-                  {{ stage.name }}
-                </UiSidebarGroupLabel>
+                <div class="sticky top-0 bg-sidebar z-10 flex items-center">
+                  <Check
+                    v-if="stage.contents.filter(c => c.progress.value >= 1).length === stage.contents.length"
+                    class="size-3 shrink-0"
+                  />
 
-                <UiCollapsibleTrigger as-child>
-                  <UiSidebarGroupAction>
-                    <ChevronUp v-if="open" />
-                    <ChevronDown v-else />
-                  </UiSidebarGroupAction>
-                </UiCollapsibleTrigger>
+                  <UiSidebarGroupLabel class="flex items-center gap-1">
+                    <UiPopover v-if="stage.locked">
+                      <UiPopoverTrigger>
+                        <Lock class="size-3 text-muted-foreground" />
+                      </UiPopoverTrigger>
+                      <UiPopoverContent class="grid gap-2">
+                        <div
+                          v-for="(condition, i) in stage.conditions"
+                          :key="`stage#${stage.id}-condition#${i}`"
+                          class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+                        >
+                          <component :is="condition.icon" />
+                          <p class="text-sm">
+                            {{ condition.label }}
+                          </p>
+                        </div>
+                      </UiPopoverContent>
+                    </UiPopover>
+                    {{ stage.name }}
+                  </UiSidebarGroupLabel>
+
+                  <UiCollapsibleTrigger as-child>
+                    <UiSidebarGroupAction class="top-1.5 right-1">
+                      <ChevronUp v-if="open" />
+                      <ChevronDown v-else />
+                    </UiSidebarGroupAction>
+                  </UiCollapsibleTrigger>
+                </div>
                 <UiCollapsibleContent>
                   <div
                     v-if="loading.specific.stageContents.includes(stage.reference)"
@@ -143,6 +160,10 @@ provide("content", activeContent);
                               class="size-4 ml-auto"
                               :model-value="content.progress.value * 100"
                             />
+                            <span
+                              v-else-if="content.duration && content.duration > 0"
+                              class="shrink-0 ml-auto text-xs text-muted-foreground"
+                            >{{ content.duration }} min</span>
                           </NuxtLinkLocale>
                         </UiSidebarMenuButton>
                       </UiSidebarMenuItem>
@@ -153,13 +174,89 @@ provide("content", activeContent);
             </UiCollapsible>
           </template>
         </UiSidebarContent>
+
+        <UiSidebarFooter class="border-t">
+          <UiSidebarGroup>
+            <UiSidebarMenu>
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale
+                    :to="`/${alias}/courses/${course?.id}/actions`"
+                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
+                  >
+                    <Newspaper />
+                    {{ $t("navigation.reader.community") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale
+                    :to="`/${alias}/courses/${course?.id}/events`"
+                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
+                  >
+                    <Calendar />
+                    {{ $t("navigation.reader.events") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale
+                    :to="`/${alias}/courses/${course?.id}/actions`"
+                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
+                  >
+                    <Zap />
+                    {{ $t("navigation.reader.actions") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale
+                    :to="`/${alias}/courses/${course?.id}/people`"
+                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
+                  >
+                    <Users />
+                    {{ $t("navigation.reader.people") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale
+                    :to="`/${alias}/courses/${course?.id}/results`"
+                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
+                  >
+                    <ChartLine />
+                    {{ $t("navigation.reader.results") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+              <UiSidebarSeparator class="mx-0 w-full" />
+              <UiSidebarMenuItem>
+                <UiSidebarMenuButton as-child>
+                  <NuxtLinkLocale :to="`/${alias}/support`">
+                    <HelpCircle />
+                    {{ $t("navigation.reader.support") }}
+                  </NuxtLinkLocale>
+                </UiSidebarMenuButton>
+              </UiSidebarMenuItem>
+            </UiSidebarMenu>
+          </UiSidebarGroup>
+        </UiSidebarFooter>
       </UiSidebar>
 
       <UiSidebarInset class="flex flex-col">
-        <main class="flex flex-col flex-1 p-6 pt-4">
-          <nav class="sticky top-0 py-2 flex items-center gap-6 justify-between">
-            <div class="h-1 absolute top-0 inset-x-0">
-              <span class="h-1 bg-primary w-1/2" />
+        <main
+          class="flex flex-col flex-1 p-6 pt-0"
+        >
+          <nav class="sticky top-0 pb-2 pt-3 flex items-center gap-6 justify-between bg-background">
+            <div class="h-1 absolute top-0 inset-x-0 w-full bg-accent rounded-full overflow-hidden">
+              <span
+                class="block h-1 bg-primary rounded-full"
+                :style="`width: ${scrollProgress}%`"
+              />
             </div>
 
             <div class="flex items-center gap-2">
@@ -218,18 +315,7 @@ provide("content", activeContent);
             v-if="activeContent"
             class="sticky bottom-6 flex items-center justify-between gap-4"
           >
-            <div class="bg-accent rounded-full overflow-hidden">
-              <UiButton
-                variant="ghost"
-                :size="isMobile ? 'icon' : 'default'"
-                as-child
-              >
-                <NuxtLinkLocale :to="`/${alias}/courses/${course!.id}`">
-                  <ArrowLeft />
-                  <span v-if="!isMobile">Retour à l'accueil</span>
-                </NuxtLinkLocale>
-              </UiButton>
-            </div>
+            <div class="bg-accent rounded-full overflow-hidden" />
 
             <div class="flex items-center gap-4">
               <div
@@ -241,7 +327,7 @@ provide("content", activeContent);
               <div class="flex items-center bg-accent rounded-full overflow-hidden">
                 <UiButton
                   variant="ghost"
-                  size="icon"
+                  size="icon-lg"
                   :disabled="!activeContent.navigation.previous"
                   :as-child="!!activeContent.navigation.previous"
                 >
@@ -249,13 +335,13 @@ provide("content", activeContent);
                     v-if="!!activeContent?.navigation.previous"
                     :to="`/${alias}/reader/${course!.id}/${activeContent?.navigation.previous}`"
                   >
-                    <ArrowUp />
+                    <ArrowLeft />
                   </NuxtLinkLocale>
-                  <ArrowUp v-else />
+                  <ArrowLeft v-else />
                 </UiButton>
                 <UiButton
                   variant="ghost"
-                  size="icon"
+                  size="icon-lg"
                   :disabled="!activeContent.navigation.next"
                   :as-child="!!activeContent.navigation.next"
                 >
@@ -263,9 +349,9 @@ provide("content", activeContent);
                     v-if="!!activeContent.navigation.next"
                     :to="`/${alias}/reader/${course!.id}/${activeContent?.navigation.next}`"
                   >
-                    <ArrowDown />
+                    <ArrowRight />
                   </NuxtLinkLocale>
-                  <ArrowDown v-else />
+                  <ArrowRight v-else />
                 </UiButton>
               </div>
             </div>

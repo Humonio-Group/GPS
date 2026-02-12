@@ -72,7 +72,7 @@ const workshop = computed(() => {
 <template>
   <PageRoot
     name="course.content-reader"
-    class="p-6 pt-4 flex flex-col gap-6 flex-1"
+    class="pb-6! flex flex-col gap-6 flex-1"
   >
     <div
       v-if="loading.specific.activity && !content"
@@ -80,10 +80,11 @@ const workshop = computed(() => {
     >
       <UiSpinner />
     </div>
+
     <template v-else-if="content">
-      <header class="w-full max-w-4xl mx-auto pb-6 border-b flex flex-col gap-6">
+      <header class="w-full max-w-4xl mx-auto pb-6 md:pt-8 lg:pt-12 xl:pt-16 2xl:pt-20 border-b flex flex-col gap-6">
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2 5">
+          <div class="flex items-center gap-3">
             <NuxtImg
               class="block aspect-square size-10 rounded-md bg-primary"
               :src="content.picture"

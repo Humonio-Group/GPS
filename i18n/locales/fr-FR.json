@@ -227,6 +227,14 @@
     "companion": {
       "label": "Dernières conversations",
       "history": "Toutes les conversations"
+    },
+    "reader": {
+      "community": "Communauté",
+      "events": "Événements",
+      "actions": "Actions",
+      "people": "Personnes",
+      "results": "Résultats",
+      "support": "Support"
     }
   },
 
