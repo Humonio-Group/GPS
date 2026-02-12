@@ -179,20 +179,15 @@ onBeforeUnmount(() => {
           <UiSidebarGroup>
             <UiSidebarMenu>
               <UiSidebarMenuItem>
-                <UiSidebarMenuButton as-child>
-                  <NuxtLinkLocale
-                    :to="`/${alias}/courses/${course?.id}/actions`"
-                    active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
-                  >
-                    <Newspaper />
-                    {{ $t("navigation.reader.community") }}
-                  </NuxtLinkLocale>
+                <UiSidebarMenuButton disabled>
+                  <Newspaper />
+                  {{ $t("navigation.reader.community") }}
                 </UiSidebarMenuButton>
               </UiSidebarMenuItem>
               <UiSidebarMenuItem>
                 <UiSidebarMenuButton as-child>
                   <NuxtLinkLocale
-                    :to="`/${alias}/courses/${course?.id}/events`"
+                    :to="`/${alias}/reader/${course?.id}/events`"
                     active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
                   >
                     <Calendar />
@@ -203,7 +198,7 @@ onBeforeUnmount(() => {
               <UiSidebarMenuItem>
                 <UiSidebarMenuButton as-child>
                   <NuxtLinkLocale
-                    :to="`/${alias}/courses/${course?.id}/actions`"
+                    :to="`/${alias}/reader/${course?.id}/actions`"
                     active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
                   >
                     <Zap />
@@ -214,7 +209,7 @@ onBeforeUnmount(() => {
               <UiSidebarMenuItem>
                 <UiSidebarMenuButton as-child>
                   <NuxtLinkLocale
-                    :to="`/${alias}/courses/${course?.id}/people`"
+                    :to="`/${alias}/reader/${course?.id}/people`"
                     active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
                   >
                     <Users />
@@ -225,7 +220,7 @@ onBeforeUnmount(() => {
               <UiSidebarMenuItem>
                 <UiSidebarMenuButton as-child>
                   <NuxtLinkLocale
-                    :to="`/${alias}/courses/${course?.id}/results`"
+                    :to="`/${alias}/reader/${course?.id}/results`"
                     active-class="bg-sidebar-primary! text-sidebar-primary-foreground!"
                   >
                     <ChartLine />
