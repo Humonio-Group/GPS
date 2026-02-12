@@ -44,7 +44,7 @@
     "@types/date-fns": "^2.6.3",
     "@unhead/vue": "^2.0.3",
     "@vee-validate/zod": "^4.15.1",
-    "@vueuse/core": "^14.2.0",
+    "@vueuse/core": "^14.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",

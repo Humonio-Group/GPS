@@ -199,6 +199,10 @@
       @apply block w-full max-w-4xl mx-auto h-auto rounded-lg;
     }
 
+    div, video, iframe {
+      @apply block w-full max-w-4xl mx-auto h-auto rounded-lg;
+    }
+
     hr {
       @apply border-t border-border;
     }
