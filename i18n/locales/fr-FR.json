@@ -92,11 +92,11 @@
     },
     "ends-in": "Fin dans {time}",
     "now": "Maintenant",
-    "search": "Rechercher...",
+    "search": "Rechercher",
     "video": {
       "unsupported": {
         "title": "Oh non...",
-        "description": "Ce fournisseur vidéo n'est pas supporté."
+        "description": "Ce fournisseur vidéo n'est plus supporté."
       }
     },
     "scorm": {
@@ -182,6 +182,13 @@
       "private": "Privé | Privée"
     },
     "unlock-stage": "Débloquer le module",
+    "rating-level": [
+      "Mauvais",
+      "Correct",
+      "Bon",
+      "Très bon",
+      "Excellent"
+    ],
     "tooltips": {
       "conversation-history": "Historique des conversations"
     }
@@ -235,6 +242,13 @@
       "people": "Personnes",
       "results": "Résultats",
       "support": "Support"
+    },
+    "command-group": {
+      "empty": "Aucun résultat...",
+      "suggested": "Suggérés",
+      "user": "Utilisateur",
+      "courses": "Formations",
+      "contents": "Contenus"
     }
   },
 
