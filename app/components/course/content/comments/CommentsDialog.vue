@@ -50,8 +50,18 @@ function commentEvent(event: KeyboardEvent) {
         </UiSheetTitle>
       </UiSheetHeader>
 
-      <div class="px-4 flex flex-col h-full">
-        <main class="flex-1 min-h-0 mt-3 grid auto-rows-min gap-2">
+      <div class="shrink-0 px-4">
+        <div class="p-5 rounded-lg bg-primary/10 dark:bg-primary/15 flex items-start gap-2">
+          <MessageCircle class="text-primary size-4" />
+
+          <p class="text-muted-foreground text-sm leading-tight opacity-65">
+            Posez vos questions ou échangez avec vos pairs sur cette activité
+          </p>
+        </div>
+      </div>
+
+      <div class="px-4 min-h-0 flex-1 overflow-y-auto">
+        <main class="flex-1 min-h-0 grid auto-rows-min divide-y gap-2">
           <CommentBubble
             v-for="com in content.topic.comments"
             :key="com.id"
@@ -95,7 +105,7 @@ function commentEvent(event: KeyboardEvent) {
             v-model="comment"
             :disabled="adding"
             :placeholder="$t('reader.comments.placeholder')"
-            class="min-h-9 resize-none bg-background"
+            class="min-h-9 resize-none bg-background! disabled:opacity-100! disabled:text-current/50"
             @keydown="commentEvent"
           />
         </div>

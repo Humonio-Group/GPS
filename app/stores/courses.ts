@@ -12,7 +12,7 @@ import type {
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
-import { type Manager, type People, type Peoples, UserRole } from "~/types/entities/user";
+import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
@@ -228,7 +228,7 @@ function buildComment(data: any, included: any): ContentComment {
   return {
     id: data.id,
     replyTo: null,
-    admin: data.attributes.role.value !== UserRole.PARTICIPANT,
+    role: data.attributes.role.value,
     content: data.attributes.content,
     author: {
       name: author.attributes.name,
@@ -1478,6 +1478,16 @@ export const useCoursesStore = defineStore("courses", {
                     id: content.topic.id,
                   },
                 },
+                ...(comment
+                  ? {
+                      parentComment: {
+                        data: {
+                          id: comment.id,
+                          type: EntityType.COMMENT,
+                        },
+                      },
+                    }
+                  : {}),
               },
             },
           },
