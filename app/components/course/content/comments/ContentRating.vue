@@ -33,7 +33,7 @@ async function rate() {
       <UiTooltipTrigger>
         <StarFill
           v-if="i <= (hover ?? content.stats.rate ?? 0)"
-          class="text-primary size-5"
+          class="text-primary size-5 hover:scale-110 transition-transform duration-150"
           :class="{ 'opacity-50 pointer-events-none': rating }"
           @mouseenter="hover = i"
           @click="rate"
