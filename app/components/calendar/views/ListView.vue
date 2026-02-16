@@ -58,7 +58,7 @@ const statusDot = (status: EventStatus): string => {
 };
 
 const timeRange = (event: Event): string => {
-  return `${format(event.dates.start, "HH:mm", { locale: fr })} – ${format(event.dates.end, "HH:mm", { locale: fr })}`;
+  return `${format(event.dates.start, "HH:mm", { locale: locales[locale.value] })} – ${format(event.dates.end, "HH:mm", { locale: locales[locale.value] })}`;
 };
 
 const facilitatorNames = (event: Event): string => {

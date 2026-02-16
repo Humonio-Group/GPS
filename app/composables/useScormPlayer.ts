@@ -58,8 +58,8 @@ export function useScormPlayer() {
         isSameBaseDomain = (currentBase === scormBase && currentBase !== "localhost") || isLocalDev;
 
         if (isSameBaseDomain) {
-          console.log("[SCORM Player] Same base domain detected:", currentBase, "(or localhost dev mode)");
-          console.log("[SCORM Player] Will use fetch mode with document.domain for cross-subdomain access");
+          useLogger().log("[SCORM Player] Same base domain detected:", currentBase, "(or localhost dev mode)");
+          useLogger().log("[SCORM Player] Will use fetch mode with document.domain for cross-subdomain access");
         }
         else {
           console.warn("[SCORM Player] Cross-origin SCORM content detected:", scorm.button.url);

@@ -28,7 +28,7 @@ const journeyId = computed(() => coursesStore.selectedCourse?.id || 0);
 
 // Watch for dialog open to initialize player
 watch(isDialogOpen, async (isOpen) => {
-  console.log("[ContentH5P] Dialog state changed:", isOpen, "isLoading:", isLoading.value, "has container:", !!h5pContainer.value, "isInitialized:", isPlayerInitialized.value);
+  useLogger().log("[ContentH5P] Dialog state changed:", isOpen, "isLoading:", isLoading.value, "has container:", !!h5pContainer.value, "isInitialized:", isPlayerInitialized.value);
 
   if (isOpen && h5pActivity.value && !isPlayerInitialized.value) {
     // Reset state when opening
@@ -38,7 +38,7 @@ watch(isDialogOpen, async (isOpen) => {
 
     // Wait for DOM to be ready
     await nextTick();
-    console.log("[ContentH5P] After nextTick, container:", h5pContainer.value);
+    useLogger().log("[ContentH5P] After nextTick, container:", h5pContainer.value);
 
     if (!h5pContainer.value) {
       logger.error("[ContentH5P] Container not found after nextTick");
@@ -52,7 +52,7 @@ watch(isDialogOpen, async (isOpen) => {
 });
 
 async function initializeH5PPlayer() {
-  console.log("[ContentH5P] initializeH5PPlayer called");
+  useLogger().log("[ContentH5P] initializeH5PPlayer called");
 
   if (!h5pActivity.value || !h5pContainer.value) {
     hasError.value = true;
@@ -62,7 +62,7 @@ async function initializeH5PPlayer() {
   }
 
   try {
-    console.log("[ContentH5P] Starting initialization...");
+    useLogger().log("[ContentH5P] Starting initialization...");
 
     // Add a timeout to prevent infinite loading
     const timeoutPromise = new Promise((_, reject) => {
@@ -79,7 +79,7 @@ async function initializeH5PPlayer() {
       timeoutPromise,
     ]);
 
-    console.log("[ContentH5P] Initialization complete, hiding loading...");
+    useLogger().log("[ContentH5P] Initialization complete, hiding loading...");
 
     // Mark player as initialized
     isPlayerInitialized.value = true;
