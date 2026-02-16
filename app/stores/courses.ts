@@ -1391,20 +1391,28 @@ export const useCoursesStore = defineStore("courses", {
       if (!this.selectedCourse) return;
       if (this.selectedCourse.id !== courseId) return;
 
-      this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
-        ? {
-            ...s,
-            contents: s.contents.map(c => c.reference === contentId
-              ? {
-                  ...c,
-                  progress: {
-                    viewed: progression.isViewed,
-                    value: progression.value,
-                  },
-                }
-              : c),
-          }
-        : s);
+      this.selectedCourse.stages = this.selectedCourse.stages.map((s) => {
+        if (s.id !== stageId) return s;
+
+        const contents = s.contents.map(c => c.reference === contentId
+          ? {
+              ...c,
+              progress: {
+                viewed: progression.isViewed,
+                value: progression.value,
+              },
+            }
+          : c);
+        return {
+          ...s,
+          progress: {
+            ...s.progress,
+            completed: contents.filter(c => c.progress.value >= 1).length,
+            total: contents.length,
+          },
+          contents,
+        };
+      });
     },
 
     addStage(courseId: number, stageId: number) {

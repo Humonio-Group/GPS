@@ -20,7 +20,7 @@ const isLoading = computed(() => loading.value.specific.stageContents.includes(p
       class="grid gap-1 place-items-center"
     >
       <UiSkeleton
-        v-for="i in 3"
+        v-for="i in (Math.floor(Math.random() * 3) + 1)"
         :key="i"
         class="h-8 w-full"
       />
