@@ -1,8 +1,9 @@
 import type { CalendarViewType } from "~/types/entities/calendar";
 import { addMonths, addWeeks, addDays, startOfWeek, endOfWeek, format } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 
 export const useCalendarNavigation = () => {
+  const { locale } = useNuxtApp().$i18n;
   const currentDate = ref<Date>(new Date());
   const view = ref<CalendarViewType>("month");
 
@@ -49,14 +50,14 @@ export const useCalendarNavigation = () => {
     switch (view.value) {
       case "month":
       case "list":
-        return format(date, "MMMM yyyy", { locale: fr });
+        return format(date, "MMMM yyyy", { locale: locales[locale.value]! });
       case "week": {
         const weekStart = startOfWeek(date, { weekStartsOn: 1 });
         const weekEnd = endOfWeek(date, { weekStartsOn: 1 });
-        return `${format(weekStart, "d", { locale: fr })} – ${format(weekEnd, "d MMM yyyy", { locale: fr })}`;
+        return `${format(weekStart, "d", { locale: locales[locale.value]! })} – ${format(weekEnd, "d MMM yyyy", { locale: locales[locale.value]! })}`;
       }
       case "day":
-        return format(date, "EEEE d MMMM yyyy", { locale: fr });
+        return format(date, "EEEE d MMMM yyyy", { locale: locales[locale.value]! });
     }
   });
 
