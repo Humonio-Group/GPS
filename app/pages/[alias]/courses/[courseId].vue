@@ -15,19 +15,11 @@ const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
+const { selectedCourse: course, availableStages: stages, allContents, loading } = storeToRefs(store);
 
-// Parallax: track le scroll du container parent (SidebarInset)
 const scrollContainer = ref<HTMLElement | null>(null);
 const { scrollY } = useScroll({ container: scrollContainer });
-watch(scrollY, val => useLogger().log("[PARALAX] Scroll y changing", val));
-// L'image se déplace pendant le scroll
 const imageY = useTransform(scrollY, [0, 500], [0, 400]);
-
-onMounted(() => {
-  // Le scroll est sur UiSidebarInset, pas sur window
-  scrollContainer.value = document.querySelector("[data-slot='sidebar-inset']") as HTMLElement;
-});
 
 const selectedObjectiveId = ref<Nullable<number>>(null);
 const selectedObjective = computed(() => course.value?.program.objectives.find(o => o.id === selectedObjectiveId.value) ?? null);
@@ -43,7 +35,16 @@ watch(course, val => useHead({
   title: t("courses.specimen.overview.title", { name: val!.name }),
 }), { immediate: true });
 
+const completed = computed(() => allContents.value.every(c => c.progress.value >= 1));
+const started = computed(() => allContents.value.some(c => c.progress.viewed));
+const nextContent = computed(() => {
+  if (completed.value) return allContents.value[0];
+  return allContents.value.find(c => c.progress.viewed && c.progress.value < 1 && !c.locked);
+});
+
 onMounted(() => {
+  scrollContainer.value = document.querySelector("[data-slot='sidebar-inset']") as HTMLElement;
+
   store.selectCourse(Number(id.value));
 
   store.loadStages();
@@ -106,9 +107,26 @@ onMounted(() => {
               />
             </header>
 
-            <UiButton>
-              Reprendre
-              <Play />
+            <UiSkeleton
+              v-if="loading.specific.stages || loading.specific.stageContents.length"
+              class="h-9.5 w-[15ch]"
+            />
+            <UiButton
+              v-else
+              as-child
+            >
+              <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent?.id}`">
+                <template v-if="completed">
+                  {{ $t("btn.see-again") }}
+                </template>
+                <template v-else-if="started">
+                  {{ $t("btn.resume") }}
+                </template>
+                <template v-else>
+                  {{ $t("btn.start") }}
+                </template>
+                <Play />
+              </NuxtLinkLocale>
             </UiButton>
           </article>
         </section>
@@ -240,19 +258,24 @@ onMounted(() => {
           </h3>
 
           <main class="grid gap-2">
+            <template v-if="!stages.length && loading.specific.stages">
+              <UiSkeleton
+                v-for="i in (Math.floor(Math.random() * 4) + 1)"
+                :key="i"
+                class="h-18 w-full"
+              />
+            </template>
             <StageCollapsible
               v-for="stage in stages"
+              v-else
               :key="`stage-${stage.id}`"
               :stage="stage"
             />
 
-            <div
+            <UiSkeleton
               v-if="loading.specific.stages"
-              class="w-full grid pt-3 place-items-center"
-              :class="{ 'h-24': !stages.length }"
-            >
-              <UiSpinner />
-            </div>
+              class="h-18 w-full"
+            />
           </main>
         </section>
 

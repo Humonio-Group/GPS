@@ -47,7 +47,7 @@ onMounted(() => {
       <UiCollapsibleContent as-child>
         <UiCardContent class="p-6 pt-0 grid gap-2">
           <div
-            v-if="stage.description || stage.picture"
+            v-if="(stage.description || stage.picture) && false"
             class="flex flex-col @lg:flex-row @lg:items-center gap-2 @lg:gap-4 mb-2"
           >
             <NuxtImg
@@ -63,20 +63,22 @@ onMounted(() => {
             </p>
           </div>
 
+          <template v-if="!stage.contents.length && loading">
+            <UiSkeleton
+              v-for="i in (Math.floor(Math.random() * 4) + 1)"
+              :key="i"
+              class="h-12 w-full"
+            />
+          </template>
           <StageContentItem
             v-for="content in stage.contents"
+            v-else
             :key="`stage-${stage.id}-c${content.id}`"
             :content="content"
           />
 
-          <div
-            v-if="loading"
-            class="grid place-items-center"
-          >
-            <UiSpinner />
-          </div>
           <p
-            v-else-if="!stage.contents.length"
+            v-if="!loading && !stage.contents.length"
             class="text-sm text-muted-foreground italic"
           >
             {{ $t("courses.specimen.overview.stages.empty") }}

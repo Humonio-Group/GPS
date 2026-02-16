@@ -92,25 +92,34 @@ const previous = computed<Content | undefined>(() => {
                       </NuxtLinkLocale>
                     </UiBreadcrumbLink>
                   </UiBreadcrumbItem>
-                  <UiBreadcrumbSeparator v-if="activeStage || activeContent">
-                    <ChevronRight class="opacity-50" />
-                  </UiBreadcrumbSeparator>
 
                   <template v-if="activeStage">
-                    <UiBreadcrumbItem class="*:truncate max-w-20 md:max-w-48">
-                      <span>{{ activeStage.name }}</span>
-                    </UiBreadcrumbItem>
                     <UiBreadcrumbSeparator>
                       <ChevronRight class="opacity-50" />
                     </UiBreadcrumbSeparator>
+                    <UiBreadcrumbItem class="*:truncate max-w-20 md:max-w-48">
+                      <UiBreadcrumbLink
+                        class="truncate max-w-20 md:max-w-48"
+                        as-child
+                      >
+                        <NuxtLinkLocale
+                          :to="`/${alias}/reader/${course!.id}/stages/${activeStage.id}`"
+                          class="hover:text-primary!"
+                        >
+                          <span>{{ activeStage.name }}</span>
+                        </NuxtLinkLocale>
+                      </UiBreadcrumbLink>
+                    </UiBreadcrumbItem>
                   </template>
 
-                  <UiBreadcrumbItem
-                    v-if="activeContent"
-                    class="*:truncate max-w-20 md:max-w-48"
-                  >
-                    <span>{{ activeContent?.name }}</span>
-                  </UiBreadcrumbItem>
+                  <template v-if="activeStage && activeContent">
+                    <UiBreadcrumbSeparator>
+                      <ChevronRight class="opacity-50" />
+                    </UiBreadcrumbSeparator>
+                    <UiBreadcrumbItem class="*:truncate max-w-20 md:max-w-48">
+                      <span>{{ activeContent.name }}</span>
+                    </UiBreadcrumbItem>
+                  </template>
                 </UiBreadcrumbList>
               </UiBreadcrumb>
             </div>
