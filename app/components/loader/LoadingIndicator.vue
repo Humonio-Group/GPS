@@ -20,7 +20,7 @@ const props = withDefaults(defineProps<LoadingIndicatorProps>(), {
   errorColor: "repeating-linear-gradient(to right,#f87171 0%,#ef4444 100%)",
 });
 
-const { progress, isLoading, error, start, finish, clear } = useLoadingIndicator({
+const { progress, isLoading, error, start, finish, clear } = useIndicator({
   duration: props.duration,
   throttle: props.throttle,
   hideDelay: props.hideDelay,

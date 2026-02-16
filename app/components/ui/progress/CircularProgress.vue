@@ -9,11 +9,13 @@ export interface CircularProgressProps {
   class?: HTMLAttributes["class"];
   showValue?: boolean;
   valueClass?: HTMLAttributes["class"];
+  filled?: boolean;
 }
 
 const props = withDefaults(defineProps<CircularProgressProps>(), {
   modelValue: 0,
   showValue: false,
+  filled: false,
 });
 
 const SVG_SIZE = 120;
@@ -31,19 +33,24 @@ const center = computed(() => SVG_SIZE / 2);
 <template>
   <div
     data-slot="circular-progress"
-    :class="cn('relative inline-flex items-center justify-center size-5 text-primary', props.class)"
+    :class="cn('shrink-0 aspect-square relative inline-grid place-items-center size-5 text-primary', props.class)"
   >
-    <Check
-      v-if="modelValue >= 100"
-      class="size-5"
-    />
+    <template v-if="modelValue >= 100">
+      <div
+        v-if="filled"
+        class="aspect-square size-full rounded-full grid place-items-center bg-primary text-primary-foreground"
+      >
+        <Check class="size-3.5" />
+      </div>
+      <Check
+        v-else
+        class="size-full"
+      />
+    </template>
     <template v-else>
       <svg
-        :width="SVG_SIZE"
-        :height="SVG_SIZE"
         :viewBox="`0 0 ${SVG_SIZE} ${SVG_SIZE}`"
-        class="h-full w-full transform -rotate-90"
-        preserveAspectRatio="xMidYMid meet"
+        class="size-full transform -rotate-90"
       >
         <!-- Background circle -->
         <circle

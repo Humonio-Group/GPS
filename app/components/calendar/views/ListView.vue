@@ -2,12 +2,14 @@
 import { type Event, EventStatus } from "~/types/entities/event";
 import { File, Video, MapPin, Clock, BookOpen, Users } from "lucide-vue-next";
 import { format, startOfMonth, endOfMonth, isToday } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 
 interface ListViewProps {
   currentDate: Date;
   events: Event[];
 }
+
+const { locale } = useI18n();
 
 const props = defineProps<ListViewProps>();
 const { alias } = useWorkspaceUtils();
@@ -56,7 +58,7 @@ const statusDot = (status: EventStatus): string => {
 };
 
 const timeRange = (event: Event): string => {
-  return `${format(event.dates.start, "HH:mm", { locale: fr })} – ${format(event.dates.end, "HH:mm", { locale: fr })}`;
+  return `${format(event.dates.start, "HH:mm", { locale: locales[locale.value] })} – ${format(event.dates.end, "HH:mm", { locale: locales[locale.value] })}`;
 };
 
 const facilitatorNames = (event: Event): string => {
@@ -81,7 +83,7 @@ const facilitatorNames = (event: Event): string => {
       <!-- Date column -->
       <div class="flex flex-col items-start gap-0.5 pt-1">
         <span class="text-xs text-muted-foreground uppercase">
-          {{ format(group.date, "EEEE", { locale: fr }) }}
+          {{ format(group.date, "EEEE", { locale: locales[locale]! }) }}
         </span>
         <span
           :class="[
@@ -92,7 +94,7 @@ const facilitatorNames = (event: Event): string => {
           {{ format(group.date, "d") }}
         </span>
         <span class="text-xs text-muted-foreground">
-          {{ format(group.date, "MMMM", { locale: fr }) }}
+          {{ format(group.date, "MMMM", { locale: locales[locale]! }) }}
         </span>
       </div>
 

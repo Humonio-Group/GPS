@@ -158,7 +158,7 @@ export class CustomMessageSentEvent extends PusherEvent {
   }
 
   override handleNotification({ data }: any) {
-    console.log(data);
+    useLogger().log(data);
   }
 }
 

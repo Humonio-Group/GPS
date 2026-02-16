@@ -1,21 +1,61 @@
 <script setup lang="ts">
+import { Play } from "lucide-vue-next";
+import { format } from "date-fns";
+import * as locales from "date-fns/locale";
+import { Motion, useScroll, useTransform } from "motion-v";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import MarkdownRenderer from "~/components/primitives/MarkdownRenderer.vue";
+import StageCollapsible from "~/components/course/stages/StageCollapsible.vue";
+import PeopleSection from "~/components/course/overview/sections/people/PeopleSection.vue";
+import type { Nullable } from "~/types/primitives/objects";
+
+const { t, locale } = useI18n();
 
 const { alias } = useWorkspaceUtils();
 const { id } = useCourseUtils();
 
 const store = useCoursesStore();
-const { selectedCourse: course, loading } = storeToRefs(store);
+const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
 
-store.selectCourse(Number(id.value));
+// Parallax: track le scroll du container parent (SidebarInset)
+const scrollContainer = ref<HTMLElement | null>(null);
+const { scrollY } = useScroll({ container: scrollContainer });
+watch(scrollY, val => useLogger().log("[PARALAX] Scroll y changing", val));
+// L'image se déplace pendant le scroll
+const imageY = useTransform(scrollY, [0, 500], [0, 400]);
+
+onMounted(() => {
+  // Le scroll est sur UiSidebarInset, pas sur window
+  scrollContainer.value = document.querySelector("[data-slot='sidebar-inset']") as HTMLElement;
+});
+
+const selectedObjectiveId = ref<Nullable<number>>(null);
+const selectedObjective = computed(() => course.value?.program.objectives.find(o => o.id === selectedObjectiveId.value) ?? null);
+function selectObjective(objectiveId: number) {
+  if (selectedObjectiveId.value === objectiveId) {
+    selectedObjectiveId.value = null;
+    return;
+  }
+  selectedObjectiveId.value = objectiveId;
+}
+
+watch(course, val => useHead({
+  title: t("courses.specimen.overview.title", { name: val!.name }),
+}), { immediate: true });
+
+onMounted(() => {
+  store.selectCourse(Number(id.value));
+
+  store.loadStages();
+});
 </script>
 
 <template>
   <PageRoot
     :name="`course.specimen.${id!}`"
+    class="pb-8"
     wrapper
-    wrapper-class="max-w-4xl mx-auto @container/course-page!"
+    wrapper-class="@container/course-page! flex flex-col gap-6"
   >
     <div
       v-if="loading.specific.specimen"
@@ -23,21 +63,26 @@ store.selectCourse(Number(id.value));
     >
       <UiSpinner />
     </div>
-    <template v-else>
+    <template v-else-if="course">
       <header class="grid gap-4">
-        <section class="flex flex-col-reverse @xl/course-page:flex-row gap-4">
-          <article class="shrink-0 flex-1/2 flex flex-col gap-4 justify-between">
-            <header>
-              <h1 class="text-2xl font-black line-clamp-1">
-                {{ course!.name }}
-              </h1>
-              <MarkdownRenderer
-                :content="course!.program.description"
-                class="text-muted-foreground text-sm *:mx-0! *:max-w-auto!"
+        <section class="flex flex-col gap-6">
+          <aside class="relative w-full overflow-hidden">
+            <Motion
+              tag="div"
+              :style="{ y: imageY }"
+              class="relative h-128 w-full overflow-hidden"
+            >
+              <NuxtImg
+                class="h-full w-full object-cover rounded-3xl"
+                :src="course!.picture ?? course!.program.picture"
+                :placeholder="[50, 50, 25, 75]"
               />
-            </header>
+            </Motion>
 
-            <footer class="flex items-center flex-wrap gap-2">
+            <footer
+              v-if="false"
+              class="absolute top-4 left-4 flex items-center flex-wrap gap-2 max-w-2xl"
+            >
               <UiBadge variant="secondary">
                 Application
               </UiBadge>
@@ -45,18 +90,33 @@ store.selectCourse(Number(id.value));
                 Prise en main
               </UiBadge>
             </footer> <!-- todo: program categories - loic -->
-          </article>
-
-          <aside class="w-full @md/course-page:max-w-64 @lg/course-page:max-w-80 @xl/course-page:max-w-96">
-            <NuxtImg
-              class="aspect-video object-cover object-center bg-muted rounded-lg"
-              :src="course!.picture ?? course!.program.picture"
-              :placeholder="[50, 50, 25, 75]"
-            />
           </aside>
+
+          <article class=" max-w-4xl w-full mx-auto px-4 shrink-0 gap-4 flex items-start justify-between">
+            <header class="max-w-2xl">
+              <p class="text-xs text-muted-foreground">
+                {{ course!.description }}
+              </p>
+              <h1 class="text-2xl font-black line-clamp-1">
+                {{ course!.name }}
+              </h1>
+              <MarkdownRenderer
+                :content="course!.program.description"
+                class="text-muted-foreground text-sm *:mx-0! *:max-w-auto! line-clamp-4"
+              />
+            </header>
+
+            <UiButton>
+              Reprendre
+              <Play />
+            </UiButton>
+          </article>
         </section>
 
-        <nav class="flex items-center gap-2 overflow-x-auto">
+        <nav
+          v-if="false"
+          class="flex items-center gap-2 overflow-x-auto"
+        >
           <UiButton
             as-child
             size="sm"
@@ -117,11 +177,133 @@ store.selectCourse(Number(id.value));
               {{ $t("navigation.course.results") }}
             </NuxtLinkLocale>
           </UiButton>
-        </nav>
+        </nav> <!-- todo: remove it if agree - loic -->
       </header>
 
-      <main class="py-4 w-full mx-auto max-w-4xl">
-        <NuxtPage />
+      <main class="@container max-w-4xl w-full mx-auto px-4 grid grid-cols-1 gap-6 @xl:grid-cols-2">
+        <section class="@xl:col-span-2 grid gap-2">
+          <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+            {{ $t("courses.specimen.overview.sections.objectives") }}
+          </h3>
+
+          <main class="flex flex-wrap gap-2">
+            <UiButton
+              v-for="objective in course.program.objectives"
+              :key="`objective-${objective.id}`"
+              variant="outline"
+              size="sm"
+              :class="{ 'border-primary! bg-primary/15 dark:bg-primary/20 hover:bg-primary/20 dark:hover:bg-primary/25': selectedObjectiveId === objective.id }"
+              @click="selectObjective(objective.id)"
+            >
+              {{ objective.name }}
+            </UiButton>
+          </main>
+
+          <footer
+            v-if="selectedObjective"
+            class="p-4 border rounded-lg bg-card text-card-foreground text-sm font-semibold"
+          >
+            <MarkdownRenderer
+              :content="selectedObjective.description"
+              use-markdown
+            />
+          </footer>
+        </section>
+
+        <template v-if="false">
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.modalities") }}
+            </h3>
+          </section>
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.methods") }}
+            </h3>
+          </section>
+
+          <section class="@xl:col-span-2">
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.evaluation") }}
+            </h3>
+          </section>
+        </template>
+
+        <PeopleSection class="@xl:col-span-2" />
+
+        <UiSeparator class="@xl:col-span-2" />
+
+        <section class="grid gap-2 @xl:col-span-2">
+          <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+            {{ $t("courses.specimen.overview.sections.learning-plan") }}
+          </h3>
+
+          <main class="grid gap-2">
+            <StageCollapsible
+              v-for="stage in stages"
+              :key="`stage-${stage.id}`"
+              :stage="stage"
+            />
+
+            <div
+              v-if="loading.specific.stages"
+              class="w-full grid pt-3 place-items-center"
+              :class="{ 'h-24': !stages.length }"
+            >
+              <UiSpinner />
+            </div>
+          </main>
+        </section>
+
+        <template v-if="false">
+          <UiSeparator class="@xl:col-span-2" />
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.events") }}
+            </h3>
+          </section>
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.community") }}
+            </h3>
+          </section>
+
+          <section class="@xl:col-span-2">
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.results") }}
+            </h3>
+          </section>
+
+          <UiSeparator class="@xl:col-span-2" />
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.accessibility") }}
+            </h3>
+          </section>
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.contact") }}
+            </h3>
+          </section>
+
+          <section>
+            <h3 class="text-xs text-muted-foreground uppercase font-semibold">
+              {{ $t("courses.specimen.overview.sections.company") }}
+            </h3>
+          </section>
+        </template>
+
+        <p
+          v-if="course"
+          class="@xl:col-span-2 text-xs text-muted-foreground text-center"
+        >
+          {{ $t("labels.date-time.last-update-at", { date: format(course!.program.dates.updatedAt, "d MMM yyyy", { locale: locales[locale]! }) }) }}
+        </p>
       </main>
     </template>
   </PageRoot>

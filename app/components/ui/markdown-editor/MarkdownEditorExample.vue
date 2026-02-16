@@ -50,7 +50,7 @@ Liste de tâches :
 \`\`\`javascript
 // Blocs de code
 function hello() {
-  console.log("Hello World!")
+  useLogger().log("Hello World!")
 }
 \`\`\`
 

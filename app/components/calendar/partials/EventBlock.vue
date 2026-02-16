@@ -2,7 +2,7 @@
 import { type Event, EventStatus } from "~/types/entities/event";
 import type { CSSProperties } from "vue";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 import { cn } from "~/lib/utils";
 
 interface EventBlockProps {
@@ -10,6 +10,8 @@ interface EventBlockProps {
   style?: CSSProperties;
   variant?: "month" | "time-grid";
 }
+
+const { locale } = useI18n();
 
 const props = withDefaults(defineProps<EventBlockProps>(), {
   variant: "time-grid",
@@ -38,7 +40,7 @@ const dotColor = computed(() => {
 });
 
 const timeLabel = computed(() => {
-  return format(props.event.dates.start, "HH:mm", { locale: fr });
+  return format(props.event.dates.start, "HH:mm", { locale: locales[locale.value]! });
 });
 </script>
 

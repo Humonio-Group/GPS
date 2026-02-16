@@ -40,7 +40,11 @@
     "switch-role": "Changer de rôle",
     "copy": {
       "default": "Copier"
-    }
+    },
+    "continue": "Continuer",
+    "resume": "Reprendre",
+    "start": "Commencer",
+    "see-again": "Revoir"
   },
   "labels": {
     "other-workspaces": "Autres espaces de travail",
@@ -55,10 +59,10 @@
         "minutes": "{value} minute | {value} minutes"
       },
       "short": {
-        "months": "{value}m",
-        "days": "{value}j",
-        "hours": "{value}h",
-        "minutes": "{value}min"
+        "months": "{value} m",
+        "days": "{value} j",
+        "hours": "{value} h",
+        "minutes": "{value} min"
       },
       "last-update": "Dernière mise à jour le {date}",
       "ends-in": "Termine dans {time}",
@@ -70,7 +74,8 @@
       "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
       "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
       "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
-      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}"
+      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}",
+      "last-update-at": "Dernière mise à jour : {date}"
     },
     "state": {
       "enabled": "Activé | Activée",
@@ -85,18 +90,19 @@
       "new": "Nouveau | Nouvelle",
       "in-progress": "En cours",
       "reviewable": "Révisable",
-      "resolved": "Résolu | Résolue"
+      "resolved": "Résolu | Résolue",
+      "to-start": "A commencer"
     },
     "languages": {
       "french": "Français"
     },
     "ends-in": "Fin dans {time}",
     "now": "Maintenant",
-    "search": "Rechercher...",
+    "search": "Rechercher",
     "video": {
       "unsupported": {
         "title": "Oh non...",
-        "description": "Ce fournisseur vidéo n'est pas supporté."
+        "description": "Ce fournisseur vidéo n'est plus supporté."
       }
     },
     "scorm": {
@@ -182,6 +188,13 @@
       "private": "Privé | Privée"
     },
     "unlock-stage": "Débloquer le module",
+    "rating-level": [
+      "Mauvais",
+      "Correct",
+      "Bon",
+      "Très bon",
+      "Excellent"
+    ],
     "tooltips": {
       "conversation-history": "Historique des conversations"
     }
@@ -227,6 +240,21 @@
     "companion": {
       "label": "Dernières conversations",
       "history": "Toutes les conversations"
+    },
+    "reader": {
+      "community": "Communauté",
+      "events": "Événements",
+      "actions": "Actions",
+      "people": "Personnes",
+      "results": "Résultats",
+      "support": "Support"
+    },
+    "command-group": {
+      "empty": "Aucun résultat...",
+      "suggested": "Suggérés",
+      "user": "Utilisateur",
+      "courses": "Formations",
+      "contents": "Contenus"
     }
   },
 
@@ -266,6 +294,27 @@
         "contents-progress": "{current}/{max} contenus",
         "stages": {
           "empty": "Il n'y a aucun contenu dans ce module."
+        },
+        "sections": {
+          "objectives": "Objectifs",
+          "modalities": "Modalités",
+          "methods": "Méthodes",
+          "evaluation": "Évaluation et certificat",
+          "teachers": {
+            "title": "Formateurs",
+            "total-count": "{count} formateur | {count} formateurs"
+          },
+          "learners": {
+            "title": "Participants",
+            "total-count": "{count} participant | {count} participants"
+          },
+          "learning-plan": "Plan de formation",
+          "events": "Événements",
+          "community": "Communauté",
+          "results": "Résultats",
+          "accessibility": "Accessibilité",
+          "contact": "Contact pédagogique",
+          "company": "Organisme de formation"
         }
       },
       "people": {

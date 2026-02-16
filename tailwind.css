@@ -118,6 +118,9 @@
   body {
     @apply bg-background text-foreground;
   }
+  *::selection {
+    @apply bg-primary/20 text-foreground;
+  }
 }
 
 @layer components {
@@ -193,6 +196,10 @@
     }
 
     img, .image {
+      @apply block w-full max-w-4xl mx-auto h-auto rounded-lg;
+    }
+
+    div, video, iframe {
       @apply block w-full max-w-4xl mx-auto h-auto rounded-lg;
     }
 

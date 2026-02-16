@@ -106,9 +106,13 @@ const views = computed((): { value: CalendarViewType; labelKey: string }[] => {
         class="w-full flex items-center gap-2"
         :class="{ 'sm:w-auto': views.length > 1 }"
       >
-        <div class="relative">
+        <div
+          class="relative"
+          :class="{ 'w-full': views.length === 1 }"
+        >
           <UiInput
             :placeholder="$t('labels.search')"
+            :class="{ 'w-full': views.length === 1 }"
             disabled
           />
         </div>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Event } from "~/types/entities/event";
 import { format, isToday } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 import TimeGrid from "~/components/calendar/partials/TimeGrid.vue";
 import EventBlock from "~/components/calendar/partials/EventBlock.vue";
 import EventPopover from "~/components/calendar/partials/EventPopover.vue";
@@ -10,6 +10,8 @@ interface DayViewProps {
   currentDate: Date;
   events: Event[];
 }
+
+const { locale } = useI18n();
 
 const props = defineProps<DayViewProps>();
 
@@ -32,7 +34,7 @@ const positionedEvents = computed(() => {
       <div class="border-r" />
       <div class="py-2 text-center">
         <div class="text-xs text-muted-foreground capitalize">
-          {{ format(currentDate, "EEEE", { locale: fr }) }}
+          {{ format(currentDate, "EEEE", { locale: locales[locale]! }) }}
         </div>
         <div
           :class="[

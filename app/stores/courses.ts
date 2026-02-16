@@ -21,6 +21,7 @@ import { v4 as uuid } from "uuid";
 import { GearType } from "~/types/entities/gear";
 import type { LucideIcon } from "lucide-vue-next";
 import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
+import { StrategySection } from "~/types/entities/strategy";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -76,7 +77,7 @@ function detectAutoComplete(data: any, activity: ContentActivity): boolean {
 
   return completeOnOpen || isWYSIWYG || isImage;
 }
-function buildCourseEntity(journey: any, program: any): Course {
+function buildCourseEntity(journey: any, program: any, strategies: any): Course {
   return {
     id: journey.id,
     key: journey.attributes.key,
@@ -94,6 +95,15 @@ function buildCourseEntity(journey: any, program: any): Course {
       description: program!.attributes.description,
       picture: program!.attributes.design.picture.thumbnail,
       category: null,
+      dates: {
+        createdAt: new Date(program!.attributes.dates.creation),
+        updatedAt: new Date(program!.attributes.dates.update),
+      },
+      objectives: strategies.map((strategy: any) => ({
+        id: strategy.id,
+        name: strategy.attributes.displayName,
+        description: strategy.attributes.displayDesc,
+      })),
     },
   };
 }
@@ -625,24 +635,27 @@ export const useCoursesStore = defineStore("courses", {
       try {
         const _courses = await this.api.get("/journeys", { version: 2, endpointVersion: 3 }, {
           query: {
-            includeAllActive: "true",
-            include: "program",
-            active: 1,
-            companies: storeToRefs(useCompanyStore()).company.value!.id,
+            "includeAllActive": "true",
+            "include": "program,program.strategies",
+            "filters[strategies.section]": StrategySection.OBJECTIVE,
+            "active": 1,
+            "companies": storeToRefs(useCompanyStore()).company.value!.id,
           },
         });
 
         this.courses = [];
         if (!_courses) return;
 
-        const programs = _courses.included.filter((e: any) => e.type === "programs");
+        const programs = _courses.included.filter((e: any) => e.type === EntityType.PROGRAM);
+        const strategies = _courses.included.filter((e: any) => e.type === EntityType.STRATEGY);
 
         const list: Course[] = [];
         _courses.data
           .filter((c: any) => !(this.courses ?? []).map(j => j.id).includes(c.id))
           .forEach((c: any) => {
             const program = programs.find((j: any) => j.id === c.relationships.program.data[0]!.id);
-            list.push(buildCourseEntity(c, program));
+            const objectives = strategies.filter((s: any) => program.relationships.strategies.data.map((st: any) => st.id).includes(s.id));
+            list.push(buildCourseEntity(c, program, objectives));
           });
 
         this.courses = [...list];
@@ -658,23 +671,25 @@ export const useCoursesStore = defineStore("courses", {
       this.loading.specific.specimen = true;
 
       try {
-        const { data: course } = await useFetch<any>(this.api.path(this.api.url(2, 1), `/journeys/${id}`), {
-          headers: this.api.headers(),
-          query: this.api.params({
-            include: "program",
-          }),
-          credentials: "include",
+        const response = await this.api.get(`/journeys/${id}`, { version: 2, endpointVersion: 1 }, {
+          query: {
+            "include": "program,program.strategies",
+            "filters[strategies.section]": StrategySection.OBJECTIVE,
+          },
         });
 
-        if (!course.value) return;
+        if (!response) return;
 
-        const journey = course.value.data;
-        const program = course.value.included.filter((e: any) => e.type === "programs").find((p: any) => p.id === journey.relationships.program.data[0].id);
-        const c = buildCourseEntity(journey, program);
+        const journey = response.data;
+        const program = response.included.filter((e: any) => e.type === EntityType.PROGRAM).find((p: any) => p.id === journey.relationships.program.data[0].id);
+        const strategies = response.included.filter((e: any) => e.type === EntityType.STRATEGY);
+        const c = buildCourseEntity(journey, program, strategies);
 
         if (!this.courses?.find(c => c.id === id))
           this.courses = [...(this.courses ?? []), { ...c }];
         this.selectCourse(id);
+
+        this.logger.log(this.selectedCourse?.program.objectives);
       }
       catch (e) {
         this.logger.error(e);
@@ -720,6 +735,7 @@ export const useCoursesStore = defineStore("courses", {
 
     async loadStages() {
       if (!this.selectedCourse) return;
+      const activeCourse = this.selectedCourse.id;
 
       this.loading.specific.stages = true;
 
@@ -734,9 +750,9 @@ export const useCoursesStore = defineStore("courses", {
         });
 
         if (!response) return;
+        if (this.selectedCourse.id !== activeCourse) return;
 
         const journeyStages = response.data;
-
         this.selectedCourse.stages = journeyStages
           .map((stage: any) => buildStageEntity(this.selectedCourse!.stages, stage, response.included))
           .sort((a: Stage, b: Stage) => a.order - b.order);
@@ -867,7 +883,7 @@ export const useCoursesStore = defineStore("courses", {
           }),
           this.api.get(`/journeys/${this.selectedCourse.id}`, { version: 2, endpointVersion: 1 }, {
             query: {
-              "include": "requesterParticipation,facilitators,mainFacilitators,teams,teams.leads,teams.participants,teams.participants.tags,program,requesterLanguage",
+              "include": "requesterParticipation,facilitators,mainFacilitator,teams,teams.leads,teams.participants,teams.participants.tags,program,requesterLanguage",
               "fields[participations]": "facilitatorRated",
               "fields[journeys]": "picture",
               "fields[users]": "name,picture,email,mobile,linkedin",
@@ -902,6 +918,7 @@ export const useCoursesStore = defineStore("courses", {
             linkedin: u.attributes.linkedin ?? null,
           },
         })) as Peoples;
+
         this.selectedCourse.facilitators = journey.data.relationships.facilitators.data.map((d: any): People => {
           const relatedUser = includedUsers.find((u: any) => u.id === d.id);
           return {
@@ -921,6 +938,35 @@ export const useCoursesStore = defineStore("courses", {
             },
           };
         }) as Peoples;
+        if (journey.data.relationships.mainFacilitator.data) {
+          const mains = journey.data.relationships.mainFacilitator.data.map((d: any): People => {
+            const relatedUser = includedUsers.find((u: any) => u.id === d.id);
+            return {
+              id: relatedUser.id,
+              avatar: relatedUser.attributes.picture?.thumbnail ?? null,
+              name: {
+                first: relatedUser.attributes.firstname,
+                last: relatedUser.attributes.lastname,
+                full: relatedUser.attributes.name,
+              },
+              contact: {
+                email: relatedUser.attributes.email,
+                phone: relatedUser.attributes.mobile ?? null,
+              },
+              social: {
+                linkedin: relatedUser.attributes.linkedin ?? null,
+              },
+            };
+          }) as Peoples;
+          this.selectedCourse.facilitators = [...this.selectedCourse.facilitators, ...mains];
+        }
+        this.selectedCourse.facilitators = this.selectedCourse.facilitators.reduce((acc, fac) => {
+          if (acc.find(f => f.id === fac.id)) return acc;
+
+          acc.push(fac);
+          return acc;
+        }, [] as Peoples);
+
         if (_manager.data.length) {
           const invitation = _manager.data[0];
           const manager = _manager.included.find((u: any) => u.id === invitation.relationships.manager.data[0].id);

@@ -15,6 +15,7 @@ import type {
   VideoActivity,
 } from "~/types/entities/activity";
 import type { LucideIcon } from "lucide-vue-next";
+import type { Strategy } from "~/types/entities/strategy";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -24,6 +25,11 @@ export interface Program {
   description: string;
   picture: string;
   category: Nullable<string>;
+  dates: {
+    createdAt: Date;
+    updatedAt: Date;
+  };
+  objectives: Strategy[];
 }
 
 export interface Stage {

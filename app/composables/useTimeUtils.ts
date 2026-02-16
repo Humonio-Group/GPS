@@ -50,13 +50,13 @@ export const useTimeUtils = () => {
 
     return display(months, days, hours, minutes);
   };
-  const fromMinutes = (data: number) => {
+  const fromMinutes = (data: number, format: "long" | "short" = "long") => {
     const months = Math.floor(data / (60 * 24 * 30));
     const days = Math.floor((data / (60 * 24 * 30)) % (60 * 24));
     const hours = Math.floor((data % (60 * 24)) / 60);
     const minutes = Math.floor(data % 60);
 
-    return display(months, days, hours, minutes);
+    return display(months, days, hours, minutes, format);
   };
 
   const formatTime = (style: "short" | "medium" | "long") => new Intl.DateTimeFormat(locale.value, { timeStyle: style }).format;

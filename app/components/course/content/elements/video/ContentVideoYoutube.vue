@@ -53,7 +53,7 @@ const onStateChange = (event: any) => {
 
 async function sendProgress() {
   const progress = Math.round(playerState.value.progress);
-  console.log(progress);
+  useLogger().log(progress);
   const verb = progress >= 100
     ? {
         id: XApiId.COMPLETED,

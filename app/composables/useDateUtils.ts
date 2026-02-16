@@ -1,5 +1,5 @@
 import { formatDistanceToNow } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 
 interface ExplodedDate {
   day: number;
@@ -68,14 +68,8 @@ export const useDateUtils = () => {
   const isOnOrAfter = (value: Date, compare: Date = new Date()) => value.getTime() >= compare.getTime();
   const isOn = (value: Date, compare: Date = new Date()) => value.getTime() === compare.getTime();
 
-  const relativeDate = (date: Date | string | number): string => {
-    const dateLocale = () => {
-      switch (locale.value) {
-        default: return fr;
-      }
-    };
-    return formatDistanceToNow(new Date(date), { locale: dateLocale(), addSuffix: true });
-  };
+  const relativeDate = (date: Date | string | number): string =>
+    formatDistanceToNow(new Date(date), { locale: locales[useNuxtApp().$i18n.locale.value], addSuffix: true });
 
   return {
     explode,

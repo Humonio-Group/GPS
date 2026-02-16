@@ -2,6 +2,7 @@
 import { Star } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 import type { Nullable } from "~/types/primitives/objects";
+import StarFill from "~/components/icons/StarFill.vue";
 
 interface ContentRatingProps {
   content: Content;
@@ -22,16 +23,32 @@ async function rate() {
 
 <template>
   <div
-    class="flex items-center gap-0.5 text-muted-foreground hover:text-muted-foreground! cursor-pointer"
+    class="flex items-center gap-0.5 text-muted-foreground/50 hover:text-muted-foreground! cursor-pointer"
     @mouseleave="hover = null"
   >
-    <Star
+    <UiTooltip
       v-for="i in 5"
       :key="`star-${i}`"
-      class="size-5"
-      :class="{ 'text-primary': i <= (hover ?? content.stats.rate ?? 0), 'opacity-50 pointer-events-none': rating }"
-      @mouseenter="hover = i"
-      @click="rate"
-    />
+    >
+      <UiTooltipTrigger>
+        <StarFill
+          v-if="i <= (hover ?? content.stats.rate ?? 0)"
+          class="text-primary size-5 hover:scale-110 transition-transform duration-150"
+          :class="{ 'opacity-50 pointer-events-none': rating }"
+          @mouseenter="hover = i"
+          @click="rate"
+        />
+        <Star
+          v-else
+          class="size-5"
+          :class="{ 'opacity-50 pointer-events-none': rating }"
+          @mouseenter="hover = i"
+          @click="rate"
+        />
+      </UiTooltipTrigger>
+      <UiTooltipContent>
+        <p>{{ $t(`labels.rating-level[${i - 1}]`) }}</p>
+      </UiTooltipContent>
+    </UiTooltip>
   </div>
 </template>

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 import MonthDayCell from "~/components/calendar/partials/MonthDayCell.vue";
 import type { Events } from "~/types/entities/event";
 
@@ -8,6 +8,8 @@ interface MonthViewProps {
   currentDate: Date;
   events: Events;
 }
+
+const { locale } = useI18n();
 
 const props = defineProps<MonthViewProps>();
 
@@ -20,7 +22,7 @@ const { monthDays } = useCalendarGrid();
 const weeks = computed(() => monthDays(props.currentDate));
 
 const weekdayHeaders = computed(() => {
-  return weeks.value[0]?.map(day => format(day, "EEE", { locale: fr })) ?? [];
+  return weeks.value[0]?.map(day => format(day, "EEE", { locale: locales[locale.value]! })) ?? [];
 });
 </script>
 
