@@ -70,7 +70,8 @@
       "interval": "Le {start} de {startTime} à {endTime} | Du {start} {startTime} au {end} {endTime}",
       "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
       "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
-      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}"
+      "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}",
+      "last-update-at": "Dernière mise à jour : {date}"
     },
     "state": {
       "enabled": "Activé | Activée",
@@ -288,6 +289,27 @@
         "contents-progress": "{current}/{max} contenus",
         "stages": {
           "empty": "Il n'y a aucun contenu dans ce module."
+        },
+        "sections": {
+          "objectives": "Objectifs",
+          "modalities": "Modalités",
+          "methods": "Méthodes",
+          "evaluation": "Évaluation et certificat",
+          "teachers": {
+            "title": "Formateurs",
+            "total-count": "{count} formateur | {count} formateurs"
+          },
+          "learners": {
+            "title": "Participants",
+            "total-count": "{count} participant | {count} participants"
+          },
+          "learning-plan": "Plan de formation",
+          "events": "Événements",
+          "community": "Communauté",
+          "results": "Résultats",
+          "accessibility": "Accessibilité",
+          "contact": "Contact pédagogique",
+          "company": "Organisme de formation"
         }
       },
       "people": {
