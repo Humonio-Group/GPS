@@ -3,6 +3,7 @@ import { ChevronRight, ArrowRight, ArrowLeft } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
+import type { Content } from "~/types/entities/course";
 
 const store = useCoursesStore();
 const { selectedCourse: course, allContents } = storeToRefs(store);
@@ -17,6 +18,43 @@ const activeStage = computed(() => course.value!.stages.find(s => s.contents.map
 provide("content", activeContent);
 
 const { progress: scrollProgress } = useScrollIsland();
+
+const next = computed<Content | undefined>(() => {
+  const currentIndex = allContents.value.findIndex(c => c.id === activeContent.value?.id);
+  let index = currentIndex + 1;
+
+  if (index >= allContents.value.length || !allContents.value[index]) return undefined;
+
+  let nextContent: Content = allContents.value[index]!;
+  while (nextContent!.locked) {
+    index++;
+    if (index >= allContents.value.length) return;
+
+    const c: Content | undefined = allContents.value[index];
+    if (!c) return;
+    nextContent = c;
+  }
+
+  return nextContent;
+});
+const previous = computed<Content | undefined>(() => {
+  const currentIndex = allContents.value.findIndex(c => c.id === activeContent.value?.id);
+  let index = currentIndex - 1;
+
+  if (index < 0 || !allContents.value[index]) return undefined;
+
+  let previous: Content = allContents.value[index]!;
+  while (previous!.locked) {
+    index--;
+    if (index < 0) return;
+
+    const c: Content | undefined = allContents.value[index];
+    if (!c) return;
+    previous = c;
+  }
+
+  return previous;
+});
 </script>
 
 <template>
@@ -103,32 +141,43 @@ const { progress: scrollProgress } = useScrollIsland();
               </div>
               <div class="flex items-center bg-accent rounded-full overflow-hidden">
                 <UiButton
+                  v-if="!!previous"
                   variant="ghost"
                   size="icon-lg"
-                  :disabled="!activeContent.navigation.previous"
-                  :as-child="!!activeContent.navigation.previous"
+                  as-child
                 >
                   <NuxtLinkLocale
-                    v-if="!!activeContent?.navigation.previous"
-                    :to="`/${alias}/reader/${course!.id}/${activeContent?.navigation.previous}`"
+                    :to="`/${alias}/reader/${course!.id}/${previous.id}`"
                   >
                     <ArrowLeft />
                   </NuxtLinkLocale>
-                  <ArrowLeft v-else />
                 </UiButton>
                 <UiButton
+                  v-else
                   variant="ghost"
                   size="icon-lg"
-                  :disabled="!activeContent.navigation.next"
-                  :as-child="!!activeContent.navigation.next"
+                  disabled
                 >
-                  <NuxtLinkLocale
-                    v-if="!!activeContent.navigation.next"
-                    :to="`/${alias}/reader/${course!.id}/${activeContent?.navigation.next}`"
-                  >
+                  <ArrowLeft />
+                </UiButton>
+
+                <UiButton
+                  v-if="next"
+                  variant="ghost"
+                  size="icon-lg"
+                  as-child
+                >
+                  <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
                     <ArrowRight />
                   </NuxtLinkLocale>
-                  <ArrowRight v-else />
+                </UiButton>
+                <UiButton
+                  v-else
+                  variant="ghost"
+                  size="icon-lg"
+                  disabled
+                >
+                  <ArrowRight />
                 </UiButton>
               </div>
             </div>
