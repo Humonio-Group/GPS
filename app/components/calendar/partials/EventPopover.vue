@@ -2,7 +2,7 @@
 import { type Event, EventStatus } from "~/types/entities/event";
 import { File, Video, MapPin, Clock, BookOpen, Users } from "lucide-vue-next";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import * as locales from "date-fns/locale";
 
 interface EventPopoverProps {
   event: Event;
@@ -10,7 +10,7 @@ interface EventPopoverProps {
 
 const props = defineProps<EventPopoverProps>();
 
-const { t } = useNuxtApp().$i18n;
+const { t, locale } = useNuxtApp().$i18n;
 const { alias } = useWorkspaceUtils();
 
 const statusLabel = computed(() => {
@@ -34,15 +34,15 @@ const statusColor = computed(() => {
 const dateLabel = computed(() => {
   const start = props.event.dates.start;
   const end = props.event.dates.end;
-  const startDate = format(start, "EEEE d MMMM yyyy", { locale: fr });
-  const startTime = format(start, "HH:mm", { locale: fr });
-  const endTime = format(end, "HH:mm", { locale: fr });
-  const endDate = format(end, "EEEE d MMMM yyyy", { locale: fr });
+  const startDate = format(start, "EEEE d MMMM yyyy", { locale: locales[locale.value]! });
+  const startTime = format(start, "HH:mm", { locale: locales[locale.value]! });
+  const endTime = format(end, "HH:mm", { locale: locales[locale.value]! });
+  const endDate = format(end, "EEEE d MMMM yyyy", { locale: locales[locale.value]! });
 
   if (startDate === endDate) {
     return `${startDate}, ${startTime} – ${endTime}`;
   }
-  return `${format(start, "d MMM yyyy HH:mm", { locale: fr })} – ${format(end, "d MMM yyyy HH:mm", { locale: fr })}`;
+  return `${format(start, "d MMM yyyy HH:mm", { locale: locales[locale.value]! })} – ${format(end, "d MMM yyyy HH:mm", { locale: locales[locale.value]! })}`;
 });
 </script>
 
