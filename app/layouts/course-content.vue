@@ -130,56 +130,55 @@ const previous = computed<Content | undefined>(() => {
             v-if="activeContent"
             class="sticky bottom-6 flex items-center justify-between gap-4"
           >
-            <div class="bg-accent rounded-full overflow-hidden" />
-
-            <div class="flex items-center gap-4">
+            <div>
               <div
                 v-if="activeContent.permissions.rateable"
                 class="flex items-center bg-accent rounded-full overflow-hidden h-9 px-3"
               >
                 <ContentRating :content="activeContent" />
               </div>
-              <div class="flex items-center bg-accent rounded-full overflow-hidden">
-                <UiButton
-                  v-if="!!previous"
-                  variant="ghost"
-                  size="icon-lg"
-                  as-child
-                >
-                  <NuxtLinkLocale
-                    :to="`/${alias}/reader/${course!.id}/${previous.id}`"
-                  >
-                    <ArrowLeft />
-                  </NuxtLinkLocale>
-                </UiButton>
-                <UiButton
-                  v-else
-                  variant="ghost"
-                  size="icon-lg"
-                  disabled
+            </div>
+
+            <div class="flex items-center bg-accent rounded-full overflow-hidden">
+              <UiButton
+                v-if="!!previous"
+                variant="ghost"
+                size="icon-lg"
+                as-child
+              >
+                <NuxtLinkLocale
+                  :to="`/${alias}/reader/${course!.id}/${previous.id}`"
                 >
                   <ArrowLeft />
-                </UiButton>
+                </NuxtLinkLocale>
+              </UiButton>
+              <UiButton
+                v-else
+                variant="ghost"
+                size="icon-lg"
+                disabled
+              >
+                <ArrowLeft />
+              </UiButton>
 
-                <UiButton
-                  v-if="next"
-                  variant="ghost"
-                  size="icon-lg"
-                  as-child
-                >
-                  <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
-                    <ArrowRight />
-                  </NuxtLinkLocale>
-                </UiButton>
-                <UiButton
-                  v-else
-                  variant="ghost"
-                  size="icon-lg"
-                  disabled
-                >
+              <UiButton
+                v-if="next"
+                variant="ghost"
+                size="icon-lg"
+                as-child
+              >
+                <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
                   <ArrowRight />
-                </UiButton>
-              </div>
+                </NuxtLinkLocale>
+              </UiButton>
+              <UiButton
+                v-else
+                variant="ghost"
+                size="icon-lg"
+                disabled
+              >
+                <ArrowRight />
+              </UiButton>
             </div>
           </footer>
         </main>
