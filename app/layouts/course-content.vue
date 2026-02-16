@@ -17,16 +17,7 @@ const activeContent = computed(() => allContents.value.find(c => c.id === Number
 const activeStage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
 provide("content", activeContent);
 
-const scrollProgress = ref<number>(0);
-function handleScroll() {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  scrollProgress.value = max > 0 ? (window.scrollY / max) * 100 : 0;
-}
-
-window.addEventListener("scroll", handleScroll);
-onBeforeUnmount(() => {
-  window.addEventListener("scroll", handleScroll);
-});
+const { progress: scrollProgress } = useScrollIsland();
 </script>
 
 <template>
