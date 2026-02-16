@@ -1,7 +1,7 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { Actions } from "~/types/entities/action";
 import type { Badges } from "~/types/entities/badge";
-import type { Manager, Peoples } from "~/types/entities/user";
+import type { UserRole, Manager, Peoples } from "~/types/entities/user";
 import type { Events } from "~/types/entities/event";
 import type {
   ActivityAction,
@@ -107,7 +107,7 @@ export type Conditions = Condition[];
 export interface ContentComment {
   id: number;
   replyTo: Nullable<number>;
-  admin: boolean;
+  role: UserRole;
   content: string;
   author: {
     name: string;

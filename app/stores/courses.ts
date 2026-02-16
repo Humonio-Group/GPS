@@ -228,7 +228,7 @@ function buildComment(data: any, included: any): ContentComment {
   return {
     id: data.id,
     replyTo: null,
-    admin: data.attributes.role.value !== UserRole.PARTICIPANT,
+    role: data.attributes.role.value,
     content: data.attributes.content,
     author: {
       name: author.attributes.name,
