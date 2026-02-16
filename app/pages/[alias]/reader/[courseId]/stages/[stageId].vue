@@ -2,7 +2,6 @@
 import { Play } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import type { Content } from "~/types/entities/course";
-import { useLocalStorage } from "@vueuse/core";
 
 const route = useRoute();
 const stageId = computed(() => Number(route.params.stageId || -1));
