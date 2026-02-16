@@ -1478,6 +1478,16 @@ export const useCoursesStore = defineStore("courses", {
                     id: content.topic.id,
                   },
                 },
+                ...(comment
+                  ? {
+                      parentComment: {
+                        data: {
+                          id: comment.id,
+                          type: EntityType.COMMENT,
+                        },
+                      },
+                    }
+                  : {}),
               },
             },
           },
