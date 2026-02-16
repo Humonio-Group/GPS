@@ -12,7 +12,7 @@ import type {
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
-import { type Manager, type People, type Peoples, UserRole } from "~/types/entities/user";
+import type { Manager, People, Peoples } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
