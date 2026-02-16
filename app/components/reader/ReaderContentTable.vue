@@ -76,7 +76,7 @@ const courseProgress = computed(() => {
     <UiSidebarContent class="isolate">
       <template v-if="loading.specific.stages">
         <UiSidebarGroup
-          v-for="i in 4"
+          v-for="i in (Math.floor(Math.random() * 3) + 1)"
           :key="i"
           class="grid place-items-center py-0"
         >
