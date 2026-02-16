@@ -40,7 +40,11 @@
     "switch-role": "Changer de rôle",
     "copy": {
       "default": "Copier"
-    }
+    },
+    "continue": "Continuer",
+    "resume": "Reprendre",
+    "start": "Commencer",
+    "see-again": "Revoir"
   },
   "labels": {
     "other-workspaces": "Autres espaces de travail",
@@ -55,10 +59,10 @@
         "minutes": "{value} minute | {value} minutes"
       },
       "short": {
-        "months": "{value}m",
-        "days": "{value}j",
-        "hours": "{value}h",
-        "minutes": "{value}min"
+        "months": "{value} m",
+        "days": "{value} j",
+        "hours": "{value} h",
+        "minutes": "{value} min"
       },
       "last-update": "Dernière mise à jour le {date}",
       "ends-in": "Termine dans {time}",
@@ -86,7 +90,8 @@
       "new": "Nouveau | Nouvelle",
       "in-progress": "En cours",
       "reviewable": "Révisable",
-      "resolved": "Résolu | Résolue"
+      "resolved": "Résolu | Résolue",
+      "to-start": "A commencer"
     },
     "languages": {
       "french": "Français"

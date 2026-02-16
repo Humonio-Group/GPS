@@ -24,18 +24,18 @@ const { progress: scrollProgress } = useScrollIsland();
     <UiSidebarProvider style="--sidebar-width: 20rem;">
       <ReaderContentTable :content="activeContent" />
 
-      <UiSidebarInset class="flex flex-col">
+      <UiSidebarInset class="flex flex-col relative isolate">
+        <div class="h-1 absolute top-0 inset-x-0 w-full rounded-full overflow-hidden z-10">
+          <span
+            class="block h-1 bg-linear-to-r from-primary/10 to-primary rounded-full"
+            :style="`width: ${scrollProgress}%`"
+          />
+        </div>
+
         <main
           class="flex flex-col flex-1 p-6 pt-0"
         >
           <nav class="sticky top-0 pb-2 pt-3 flex items-center gap-6 justify-between bg-background">
-            <div class="h-1 absolute top-0 inset-x-0 w-full bg-accent rounded-full overflow-hidden">
-              <span
-                class="block h-1 bg-primary rounded-full"
-                :style="`width: ${scrollProgress}%`"
-              />
-            </div>
-
             <div class="flex items-center gap-2">
               <UiSidebarTrigger />
 
