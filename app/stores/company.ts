@@ -5,6 +5,22 @@ interface CompanyState {
   company: Nullable<Company>;
 }
 
+function buildCompanyEntity(data: any): Company {
+  return {
+    id: data.id,
+    key: data.attributes.key,
+    alias: data.attributes.alias,
+    name: data.attributes.name,
+    drive: data.attributes.isDrive,
+    colors: {
+      first: data.attributes.colors.firstGradient,
+      second: data.attributes.colors.secondGradient,
+    },
+    icon: data.attributes.icon.thumbnail,
+    logo: data.attributes.logo.thumbnail,
+  };
+}
+
 function bindCompanyColors(company: Company) {
   const style = document.createElement("style");
   style.id = "company-theme";
@@ -24,6 +40,16 @@ function bindCompanyColors(company: Company) {
     style.textContent = cssRules;
     document.head.appendChild(style);
   }
+}
+function bindCompanyLogo(company: Company) {
+  useHead({
+    link: [
+      {
+        rel: "icon",
+        href: company.logo,
+      },
+    ],
+  });
 }
 
 export const useCompanyStore = defineStore("company", {
@@ -48,20 +74,9 @@ export const useCompanyStore = defineStore("company", {
         const company = response.data[0];
         if (!company) return;
 
-        this.company = {
-          id: company.id,
-          key: company.attributes.key,
-          alias: company.attributes.alias,
-          name: company.attributes.name,
-          drive: company.attributes.isDrive,
-          colors: {
-            first: company.attributes.colors.firstGradient,
-            second: company.attributes.colors.secondGradient,
-          },
-          icon: company.attributes.icon.thumbnail,
-          logo: company.attributes.logo.thumbnail,
-        };
+        this.company = buildCompanyEntity(company);
         bindCompanyColors(this.company);
+        bindCompanyLogo(this.company);
       }
       catch (e) {
         useLogger().error(e);
