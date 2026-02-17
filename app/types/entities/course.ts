@@ -57,6 +57,7 @@ export interface ContentDates {
 export interface ContentPermissions {
   rateable: boolean;
   commentable: boolean;
+  displayGraphs: boolean;
 }
 export interface ContentStats {
   comments: number;

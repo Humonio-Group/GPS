@@ -540,6 +540,7 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
     permissions: {
       rateable: data.attributes.permissions.isRateable,
       commentable: data.attributes.permissions.isCommentable,
+      displayGraphs: data.attributes.permissions.canDisplayGraph,
     },
     stats: {
       likes: data.attributes.stats.likes,
