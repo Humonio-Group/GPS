@@ -585,6 +585,9 @@
       "Bon",
       "Très bon"
     ],
+    "results": {
+      "title": "Résultats"
+    },
     "comments": {
       "label": "Commentaires",
       "placeholder": "Rédiger un commentaire... (Maj+Entrer pour aller à la ligne)",
