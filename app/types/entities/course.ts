@@ -16,6 +16,7 @@ import type {
 } from "~/types/entities/activity";
 import type { LucideIcon } from "lucide-vue-next";
 import type { Strategy } from "~/types/entities/strategy";
+import type { GraphType, BarChartData, ChartData } from "~/types/entities/graph";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -123,6 +124,15 @@ export interface ContentComment {
 }
 export type ContentComments = ContentComment[];
 
+export interface ContentGraph {
+  id: number | string;
+  type: GraphType;
+  title: string;
+  description: string;
+  data: ChartData;
+}
+export type ContentGraphs = ContentGraph[];
+
 export interface Content {
   id: number;
   reference: number;
@@ -142,6 +152,7 @@ export interface Content {
   activity: ContentActivity;
   navigation: ContentNavigation;
   topic: ContentTopic;
+  graphs: ContentGraphs;
 }
 export type Contents = Content[];
 
