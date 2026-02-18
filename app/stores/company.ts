@@ -46,7 +46,7 @@ function bindCompanyLogo(company: Company) {
     link: [
       {
         rel: "icon",
-        href: company.logo,
+        href: company.icon,
       },
     ],
   });
