@@ -2,7 +2,7 @@ import type { Nullable } from "~/types/primitives/objects";
 import type {
   Content,
   ContentActivity,
-  ContentComment,
+  ContentComment, ContentGraph,
   Contents,
   Course,
   RichCourse,
@@ -12,7 +12,7 @@ import type {
 import { EntityType } from "~/types/entities/entities";
 import type { Action, Actions } from "~/types/entities/action";
 import type { Badge } from "~/types/entities/badge";
-import type { Manager, People, Peoples } from "~/types/entities/user";
+import { type Manager, type People, type Peoples, UserRole } from "~/types/entities/user";
 import { buildEventEntity } from "~/stores/event";
 import { EventStatus } from "~/types/entities/event";
 import type { ActivityResult, PageElement, PageElementType, VideoProvider } from "~/types/entities/activity";
@@ -22,6 +22,7 @@ import { GearType } from "~/types/entities/gear";
 import type { LucideIcon } from "lucide-vue-next";
 import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
 import { StrategySection } from "~/types/entities/strategy";
+import { type ChartData, GraphType } from "~/types/entities/graph";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -415,7 +416,87 @@ function buildCertificateActivity(data: any): ContentActivity["certificate"] {
     completeOnOpen: true,
   };
 }
-function buildContentEntity(data: any, included: any, stage: Stage): Content {
+
+function buildContentGraph(data: any): ContentGraph | null {
+  let chartData: ChartData;
+
+  switch (data.attributes.type.value) {
+    case GraphType.GAUGE: {
+      chartData = {
+        color: data.attributes.specific.color,
+        min: data.attributes.specific.min,
+        max: data.attributes.specific.max,
+        value: data.attributes.specific.value,
+        percent: data.attributes.specific.isPercent,
+      };
+      break;
+    }
+    case GraphType.HORIZONTAL_BAR: case GraphType.VERTICAL_BAR: {
+      chartData = {
+        categories: data.attributes.specific.categories,
+        series: data.attributes.specific.series.map((serie: any) => ({
+          name: serie.name,
+          color: serie.color,
+          config: {
+            min: serie.min,
+            max: serie.max,
+          },
+          data: serie.data,
+        })),
+      };
+      break;
+    }
+    case GraphType.POLAR: {
+      chartData = {
+        percent: data.attributes.specific.isPercent,
+        series: data.attributes.specific.data,
+      };
+      break;
+    }
+    case GraphType.LEADER_BOARD: {
+      chartData = {
+        series: data.attributes.specific.data,
+      };
+      break;
+    }
+    case GraphType.INDIVIDUAL_CHOICE: {
+      chartData = {
+        series: data.attributes.specific.data,
+      };
+      break;
+    }
+    case GraphType.VALUE: {
+      chartData = {
+        title: data.attributes.specific.title,
+        subtitle: data.attributes.specific.subtitle,
+        percent: data.attributes.specific.isPercent,
+      };
+      break;
+    }
+    default: return null;
+  }
+
+  return {
+    id: data.id,
+    type: data.attributes.type.value as GraphType,
+    title: data.attributes.title,
+    description: data.attributes.description || "",
+    data: chartData,
+  };
+}
+async function loadContentGraphs(courseId: number, contentId: number): Promise<any> {
+  const response = await useApi().get(`/contents/${contentId}/graph_results`, { version: 1, endpointVersion: 2 }, {
+    query: {
+      requester_role: UserRole.PARTICIPANT,
+      journey: courseId,
+      limit: -1,
+      offset: 0,
+    },
+  });
+  if (!response) throw new Error("Error loading graphs");
+  return response;
+}
+function buildContentEntity(data: any, included: any, stage: Stage, _graphs?: any[]): Content {
   const t = useNuxtApp().$i18n.t;
 
   let activity: Content["activity"] = {
@@ -513,6 +594,13 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
     if (h5p) activity = { ...activity, h5p };
   }
 
+  const permissions: Content["permissions"] = {
+    rateable: data.attributes.permissions.isRateable,
+    commentable: data.attributes.permissions.isCommentable,
+    displayGraphs: data.attributes.permissions.canDisplayGraph,
+  };
+  const graphs = _graphs?.map(buildContentGraph).filter(g => !!g) ?? [];
+
   return {
     id: data.id,
     reference: data.relationships.content.data[0]!.id,
@@ -537,11 +625,7 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
       start: data.attributes.dates.start ? new Date(data.attributes.dates.start) : null,
       end: data.attributes.dates.end ? new Date(data.attributes.dates.end) : null,
     },
-    permissions: {
-      rateable: data.attributes.permissions.isRateable,
-      commentable: data.attributes.permissions.isCommentable,
-      displayGraphs: data.attributes.permissions.canDisplayGraph,
-    },
+    permissions,
     stats: {
       likes: data.attributes.stats.likes,
       comments: data.attributes.stats.comments,
@@ -559,6 +643,7 @@ function buildContentEntity(data: any, included: any, stage: Stage): Content {
       id: relatedTopic.id,
       comments: [],
     },
+    graphs,
   };
 }
 
@@ -766,7 +851,6 @@ export const useCoursesStore = defineStore("courses", {
       }
     },
     async loadContents(stageId: number) {
-      this.logger.log();
       if (!this.selectedCourse) return;
 
       this.loading.specific.stageContents = [...this.loading.specific.stageContents, stageId];
@@ -793,6 +877,19 @@ export const useCoursesStore = defineStore("courses", {
 
         const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included, stage!));
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
+
+        const courseId = this.selectedCourse!.id;
+        contents.forEach(content =>
+          loadContentGraphs(courseId, content.reference)
+            .then((response) => {
+              if (!this.selectedCourse) return;
+
+              const { data } = response;
+              content.graphs = data.map(buildContentGraph).filter((g: any) => !!g);
+              if (content.graphs.length) this.logger.log(`[CONTENT GRAPHS] Content ${content.id}-${content.reference}`, content.graphs);
+              this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stage!.id ? { ...s, contents: s.contents.map(c => c.id === content.id ? { ...content } : c) } : s);
+            })
+            .catch(e => this.logger.error(e)));
       }
       catch (e) {
         this.logger.error(e);
