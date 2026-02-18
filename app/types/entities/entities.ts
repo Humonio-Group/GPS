@@ -17,6 +17,7 @@ export enum EntityType {
   TASKLIST_ANSWER = "tasklistAnswers",
   TASK = "tasks",
   COMMENT = "comments",
+  GRAPH_RESULT = "graphResults",
   // Actions
   ACTION = "actions",
   ACTION_PLAN = "actionPlans",

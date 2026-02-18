@@ -5,6 +5,7 @@ import ContentDetails from "~/components/course/content/ContentDetails.vue";
 import ContentDetailItem from "~/components/course/content/header/ContentDetailItem.vue";
 import { StatementFactory } from "~/types/entities/xapi";
 import type { Content } from "~/types/entities/course";
+import ContentGraphsSlider from "~/components/course/content/graphs/ContentGraphsSlider.vue";
 
 const { t } = useI18n();
 
@@ -127,6 +128,11 @@ const workshop = computed(() => {
           />
         </ul>
       </header>
+
+      <ContentGraphsSlider
+        v-if="content.graphs.length"
+        :content="content!"
+      />
 
       <ContentDetails :content="content!" />
     </template>
