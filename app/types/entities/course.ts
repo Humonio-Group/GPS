@@ -16,7 +16,7 @@ import type {
 } from "~/types/entities/activity";
 import type { LucideIcon } from "lucide-vue-next";
 import type { Strategy } from "~/types/entities/strategy";
-import type { GraphType, BarChartData, ChartData } from "~/types/entities/graph";
+import type { GraphType, ChartData } from "~/types/entities/graph";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
