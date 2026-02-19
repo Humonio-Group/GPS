@@ -5,6 +5,7 @@ import { ConversationMessageRole } from "~/types/entities/conversation";
 
 definePageMeta({
   layout: "companion",
+  showInput: true,
 });
 
 const store = useCompanionStore();
