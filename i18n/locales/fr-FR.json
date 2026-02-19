@@ -274,6 +274,13 @@
       "coach": "Coach",
       "manager": "Mentor",
       "creator": "Créateur"
+    },
+    "portal": {
+      "title": "Choisis ton espace de travail",
+      "empty": {
+        "title": "Oups...",
+        "description": "Il semblerait qu'aucun espace de travail ne correspondent à votre recherche."
+      }
     }
   },
 
