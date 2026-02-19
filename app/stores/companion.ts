@@ -43,7 +43,7 @@ function buildMessage(data: any): ConversationMessage {
   };
 } // todo: return ConversationMessage - loic
 function buildConversation(data: any, included: any): Conversation {
-  const agent = included.find((entity: any) => entity.type === EntityType.CHAT_AGENT && entity.key === data.relationships.agent.data[0].key);
+  const agent = included.find((entity: any) => entity.type === EntityType.CHAT_AGENT && entity.id === data.relationships.agent.data[0].id);
   const messages = included.filter((entity: any) => entity.type === EntityType.CHAT_MESSAGE && data.relationships.messages.data.map((msg: any) => msg.id).includes(entity.id));
 
   return {
