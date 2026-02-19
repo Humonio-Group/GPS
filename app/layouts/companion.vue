@@ -11,6 +11,9 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
 const store = useCompanionStore();
 const { selectedConversation: conversation, canWrite } = storeToRefs(store);
 
+const route = useRoute();
+const showInput = computed<boolean>(() => route.meta.showInput as boolean);
+
 const message = ref<string>("");
 
 async function sendMessage() {
@@ -25,7 +28,7 @@ async function sendMessage() {
 <template>
   <LayoutRoot name="companion">
     <UiSidebarProvider>
-      <DefaultSidebar />
+      <DefaultSidebar show-search />
 
       <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh overflow-y-auto">
         <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
@@ -79,8 +82,11 @@ async function sendMessage() {
                 <UiButton
                   size="icon"
                   variant="ghost"
+                  as-child
                 >
-                  <History />
+                  <NuxtLinkLocale :to="`/${alias}/companion/history`">
+                    <History />
+                  </NuxtLinkLocale>
                 </UiButton>
               </UiTooltipTrigger>
               <UiTooltipContent>
@@ -105,7 +111,10 @@ async function sendMessage() {
         <main class="p-2 py-0 flex-1 flex flex-col max-h-full">
           <NuxtPage />
 
-          <footer class="sticky bottom-0 mx-auto w-full max-w-5xl shrink-0 flex py-4 bg-background">
+          <footer
+            v-if="showInput"
+            class="sticky bottom-0 mx-auto w-full max-w-5xl shrink-0 flex py-4 bg-background"
+          >
             <div class="relative flex-1">
               <UiButton
                 size="icon-sm"
