@@ -130,7 +130,7 @@ const workshop = computed(() => {
       </header>
 
       <ContentGraphsSlider
-        v-if="content.graphs.length"
+        v-if="content.progress.value >= 1 && content.graphs.length"
         :content="content!"
       />
 
