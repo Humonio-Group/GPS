@@ -75,7 +75,8 @@
       "sent-at": "Envoyé le {date} à {time} | Envoyée le {date} à {time}",
       "opened-at": "Ouvert le {date} à {time} | Ouverte le {date} à {time}",
       "resolved-at": "Résolu le {date} à {time} | Résolue le {date} à {time}",
-      "last-update-at": "Dernière mise à jour : {date}"
+      "last-update-at": "Dernière mise à jour : {date}",
+      "created-at": "Créé le {date} | Créée le {date}"
     },
     "state": {
       "enabled": "Activé | Activée",
@@ -197,7 +198,8 @@
     ],
     "tooltips": {
       "conversation-history": "Historique des conversations"
-    }
+    },
+    "search-results": "{count} résultat sur {total} | {count} résultats sur {total}"
   },
   "dialogs": {
     "create-action": {
@@ -616,6 +618,27 @@
         "Holà! Comment puis-je t'aider aujourd'hui, {name} ?"
       ],
       "ask-question": "Posez-moi votre question (Shift+Entrer pour une nouvelle ligne)"
+    },
+    "history": {
+      "title": "Historique",
+      "filters": {
+        "state": {
+          "active": "",
+          "archived": ""
+        },
+        "sort": {
+          "newest-first": "Les plus récentes",
+          "oldest-first": "Les plus anciennes"
+        }
+      },
+      "empty": {
+        "title": "Oups...",
+        "description": {
+          "no-entries": "Il semblerait que vous n'ayez encore aucun conversation",
+          "no-match": "Il semblerait qu'aucune conversation ne corresponde à votre recherche."
+        },
+        "action": "Lancer une conversation"
+      }
     }
   }
 }
