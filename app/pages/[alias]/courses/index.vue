@@ -13,7 +13,7 @@ useHead({
 });
 
 const search = ref<string>("");
-const courses = computed(() => _courses.value?.filter(c => c.name.toLowerCase().includes(search.value ?? "")));
+const courses = computed(() => _courses.value?.filter(c => c.name.toLowerCase().includes(search.value ?? "") || c.description.toLowerCase().includes(search.value ?? "")));
 
 store.loadCourses();
 </script>
@@ -22,7 +22,7 @@ store.loadCourses();
   <PageRoot
     name="courses.home"
     wrapper
-    wrapper-class="mx-auto w-full max-w-4xl grid gap-4"
+    wrapper-class="mx-auto w-full max-w-7xl grid gap-4 pb-2"
   >
     <header class="grid gap-4">
       <section>
@@ -58,12 +58,16 @@ store.loadCourses();
     >
       <UiSpinner />
     </div>
-    <CourseCard
-      v-for="course in courses"
+    <div
       v-else-if="courses?.length"
-      :key="`course-${course.id}`"
-      :course="course"
-    />
+      class="grid gap-4 grid-cols-[repeat(auto-fill,minmax(17.5rem,1fr))] isolate"
+    >
+      <CourseCard
+        v-for="course in courses"
+        :key="`course-${course.id}`"
+        :course="course"
+      />
+    </div>
     <UiEmpty v-else>
       <UiEmptyHeader>
         <UiEmptyMedia variant="icon">
