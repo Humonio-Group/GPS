@@ -5,6 +5,10 @@ import type { Nullable } from "~/types/primitives/objects";
 
 const { t } = useI18n();
 
+definePageMeta({
+  layout: "companion",
+});
+
 const { isEaster, isHalloween, isXmas } = useHolidays();
 
 const store = useCompanionStore();
