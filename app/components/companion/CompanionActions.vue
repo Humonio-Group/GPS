@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Archive, ArchiveX, Edit2, Trash } from "lucide-vue-next";
 import RenameDialog from "~/components/companion/actions/RenameDialog.vue";
+import DeleteConfirmDialog from "~/components/companion/actions/DeleteConfirmDialog.vue";
 
 interface CompanionActionsProps {
   conversation: any;
@@ -11,6 +12,7 @@ defineProps<CompanionActionsProps>();
 const store = useCompanionStore();
 
 const renameDialogOpen = ref<boolean>(false);
+const deleteDialogOpen = ref<boolean>(false);
 </script>
 
 <template>
@@ -44,7 +46,10 @@ const renameDialogOpen = ref<boolean>(false);
             <Archive />
             {{ $t("btn.action.archive") }}
           </UiDropdownMenuItem>
-          <UiDropdownMenuItem variant="destructive">
+          <UiDropdownMenuItem
+            variant="destructive"
+            @click="deleteDialogOpen = true"
+          >
             <Trash />
             {{ $t("btn.action.delete") }}
           </UiDropdownMenuItem>
@@ -54,6 +59,10 @@ const renameDialogOpen = ref<boolean>(false);
 
     <RenameDialog
       v-model:open="renameDialogOpen"
+      :conversation="conversation"
+    />
+    <DeleteConfirmDialog
+      v-model:open="deleteDialogOpen"
       :conversation="conversation"
     />
   </div>

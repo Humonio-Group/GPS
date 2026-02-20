@@ -367,6 +367,21 @@ export const useCompanionStore = defineStore("companion", {
         },
       });
     },
-    async delete() {},
+    async delete(conversationId: number) {
+      toast.promise(this.api.delete(`/chat_conversations/${conversationId}`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.conversation.delete.loading", { id: conversationId }),
+        success: () => {
+          if (this.selectedConversation && this.selectedConversation.id === conversationId)
+            navigateTo(`/${useWorkspaceUtils().alias.value}/companion`);
+          this.conversations = this.conversations.filter(c => c.id !== conversationId);
+
+          return this.t("toasts.conversation.delete.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
+    },
   },
 });

@@ -206,6 +206,10 @@
       "title": "Créer une action",
       "description": "Créez une action pour montrer votre implication au sein de la formation.",
       "markdown-handled": "Syntaxe markdown supportée. {link}"
+    },
+    "delete-conversation": {
+      "title": "Suppression de la conversation",
+      "description": "Vous êtes sur le point de supprimer la conversation \"{title}\". Cette action est immédiate et irréversible. Êtes-vous sûr de vouloir poursuivre ?"
     }
   },
   "navigation": {
@@ -275,6 +279,10 @@
       "restore": {
         "loading": "Restauration de la conversation #{id}...",
         "success": "Conversation #{id} restaurée !"
+      },
+      "delete": {
+        "loading": "Suppression de la conversation #{id}...",
+        "success": "Conversation #{id} supprimée !"
       }
     }
   },
