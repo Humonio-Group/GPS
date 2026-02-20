@@ -1,19 +1,26 @@
 <script setup lang="ts">
-import { Heart, Crown } from "lucide-vue-next";
+import { Heart, Crown, Reply, Flag } from "lucide-vue-next";
 import type { Content, ContentComment } from "~/types/entities/course";
 import HeartFill from "~/components/icons/HeartFill.vue";
 import { UserRole } from "~/types/entities/user";
+import CommentReportDialog from "~/components/course/content/comments/CommentReportDialog.vue";
 
 interface CommentBubbleProps {
   content: Content;
   comment: ContentComment;
+  showActions?: boolean;
 }
 
-const props = defineProps<CommentBubbleProps>();
+const props = withDefaults(defineProps<CommentBubbleProps>(), {
+  showActions: true,
+});
 defineEmits<{
   select: [number];
 }>();
 const store = useCoursesStore();
+
+const { user } = storeToRefs(useUserStore());
+const reportDialogOpen = ref<boolean>(false);
 
 const liking = ref<boolean>(false);
 const hasReplies = computed(() => !!props.comment.replies.length);
@@ -53,9 +60,12 @@ async function toggleLike() {
           </UiTooltipContent>
         </UiTooltip>
 
-        <span class="text-xs text-muted-foreground ml-auto">
+        <span
+          v-if="false"
+          class="text-xs text-muted-foreground ml-auto"
+        >
           il y a 3h
-        </span>
+        </span> <!-- todo: bind createdAt date - loic -->
       </header>
 
       <main>
@@ -64,28 +74,59 @@ async function toggleLike() {
         </p>
       </main>
 
-      <footer class="flex items-center">
-        <UiButton
-          v-if="!comment.replyTo"
-          size="sm"
-          variant="ghost"
-          class="-ml-2 px-2 text-muted-foreground!"
-          @click="$emit('select', comment.id)"
-        >
-          {{ $t("reader.comments.reply") }}
-        </UiButton>
-        <UiButton
-          size="sm"
-          variant="ghost"
-          class="px-2 text-muted-foreground"
-          :class="{ 'text-primary!': comment.liked, '-ml-2': comment.replyTo }"
-          @click="toggleLike"
-        >
-          <HeartFill v-if="comment.liked" />
-          <Heart v-else />
+      <footer
+        v-if="showActions"
+        class="flex items-center"
+      >
+        <UiTooltip v-if="!comment.replyTo">
+          <UiTooltipTrigger as-child>
+            <UiButton
+              size="icon-sm"
+              variant="ghost"
+              class="-ml-2 px-2 text-muted-foreground!"
+              @click="$emit('select', comment.id)"
+            >
+              <Reply />
+            </UiButton>
+          </UiTooltipTrigger>
+          <UiTooltipContent>
+            <p>{{ $t("reader.comments.reply") }}</p>
+          </UiTooltipContent>
+        </UiTooltip>
+        <UiTooltip>
+          <UiTooltipTrigger as-child>
+            <UiButton
+              size="sm"
+              variant="ghost"
+              class="px-2 text-muted-foreground"
+              :class="{ 'text-primary!': comment.liked, '-ml-2': comment.replyTo }"
+              @click="toggleLike"
+            >
+              <HeartFill v-if="comment.liked" />
+              <Heart v-else />
 
-          {{ comment.stats.likes }}
-        </UiButton>
+              {{ comment.stats.likes }}
+            </UiButton>
+          </UiTooltipTrigger>
+          <UiTooltipContent>
+            <p>{{ $t("reader.comments.like") }}</p>
+          </UiTooltipContent>
+        </UiTooltip>
+        <UiTooltip v-if="comment.author.id !== user!.id">
+          <UiTooltipTrigger as-child>
+            <UiButton
+              variant="ghost"
+              size="icon-sm"
+              class="px-2 text-muted-foreground"
+              @click="reportDialogOpen = true"
+            >
+              <Flag />
+            </UiButton>
+          </UiTooltipTrigger>
+          <UiTooltipContent>
+            <p>{{ $t("btn.report") }}</p>
+          </UiTooltipContent>
+        </UiTooltip>
       </footer>
     </article>
 
@@ -101,5 +142,12 @@ async function toggleLike() {
         class="pl-4"
       />
     </article>
+
+    <CommentReportDialog
+      v-if="showActions"
+      v-model:open="reportDialogOpen"
+      :content
+      :comment
+    />
   </section>
 </template>

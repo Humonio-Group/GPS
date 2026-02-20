@@ -21,7 +21,7 @@ useFancyLeaveTitle();
       <Toaster
         :rich-colors="true"
         close-button
-        position="bottom-right"
+        position="top-center"
         close-button-position="top-right"
         :theme="theme"
       />

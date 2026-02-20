@@ -23,6 +23,7 @@ import type { LucideIcon } from "lucide-vue-next";
 import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
 import { StrategySection } from "~/types/entities/strategy";
 import { type ChartData, GraphType } from "~/types/entities/graph";
+import { toast } from "vue-sonner";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -232,6 +233,7 @@ function buildComment(data: any, included: any): ContentComment {
     role: data.attributes.role.value,
     content: data.attributes.content,
     author: {
+      id: author.id,
       name: author.attributes.name,
       avatar: author.attributes.picture.thumbnail,
     },
@@ -672,6 +674,7 @@ export const useCoursesStore = defineStore("courses", {
   getters: {
     api: () => useApi(),
     logger: () => useLogger(),
+    t: () => useNuxtApp().$i18n.t,
 
     hasFirstLoadedCourses: state => state.courses !== null,
     hasStagesLoaded: state => state.selectedCourse?.stages.length,
@@ -1620,6 +1623,30 @@ export const useCoursesStore = defineStore("courses", {
         this.logger.error(e);
         // todo: toast it - loic
       }
+    },
+    async reportComment(comment: ContentComment) {
+      if (!this.selectedCourse) return;
+
+      toast.promise(this.api.post("/abuses", { version: 2, endpointVersion: 1 }, {
+        body: {
+          journey: this.selectedCourse.id,
+          data: {
+            type: EntityType.ABUSE,
+            relationships: {
+              reportable: {
+                data: {
+                  id: comment.id,
+                  type: EntityType.COMMENT,
+                },
+              },
+            },
+          },
+        },
+      }), {
+        loading: () => this.t("toasts.comment.report.loading"),
+        success: () => this.t("toasts.comment.report.success"),
+        error: (error: any) => this.t("toasts.error.default", { code: error.statusCode }),
+      });
     },
     async rateContent(content: Content, rate: number) {
       if (!this.selectedCourse) return;
