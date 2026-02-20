@@ -89,6 +89,7 @@ watch(activitySummary, (val) => {
   if (typeof val !== "number" || isActivitySummaryLoading.value) return;
   store.patchActivitySummaryNotifications(val);
 });
+
 const activitySummaryOptions = [
   {
     value: 1,
@@ -106,38 +107,7 @@ const activitySummaryOptions = [
 const activitySummaryEnabled = ref<boolean>(user.value!.settings.activitySummaryFrequency > 0);
 watch(activitySummaryEnabled, val => activitySummary.value = val ? activitySummaryOptions[2].value : 0);
 
-const avatarInputRef = ref<HTMLInputElement>();
-const avatarCropSrc = ref<string>();
-const avatarCropMimeType = ref<string>();
-const showAvatarCrop = ref(false);
-
-function onAvatarFileChange(event: Event) {
-  const file = (event.target as HTMLInputElement).files?.[0];
-  if (!file) return;
-
-  avatarCropSrc.value = URL.createObjectURL(file);
-  avatarCropMimeType.value = file.type;
-  showAvatarCrop.value = true;
-}
-
-async function onAvatarCropped(blob: Blob) {
-  if (avatarCropSrc.value) URL.revokeObjectURL(avatarCropSrc.value);
-  avatarCropSrc.value = undefined;
-  avatarCropMimeType.value = undefined;
-
-  await store.uploadAvatar(blob);
-
-  if (avatarInputRef.value) avatarInputRef.value.value = "";
-}
-
-function onAvatarCropClose(open: boolean) {
-  if (!open) {
-    if (avatarCropSrc.value) URL.revokeObjectURL(avatarCropSrc.value);
-    avatarCropSrc.value = undefined;
-    avatarCropMimeType.value = undefined;
-    if (avatarInputRef.value) avatarInputRef.value.value = "";
-  }
-}
+const avatarCrop = useImageCrop(blob => store.uploadAvatar(blob));
 
 store.fetchTerms();
 </script>
@@ -258,28 +228,28 @@ store.fetchTerms();
         </div>
 
         <input
-          ref="avatarInputRef"
+          ref="avatarCrop.inputRef.value"
           type="file"
           accept="image/*"
           class="hidden"
-          @change="onAvatarFileChange"
+          @change="avatarCrop.onFileChange"
         >
 
         <UiButton
           variant="outline"
-          @click="avatarInputRef?.click()"
+          @click="avatarCrop.inputRef.value?.click()"
         >
           <Edit />
           {{ $t("profile.settings.account.avatar.change") }}
         </UiButton>
 
         <ImageCropDialog
-          v-if="avatarCropSrc"
-          v-model:open="showAvatarCrop"
-          :src="avatarCropSrc"
-          :mime-type="avatarCropMimeType"
-          @crop="onAvatarCropped"
-          @update:open="onAvatarCropClose"
+          v-if="avatarCrop.src.value"
+          v-model:open="avatarCrop.open.value"
+          :src="avatarCrop.src.value"
+          :mime-type="avatarCrop.mimeType.value"
+          @crop="avatarCrop.onConfirm"
+          @update:open="avatarCrop.onOpenChange"
         />
       </div>
     </section>
