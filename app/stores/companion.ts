@@ -5,6 +5,7 @@ import {
 } from "~/types/entities/conversation";
 import { EntityType } from "~/types/entities/entities";
 import { wait } from "~/lib/utils";
+import { toast } from "vue-sonner";
 
 interface CompanionState {
   conversations: Conversations;
@@ -80,6 +81,7 @@ export const useCompanionStore = defineStore("companion", {
   getters: {
     api: () => useApi(),
     logger: () => useLogger(),
+    t: () => useNuxtApp().$i18n.t,
 
     selectedConversation: state => state.conversations.find(c => c.slug === state.selectedConversationSlug) ?? null,
     canWrite: state => !state.loading.thinking && !state.loading.answering,
@@ -289,5 +291,35 @@ export const useCompanionStore = defineStore("companion", {
       this._abortController?.abort();
       this._abortController = null;
     },
+
+    async rename(conversationId: number, newName: string) {
+      toast.promise(this.api.patch(`/chat_conversations/${conversationId}/rename`, { version: 2, endpointVersion: 2 }, {
+        query: {
+          include: "agent",
+        },
+        body: {
+          title: newName,
+        },
+      }), {
+        loading: () => this.t("toasts.conversation.rename.loading"),
+        success: (response: any) => {
+          this.logger.log("[CONVERSATION ACTION] Renamed:", response);
+
+          const { data, included } = response;
+          const conversation = buildConversation(data, included);
+          this.conversations = this.conversations.map(c => c.id === conversation.id ? { ...conversation } : c);
+          navigateTo(`/${useWorkspaceUtils().alias.value}/companion/${conversation.slug}`);
+
+          return this.t("toasts.conversation.rename.success");
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.conversation.rename.error", { code: error.statusCode });
+        },
+      });
+    },
+    async archive() {},
+    async restore() {},
+    async delete() {},
   },
 });

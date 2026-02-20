@@ -259,6 +259,15 @@
       "contents": "Contenus"
     }
   },
+  "toasts": {
+    "conversation": {
+      "rename": {
+        "loading": "Changement du nom...",
+        "success": "La conversation a été renommée !",
+        "error": "Une erreur est survenue ({code})"
+      }
+    }
+  },
 
   "auth": {
     "login-title": "Connexion",
@@ -638,6 +647,12 @@
           "no-match": "Il semblerait qu'aucune conversation ne corresponde à votre recherche."
         },
         "action": "Lancer une conversation"
+      }
+    },
+    "dialogs": {
+      "rename": {
+        "title": "Renommer la conversation",
+        "description": "Changer le nom d'une conversation vous permets de mieux vous y retrouver dans votre historique. Le nom généré par défaut peut ne plus être exact après quelques échanges."
       }
     }
   }
