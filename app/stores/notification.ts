@@ -130,7 +130,6 @@ export const useNotificationStore = defineStore("notification", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.list = false;

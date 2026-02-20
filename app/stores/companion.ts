@@ -110,7 +110,6 @@ export const useCompanionStore = defineStore("companion", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.list = false;
@@ -135,7 +134,6 @@ export const useCompanionStore = defineStore("companion", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.agents = false;
@@ -160,7 +158,6 @@ export const useCompanionStore = defineStore("companion", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.item = false;
@@ -204,7 +201,6 @@ export const useCompanionStore = defineStore("companion", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.creating = false;
@@ -283,7 +279,6 @@ export const useCompanionStore = defineStore("companion", {
         this.logger.error(e);
         this.loading.thinking = false;
         this.loading.answering = false;
-        // todo: toast it - loic
       }
     },
 

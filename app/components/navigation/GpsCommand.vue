@@ -36,7 +36,6 @@ const applySearch = useDebounceFn(async (keywords: string) => {
   }
   catch (e) {
     error(e);
-    // todo: toast it - loic
   }
   finally {
     searching.value = false;

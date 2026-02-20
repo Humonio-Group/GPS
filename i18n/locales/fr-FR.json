@@ -276,7 +276,8 @@
   },
   "toasts": {
     "error": {
-      "default": "Une erreur est survenue ({code})"
+      "default": "Une erreur est survenue ({code})",
+      "expired-session": "Votre session a expirée."
     },
     "conversation": {
       "rename": {

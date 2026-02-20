@@ -124,7 +124,6 @@ export const useTicketStore = defineStore("ticket", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.list = false;
@@ -144,7 +143,6 @@ export const useTicketStore = defineStore("ticket", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.categories = false;
@@ -231,7 +229,6 @@ export const useTicketStore = defineStore("ticket", {
       catch (e) {
         state = false;
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.create = false;
@@ -252,7 +249,6 @@ export const useTicketStore = defineStore("ticket", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.closing = false;
@@ -295,7 +291,6 @@ export const useTicketStore = defineStore("ticket", {
       catch (e) {
         useLogger().error(e);
         state = false;
-        // todo: toast it - loic
       }
       finally {
         this.loading.sending = false;

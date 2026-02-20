@@ -796,7 +796,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.activity = false;
@@ -923,7 +922,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.actions = false;
@@ -959,7 +957,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.badges = false;
@@ -1114,7 +1111,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.people = false;
@@ -1131,7 +1127,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.events = false;
@@ -1158,7 +1153,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.comments = false;
@@ -1233,7 +1227,6 @@ export const useCoursesStore = defineStore("courses", {
       catch (e) {
         this.logger.error(e);
         state = false;
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.inviteManager = false;
@@ -1298,7 +1291,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.updateManager = false;
@@ -1367,7 +1359,6 @@ export const useCoursesStore = defineStore("courses", {
       catch (e) {
         this.logger.error(e);
         state = false;
-        // todo: toast it - loic
       }
       finally {
         this.loading.specific.creatingAction = false;
@@ -1600,7 +1591,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
     },
     async likeComment(comment: ContentComment) {
@@ -1621,7 +1611,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
     },
     async reportComment(comment: ContentComment) {
@@ -1676,7 +1665,6 @@ export const useCoursesStore = defineStore("courses", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
     },
   },

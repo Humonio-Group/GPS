@@ -80,7 +80,6 @@ export const useCompanyStore = defineStore("company", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
     },
   },

@@ -10,7 +10,6 @@ export function useFileUpload() {
       body: formData,
     }).catch((error) => {
       useLogger().error(error);
-      // todo: toast it - loic
     });
   };
 

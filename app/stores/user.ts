@@ -138,7 +138,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.loggingIn = false;
@@ -155,7 +154,6 @@ export const useUserStore = defineStore("user", {
       catch (e) {
         useLogger().error(e);
         state = false;
-        // todo: toast it - loic
       }
 
       return state;
@@ -204,7 +202,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.terms.fetching = false;
@@ -254,7 +251,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.userAccount = false;
@@ -287,7 +283,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.userAvatar = false;
@@ -324,7 +319,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.uiLanguage = false;
@@ -354,7 +348,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.uiTheme = false;
@@ -388,7 +381,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.courseNotifications = false;
@@ -424,7 +416,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.activitySummaryFrequency = false;
@@ -443,7 +434,6 @@ export const useUserStore = defineStore("user", {
       }
       catch (e) {
         useLogger().error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading.terms.revoking = null;
