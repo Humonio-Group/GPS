@@ -89,7 +89,7 @@ async function toggleLike() {
               <Reply />
             </UiButton>
           </UiTooltipTrigger>
-          <UiTooltipContent>
+          <UiTooltipContent side="right">
             <p>{{ $t("reader.comments.reply") }}</p>
           </UiTooltipContent>
         </UiTooltip>
@@ -108,7 +108,7 @@ async function toggleLike() {
               {{ comment.stats.likes }}
             </UiButton>
           </UiTooltipTrigger>
-          <UiTooltipContent>
+          <UiTooltipContent side="right">
             <p>{{ $t("reader.comments.like") }}</p>
           </UiTooltipContent>
         </UiTooltip>
@@ -123,7 +123,7 @@ async function toggleLike() {
               <Flag />
             </UiButton>
           </UiTooltipTrigger>
-          <UiTooltipContent>
+          <UiTooltipContent side="right">
             <p>{{ $t("btn.report") }}</p>
           </UiTooltipContent>
         </UiTooltip>
