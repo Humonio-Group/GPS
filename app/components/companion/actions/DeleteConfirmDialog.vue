@@ -5,7 +5,7 @@ interface DeleteConfirmDialogProps {
   conversation: Conversation;
 }
 
-const props = defineProps<DeleteConfirmDialogProps>();
+defineProps<DeleteConfirmDialogProps>();
 
 const open = defineModel<boolean>("open", { default: false });
 const store = useCompanionStore();
