@@ -8,6 +8,7 @@ import { type Theme, themeOptions } from "~/types/misc/theme";
 import { type AvailableLocale, availableLocales } from "~/types/misc/language";
 import FlagIcon from "~/components/primitives/icons/FlagIcon.vue";
 import TermCard from "~/components/settings/terms/TermCard.vue";
+import ImageCropDialog from "~/components/primitives/ImageCropDialog.vue";
 
 const { t } = useI18n();
 
@@ -88,6 +89,7 @@ watch(activitySummary, (val) => {
   if (typeof val !== "number" || isActivitySummaryLoading.value) return;
   store.patchActivitySummaryNotifications(val);
 });
+
 const activitySummaryOptions = [
   {
     value: 1,
@@ -104,6 +106,8 @@ const activitySummaryOptions = [
 ] as const;
 const activitySummaryEnabled = ref<boolean>(user.value!.settings.activitySummaryFrequency > 0);
 watch(activitySummaryEnabled, val => activitySummary.value = val ? activitySummaryOptions[2].value : 0);
+
+const avatarCrop = useImageCrop(blob => store.uploadAvatar(blob));
 
 store.fetchTerms();
 </script>
@@ -223,12 +227,30 @@ store.fetchTerms();
           </UiAvatar>
         </div>
 
-        <!-- todo: file input change detection to change avatar - loic -->
+        <input
+          ref="avatarCrop.inputRef.value"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="avatarCrop.onFileChange"
+        >
 
-        <UiButton variant="outline">
+        <UiButton
+          variant="outline"
+          @click="avatarCrop.inputRef.value?.click()"
+        >
           <Edit />
           {{ $t("profile.settings.account.avatar.change") }}
         </UiButton>
+
+        <ImageCropDialog
+          v-if="avatarCrop.src.value"
+          v-model:open="avatarCrop.open.value"
+          :src="avatarCrop.src.value"
+          :mime-type="avatarCrop.mimeType.value"
+          @crop="avatarCrop.onConfirm"
+          @update:open="avatarCrop.onOpenChange"
+        />
       </div>
     </section>
 
