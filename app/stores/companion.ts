@@ -293,6 +293,8 @@ export const useCompanionStore = defineStore("companion", {
     },
 
     async rename(conversationId: number, newName: string) {
+      const conversation = { ...this.conversations.find(c => c.id === conversationId)! };
+
       toast.promise(this.api.patch(`/chat_conversations/${conversationId}/rename`, { version: 2, endpointVersion: 2 }, {
         query: {
           include: "agent",
@@ -301,14 +303,19 @@ export const useCompanionStore = defineStore("companion", {
           title: newName,
         },
       }), {
-        loading: () => this.t("toasts.conversation.rename.loading"),
+        loading: () => this.t("toasts.conversation.rename.loading", { id: conversationId }),
         success: (response: any) => {
           this.logger.log("[CONVERSATION ACTION] Renamed:", response);
 
-          const { data, included } = response;
-          const conversation = buildConversation(data, included);
-          this.conversations = this.conversations.map(c => c.id === conversation.id ? { ...conversation } : c);
-          navigateTo(`/${useWorkspaceUtils().alias.value}/companion/${conversation.slug}`);
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                title: response.data.attributes.title,
+                slug: response.data.attributes.slug,
+              }
+            : c);
+          if (response.data.attributes.slug !== conversation.slug)
+            navigateTo(`/${useWorkspaceUtils().alias.value}/companion/${response.data.attributes.slug}`);
 
           return this.t("toasts.conversation.rename.success");
         },
@@ -318,7 +325,27 @@ export const useCompanionStore = defineStore("companion", {
         },
       });
     },
-    async archive() {},
+    async archive(conversationId: number) {
+      toast.promise(this.api.post(`/chat_conversations/${conversationId}/archive`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.archived.loading", { id: conversationId }),
+        success: (response: any) => {
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                dates: {
+                  ...c.dates,
+                  updatedAt: new Date(response.data.attributes.updatedAt),
+                },
+              }
+            : c);
+          return this.t("toasts.archived.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.archived.error", { code: error.statusCode });
+        },
+      });
+    },
     async restore() {},
     async delete() {},
   },
