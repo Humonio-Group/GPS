@@ -203,6 +203,11 @@
     "search-results": "{count} résultat sur {total} | {count} résultats sur {total}"
   },
   "dialogs": {
+    "image-crop": {
+      "title": "Recadrer l'image",
+      "description": "Ajustez le cadrage de votre image avant de valider.",
+      "confirm": "Valider"
+    },
     "create-action": {
       "title": "Créer une action",
       "description": "Créez une action pour montrer votre implication au sein de la formation.",
