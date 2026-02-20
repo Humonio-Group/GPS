@@ -85,7 +85,6 @@ export const useEventStore = defineStore("event", {
       }
       catch (e) {
         this.logger.error(e);
-        // todo: toast it - loic
       }
       finally {
         this.loading = false;

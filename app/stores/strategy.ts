@@ -46,7 +46,6 @@ export const useStrategyStore = defineStore("strategy", {
       catch (e) {
         useLogger().error(e);
         state = false;
-        // todo: toast it - loic
       }
       finally {
         this.loading = false;

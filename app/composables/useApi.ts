@@ -1,8 +1,10 @@
 import type { HttpObject } from "~/types/primitives/objects";
 import type { ApiOptions, FetchBody } from "~/types/primitives/api";
+import { toast } from "vue-sonner";
 
 export const useApi = () => {
   const { public: config } = useRuntimeConfig();
+  const t = useNuxtApp().$i18n.t;
 
   const url = (product: 1 | 2, version: 1 | 2 | 3) =>
     `${config.api[`${product}`]}/v${version}`;
@@ -44,9 +46,11 @@ export const useApi = () => {
             switch (status) {
               case 401: {
                 navigateTo(useLocalePath()("/auth/login"));
+                toast.error(t("toasts.error.expired-session"));
                 return resolve(null);
               }
               default: {
+                toast.error(t("toasts.error.default", { code: status }));
                 return reject(error);
               }
             }
@@ -70,6 +74,7 @@ export const useApi = () => {
                   return resolve(null);
                 }
                 default: {
+                  toast.error(t("toasts.error.default", { code: response.error.value.statusCode }));
                   return reject(response.error.value);
                 }
               }
@@ -109,9 +114,11 @@ export const useApi = () => {
           switch (status) {
             case 401: {
               navigateTo(useLocalePath()("/auth/login"));
+              toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
             default: {
+              toast.error(t("toasts.error.default", { code: status }));
               return reject(error);
             }
           }
@@ -143,9 +150,11 @@ export const useApi = () => {
           switch (status) {
             case 401: {
               navigateTo(useLocalePath()("/auth/login"));
+              toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
             default: {
+              toast.error(t("toasts.error.default", { code: status }));
               return reject(error);
             }
           }
@@ -177,9 +186,11 @@ export const useApi = () => {
           switch (status) {
             case 401: {
               navigateTo(useLocalePath()("/auth/login"));
+              toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
             default: {
+              toast.error(t("toasts.error.default", { code: status }));
               return reject(error);
             }
           }
@@ -211,9 +222,11 @@ export const useApi = () => {
           switch (status) {
             case 401: {
               navigateTo(useLocalePath()("/auth/login"));
+              toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
             default: {
+              toast.error(t("toasts.error.default", { code: status }));
               return reject(error);
             }
           }
