@@ -112,6 +112,7 @@ export interface ContentComment {
   role: UserRole;
   content: string;
   author: {
+    id: number;
     name: string;
     avatar: string;
   };

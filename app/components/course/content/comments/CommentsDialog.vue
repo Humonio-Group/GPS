@@ -60,6 +60,39 @@ function commentEvent(event: KeyboardEvent) {
         </div>
       </div>
 
+      <div class="px-4">
+        <div
+          v-if="commentReplyingTo"
+          class="flex items-start p-3 pb-4 -mb-1.5 bg-accent text-accent-foreground border-x border-t rounded-t-md -z-10"
+        >
+          <div class="flex-1 grid auto-rows-min">
+            <p class="text-xs font-semibold text-muted-foreground">
+              {{ commentReplyingTo.author.name }}
+            </p>
+            <p class="truncate text-sm">
+              {{ commentReplyingTo.content }}
+            </p>
+          </div>
+
+          <UiButton
+            variant="ghost"
+            size="icon-xs"
+            class="shrink-0"
+            @click="replyTo = null"
+          >
+            <X />
+          </UiButton>
+        </div>
+        <UiTextarea
+          id="comment"
+          v-model="comment"
+          :disabled="adding"
+          :placeholder="$t('reader.comments.placeholder')"
+          class="min-h-9 resize-none bg-background! disabled:opacity-100! disabled:text-current/50"
+          @keydown="commentEvent"
+        />
+      </div>
+
       <div class="px-4 min-h-0 flex-1 overflow-y-auto">
         <main class="flex-1 min-h-0 grid auto-rows-min divide-y gap-2">
           <CommentBubble
@@ -76,39 +109,6 @@ function commentEvent(event: KeyboardEvent) {
             {{ $t("reader.comments.empty") }}
           </p>
         </main>
-
-        <div class="sticky bottom-0 isolate py-4 bg-background">
-          <div
-            v-if="commentReplyingTo"
-            class="flex items-start p-3 pb-4 -mb-1.5 bg-accent text-accent-foreground border-x border-t rounded-t-md -z-10"
-          >
-            <div class="flex-1 grid auto-rows-min">
-              <p class="text-xs font-semibold text-muted-foreground">
-                {{ commentReplyingTo.author.name }}
-              </p>
-              <p class="truncate text-sm">
-                {{ commentReplyingTo.content }}
-              </p>
-            </div>
-
-            <UiButton
-              variant="ghost"
-              size="icon-xs"
-              class="shrink-0"
-              @click="replyTo = null"
-            >
-              <X />
-            </UiButton>
-          </div>
-          <UiTextarea
-            id="comment"
-            v-model="comment"
-            :disabled="adding"
-            :placeholder="$t('reader.comments.placeholder')"
-            class="min-h-9 resize-none bg-background! disabled:opacity-100! disabled:text-current/50"
-            @keydown="commentEvent"
-          />
-        </div>
       </div>
     </UiSheetContent>
   </UiSheet>
