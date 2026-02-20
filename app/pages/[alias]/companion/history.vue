@@ -196,11 +196,17 @@ function unselectAllAgents() {
         <UiSeparator v-if="index > 0" />
         <UiButton
           variant="ghost"
-          class="h-auto! py-2 px-3 -mx-3 text-base! flex-col items-start gap-0"
+          class="h-auto! py-2 px-3 text-base! flex-col items-start gap-0"
           as-child
         >
-          <NuxtLinkLocale :to="`/${alias}/companion/${conversation.slug}`">
-            {{ conversation.title }}
+          <NuxtLinkLocale
+            :to="`/${alias}/companion/${conversation.slug}`"
+            class="max-w-full overflow-hidden"
+          >
+            <span class="truncate max-w-full">
+              {{ conversation.title }}
+            </span>
+
             <div class="flex items-center gap-3 text-xs text-muted-foreground">
               <div class="flex items-center gap-1">
                 <UiAvatar class="size-4.5">
