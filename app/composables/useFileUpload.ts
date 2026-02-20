@@ -1,5 +1,5 @@
 export function useFileUpload() {
-  const upload = (file: File, type: number, contentId?: number, courseId?: number) => {
+  const upload = (file: Blob, type: number, contentId?: number, courseId?: number) => {
     const formData = new FormData();
     formData.append("file", file);
     formData.append("type", String(type));
