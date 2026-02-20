@@ -12,7 +12,7 @@ const store = useCompanionStore();
 const { selectedConversation: conversation, canWrite } = storeToRefs(store);
 
 const route = useRoute();
-const showInput = computed<boolean>(() => route.meta.showInput as boolean);
+const showInput = computed<boolean>(() => route.meta.showInput as boolean && !!conversation.value && !conversation.value.dates.archivedAt);
 
 const message = ref<string>("");
 

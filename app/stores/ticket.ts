@@ -245,7 +245,7 @@ export const useTicketStore = defineStore("ticket", {
       const userId = storeToRefs(useUserStore()).user.value!.id;
 
       try {
-        const ticket = await this.api.destroy(`/support/${userId}/tickets/${id}`, { version: 1, endpointVersion: 1 }, {});
+        const ticket = await this.api.delete(`/support/${userId}/tickets/${id}`, { version: 1, endpointVersion: 1 }, {});
 
         const closedAt = new Date(ticket.ticket_date_closed);
         this.tickets = this.tickets.map(t => t.id === id ? { ...t, dates: { ...t.dates, closedAt }, metadata: { ...t.metadata, status: TicketStatus.CLOSED } } : t);

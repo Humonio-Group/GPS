@@ -92,7 +92,8 @@
       "in-progress": "En cours",
       "reviewable": "Révisable",
       "resolved": "Résolu | Résolue",
-      "to-start": "A commencer"
+      "to-start": "A commencer",
+      "archived": "Archivés | Archivées"
     },
     "languages": {
       "french": "Français"
@@ -206,6 +207,10 @@
       "title": "Créer une action",
       "description": "Créez une action pour montrer votre implication au sein de la formation.",
       "markdown-handled": "Syntaxe markdown supportée. {link}"
+    },
+    "delete-conversation": {
+      "title": "Suppression de la conversation",
+      "description": "Vous êtes sur le point de supprimer la conversation \"{title}\". Cette action est immédiate et irréversible. Êtes-vous sûr de vouloir poursuivre ?"
     }
   },
   "navigation": {
@@ -257,6 +262,29 @@
       "user": "Utilisateur",
       "courses": "Formations",
       "contents": "Contenus"
+    }
+  },
+  "toasts": {
+    "error": {
+      "default": "Une erreur est survenue ({code})"
+    },
+    "conversation": {
+      "rename": {
+        "loading": "Changement du nom... (#{id})",
+        "success": "La conversation a été renommée !"
+      },
+      "archive": {
+        "loading": "Archivage de la conversation #{id}...",
+        "success": "Conversation #{id} archivée !"
+      },
+      "restore": {
+        "loading": "Restauration de la conversation #{id}...",
+        "success": "Conversation #{id} restaurée !"
+      },
+      "delete": {
+        "loading": "Suppression de la conversation #{id}...",
+        "success": "Conversation #{id} supprimée !"
+      }
     }
   },
 
@@ -622,10 +650,6 @@
     "history": {
       "title": "Historique",
       "filters": {
-        "state": {
-          "active": "",
-          "archived": ""
-        },
         "sort": {
           "newest-first": "Les plus récentes",
           "oldest-first": "Les plus anciennes"
@@ -638,6 +662,12 @@
           "no-match": "Il semblerait qu'aucune conversation ne corresponde à votre recherche."
         },
         "action": "Lancer une conversation"
+      }
+    },
+    "dialogs": {
+      "rename": {
+        "title": "Renommer la conversation",
+        "description": "Changer le nom d'une conversation vous permets de mieux vous y retrouver dans votre historique. Le nom généré par défaut peut ne plus être exact après quelques échanges."
       }
     }
   }

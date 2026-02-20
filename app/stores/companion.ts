@@ -5,6 +5,7 @@ import {
 } from "~/types/entities/conversation";
 import { EntityType } from "~/types/entities/entities";
 import { wait } from "~/lib/utils";
+import { toast } from "vue-sonner";
 
 interface CompanionState {
   conversations: Conversations;
@@ -80,6 +81,7 @@ export const useCompanionStore = defineStore("companion", {
   getters: {
     api: () => useApi(),
     logger: () => useLogger(),
+    t: () => useNuxtApp().$i18n.t,
 
     selectedConversation: state => state.conversations.find(c => c.slug === state.selectedConversationSlug) ?? null,
     canWrite: state => !state.loading.thinking && !state.loading.answering,
@@ -95,7 +97,7 @@ export const useCompanionStore = defineStore("companion", {
         const response = await this.api.get("/chat_conversations", { version: 2, endpointVersion: 2 }, {
           query: {
             alias: company.value.alias,
-            status: "active",
+            status: "active,archived",
             limit: -1,
             include: "agent",
           },
@@ -288,6 +290,98 @@ export const useCompanionStore = defineStore("companion", {
     _cleanupController() {
       this._abortController?.abort();
       this._abortController = null;
+    },
+
+    async rename(conversationId: number, newName: string) {
+      const conversation = { ...this.conversations.find(c => c.id === conversationId)! };
+
+      toast.promise(this.api.patch(`/chat_conversations/${conversationId}/rename`, { version: 2, endpointVersion: 2 }, {
+        query: {
+          include: "agent",
+        },
+        body: {
+          title: newName,
+        },
+      }), {
+        loading: () => this.t("toasts.conversation.rename.loading", { id: conversationId }),
+        success: (response: any) => {
+          this.logger.log("[CONVERSATION ACTION] Renamed:", response);
+
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                title: response.data.attributes.title,
+                slug: response.data.attributes.slug,
+              }
+            : c);
+          if (response.data.attributes.slug !== conversation.slug)
+            navigateTo(`/${useWorkspaceUtils().alias.value}/companion/${response.data.attributes.slug}`);
+
+          return this.t("toasts.conversation.rename.success");
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
+    },
+    async archive(conversationId: number) {
+      toast.promise(this.api.post(`/chat_conversations/${conversationId}/archive`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.conversation.archive.loading", { id: conversationId }),
+        success: (response: any) => {
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                dates: {
+                  ...c.dates,
+                  archivedAt: new Date(response.data.attributes.updatedAt),
+                },
+              }
+            : c);
+          return this.t("toasts.conversation.archive.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
+    },
+    async restore(conversationId: number) {
+      toast.promise(this.api.post(`/chat_conversations/${conversationId}/restore`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.conversation.restore.loading", { id: conversationId }),
+        success: (response: any) => {
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                dates: {
+                  ...c.dates,
+                  archivedAt: response.data.attributes.archivedAt,
+                },
+              }
+            : c);
+          return this.t("toasts.conversation.restore.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
+    },
+    async delete(conversationId: number) {
+      toast.promise(this.api.delete(`/chat_conversations/${conversationId}`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.conversation.delete.loading", { id: conversationId }),
+        success: () => {
+          if (this.selectedConversation && this.selectedConversation.id === conversationId)
+            navigateTo(`/${useWorkspaceUtils().alias.value}/companion`);
+          this.conversations = this.conversations.filter(c => c.id !== conversationId);
+
+          return this.t("toasts.conversation.delete.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
     },
   },
 });

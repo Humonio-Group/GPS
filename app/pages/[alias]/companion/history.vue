@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search, X, Filter, ArrowDown01, ArrowDown10, Rocket } from "lucide-vue-next";
+import { Archive, Search, X, Filter, ArrowDown01, ArrowDown10, Rocket } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import { watchOnce } from "@vueuse/core";
 import type { Conversation } from "~/types/entities/conversation";
@@ -9,6 +9,8 @@ const { t } = useI18n();
 useHead({
   title: `${t("companion.history.title")} - ${useBrand().name}`,
 });
+
+const { isMobile } = useResponsive();
 
 const { alias } = useWorkspaceUtils();
 const { formatDate } = useDateUtils();
@@ -32,8 +34,14 @@ watchOnce(agents, val => agentFilter.value = val.reduce((acc, cur) => {
   return acc;
 }, [] as number[]));
 
+const archivedActive = ref<boolean>(false);
+
 const { search, matches, clear } = useSearch();
 const conversations = computed(() => conversationsList.value
+  .filter((c) => {
+    if (archivedActive.value) return !!c.dates.archivedAt;
+    return !c.dates.archivedAt;
+  })
   .filter(c => agentFilter.value.includes(c.agent.id))
   .filter(c => matches(c.title, c.agent.name))
   .sort((a, b) => {
@@ -182,6 +190,15 @@ function unselectAllAgents() {
             </UiDropdownMenuRadioGroup>
           </UiDropdownMenuContent>
         </UiDropdownMenu>
+
+        <UiButton
+          :variant="archivedActive ? 'default' : 'outline'"
+          :size="isMobile ? 'icon' : 'default'"
+          @click="archivedActive = !archivedActive"
+        >
+          <Archive />
+          <span v-if="!isMobile">{{ $t("labels.state.archived", 2) }}</span>
+        </UiButton>
       </div>
     </header>
 
