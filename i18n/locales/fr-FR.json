@@ -92,7 +92,8 @@
       "in-progress": "En cours",
       "reviewable": "Révisable",
       "resolved": "Résolu | Résolue",
-      "to-start": "A commencer"
+      "to-start": "A commencer",
+      "archived": "Archivés | Archivées"
     },
     "languages": {
       "french": "Français"
@@ -649,10 +650,6 @@
     "history": {
       "title": "Historique",
       "filters": {
-        "state": {
-          "active": "",
-          "archived": ""
-        },
         "sort": {
           "newest-first": "Les plus récentes",
           "oldest-first": "Les plus anciennes"

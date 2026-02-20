@@ -97,7 +97,7 @@ export const useCompanionStore = defineStore("companion", {
         const response = await this.api.get("/chat_conversations", { version: 2, endpointVersion: 2 }, {
           query: {
             alias: company.value.alias,
-            status: "active",
+            status: "active,archived",
             limit: -1,
             include: "agent",
           },
