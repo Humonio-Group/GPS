@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Archive, Edit2, Trash } from "lucide-vue-next";
+import { Archive, ArchiveX, Edit2, Trash } from "lucide-vue-next";
 import RenameDialog from "~/components/companion/actions/RenameDialog.vue";
 
 interface CompanionActionsProps {
@@ -7,6 +7,8 @@ interface CompanionActionsProps {
 }
 
 defineProps<CompanionActionsProps>();
+
+const store = useCompanionStore();
 
 const renameDialogOpen = ref<boolean>(false);
 </script>
@@ -28,7 +30,14 @@ const renameDialogOpen = ref<boolean>(false);
         <UiDropdownMenuSeparator />
 
         <UiDropdownMenuGroup>
-          <UiDropdownMenuItem>
+          <UiDropdownMenuItem v-if="conversation.dates.archivedAt">
+            <ArchiveX />
+            {{ $t("btn.action.restore") }}
+          </UiDropdownMenuItem>
+          <UiDropdownMenuItem
+            v-else
+            @click="store.archive(conversation.id)"
+          >
             <Archive />
             {{ $t("btn.action.archive") }}
           </UiDropdownMenuItem>
