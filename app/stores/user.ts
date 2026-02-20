@@ -98,6 +98,7 @@ export const useUserStore = defineStore("user", {
   }),
   getters: {
     api: () => useApi(),
+    logger: () => useLogger(),
     pusher: () => usePusher(),
     isLoggedIn: state => !!state.user,
     activeRoles: (state): UserRole[] => {
@@ -259,11 +260,39 @@ export const useUserStore = defineStore("user", {
         this.loading.userAccount = false;
       }
     },
-    async uploadAvatar() {
+    async uploadAvatar(file: Blob) {
+      if (!this.user) return;
+
       this.loading.userAvatar = true;
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      this.loading.userAvatar = false;
-    }, // todo: send avatar file to save it to api - loic
+
+      try {
+        const { upload } = useFileUpload();
+        const fileResponse = await upload(file, 4);
+        const { filename, thumbnail } = fileResponse.data.attributes.file;
+
+        await this.api.put(`/users/${this.user.id}`, { version: 2, endpointVersion: 1 }, {
+          body: {
+            data: {
+              id: this.user.id,
+              type: EntityType.USER,
+              attributes: {
+                picture: {
+                  filename,
+                },
+              },
+            },
+          },
+        });
+        this.user.avatar = thumbnail;
+      }
+      catch (e) {
+        this.logger.error(e);
+        // todo: toast it - loic
+      }
+      finally {
+        this.loading.userAvatar = false;
+      }
+    },
     async patchUiLanguage(language: Locale) {
       this.loading.uiLanguage = true;
 

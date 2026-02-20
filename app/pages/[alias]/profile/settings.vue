@@ -8,6 +8,7 @@ import { type Theme, themeOptions } from "~/types/misc/theme";
 import { type AvailableLocale, availableLocales } from "~/types/misc/language";
 import FlagIcon from "~/components/primitives/icons/FlagIcon.vue";
 import TermCard from "~/components/settings/terms/TermCard.vue";
+import ImageCropDialog from "~/components/primitives/ImageCropDialog.vue";
 
 const { t } = useI18n();
 
@@ -104,6 +105,39 @@ const activitySummaryOptions = [
 ] as const;
 const activitySummaryEnabled = ref<boolean>(user.value!.settings.activitySummaryFrequency > 0);
 watch(activitySummaryEnabled, val => activitySummary.value = val ? activitySummaryOptions[2].value : 0);
+
+const avatarInputRef = ref<HTMLInputElement>();
+const avatarCropSrc = ref<string>();
+const avatarCropMimeType = ref<string>();
+const showAvatarCrop = ref(false);
+
+function onAvatarFileChange(event: Event) {
+  const file = (event.target as HTMLInputElement).files?.[0];
+  if (!file) return;
+
+  avatarCropSrc.value = URL.createObjectURL(file);
+  avatarCropMimeType.value = file.type;
+  showAvatarCrop.value = true;
+}
+
+async function onAvatarCropped(blob: Blob) {
+  if (avatarCropSrc.value) URL.revokeObjectURL(avatarCropSrc.value);
+  avatarCropSrc.value = undefined;
+  avatarCropMimeType.value = undefined;
+
+  await store.uploadAvatar(blob);
+
+  if (avatarInputRef.value) avatarInputRef.value.value = "";
+}
+
+function onAvatarCropClose(open: boolean) {
+  if (!open) {
+    if (avatarCropSrc.value) URL.revokeObjectURL(avatarCropSrc.value);
+    avatarCropSrc.value = undefined;
+    avatarCropMimeType.value = undefined;
+    if (avatarInputRef.value) avatarInputRef.value.value = "";
+  }
+}
 
 store.fetchTerms();
 </script>
@@ -223,12 +257,30 @@ store.fetchTerms();
           </UiAvatar>
         </div>
 
-        <!-- todo: file input change detection to change avatar - loic -->
+        <input
+          ref="avatarInputRef"
+          type="file"
+          accept="image/*"
+          class="hidden"
+          @change="onAvatarFileChange"
+        >
 
-        <UiButton variant="outline">
+        <UiButton
+          variant="outline"
+          @click="avatarInputRef?.click()"
+        >
           <Edit />
           {{ $t("profile.settings.account.avatar.change") }}
         </UiButton>
+
+        <ImageCropDialog
+          v-if="avatarCropSrc"
+          v-model:open="showAvatarCrop"
+          :src="avatarCropSrc"
+          :mime-type="avatarCropMimeType"
+          @crop="onAvatarCropped"
+          @update:open="onAvatarCropClose"
+        />
       </div>
     </section>
 
