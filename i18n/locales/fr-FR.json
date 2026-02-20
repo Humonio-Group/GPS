@@ -260,16 +260,21 @@
     }
   },
   "toasts": {
+    "error": {
+      "default": "Une erreur est survenue ({code})"
+    },
     "conversation": {
       "rename": {
         "loading": "Changement du nom... (#{id})",
-        "success": "La conversation a été renommée !",
-        "error": "Une erreur est survenue ({code})"
+        "success": "La conversation a été renommée !"
       },
       "archive": {
         "loading": "Archivage de la conversation #{id}...",
-        "success": "Conversation #{id} archivée !",
-        "error": "Une erreur est survenue ({code})"
+        "success": "Conversation #{id} archivée !"
+      },
+      "restore": {
+        "loading": "Restauration de la conversation #{id}...",
+        "success": "Conversation #{id} restaurée !"
       }
     }
   },

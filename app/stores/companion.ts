@@ -321,32 +321,52 @@ export const useCompanionStore = defineStore("companion", {
         },
         error: (error: any) => {
           this.logger.error(error);
-          return this.t("toasts.conversation.rename.error", { code: error.statusCode });
+          return this.t("toasts.error.default", { code: error.statusCode });
         },
       });
     },
     async archive(conversationId: number) {
       toast.promise(this.api.post(`/chat_conversations/${conversationId}/archive`, { version: 2, endpointVersion: 2 }), {
-        loading: () => this.t("toasts.archived.loading", { id: conversationId }),
+        loading: () => this.t("toasts.conversation.archive.loading", { id: conversationId }),
         success: (response: any) => {
           this.conversations = this.conversations.map(c => c.id === conversationId
             ? {
                 ...c,
                 dates: {
                   ...c.dates,
-                  updatedAt: new Date(response.data.attributes.updatedAt),
+                  archivedAt: new Date(response.data.attributes.updatedAt),
                 },
               }
             : c);
-          return this.t("toasts.archived.success", { id: conversationId });
+          return this.t("toasts.conversation.archive.success", { id: conversationId });
         },
         error: (error: any) => {
           this.logger.error(error);
-          return this.t("toasts.archived.error", { code: error.statusCode });
+          return this.t("toasts.error.default", { code: error.statusCode });
         },
       });
     },
-    async restore() {},
+    async restore(conversationId: number) {
+      toast.promise(this.api.post(`/chat_conversations/${conversationId}/restore`, { version: 2, endpointVersion: 2 }), {
+        loading: () => this.t("toasts.conversation.restore.loading", { id: conversationId }),
+        success: (response: any) => {
+          this.conversations = this.conversations.map(c => c.id === conversationId
+            ? {
+                ...c,
+                dates: {
+                  ...c.dates,
+                  archivedAt: response.data.attributes.archivedAt,
+                },
+              }
+            : c);
+          return this.t("toasts.conversation.restore.success", { id: conversationId });
+        },
+        error: (error: any) => {
+          this.logger.error(error);
+          return this.t("toasts.error.default", { code: error.statusCode });
+        },
+      });
+    },
     async delete() {},
   },
 });

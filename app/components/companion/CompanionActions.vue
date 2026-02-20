@@ -30,7 +30,10 @@ const renameDialogOpen = ref<boolean>(false);
         <UiDropdownMenuSeparator />
 
         <UiDropdownMenuGroup>
-          <UiDropdownMenuItem v-if="conversation.dates.archivedAt">
+          <UiDropdownMenuItem
+            v-if="conversation.dates.archivedAt"
+            @click="store.restore(conversation.id)"
+          >
             <ArchiveX />
             {{ $t("btn.action.restore") }}
           </UiDropdownMenuItem>
