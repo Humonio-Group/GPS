@@ -308,6 +308,7 @@ export const useApi = () => {
     post,
     patch,
     put,
+    delete: destroy,
     destroy,
     sse,
   };
