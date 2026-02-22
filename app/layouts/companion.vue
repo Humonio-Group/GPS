@@ -118,7 +118,7 @@ async function sendMessage() {
               </UiButton>
               <UiTextarea
                 v-model="message"
-                placeholder="Message..."
+                :placeholder="$t('companion.message-placeholder')"
                 class="min-h-9 max-h-32 resize-none px-9"
                 submit-on-enter
                 @submit="sendMessage"

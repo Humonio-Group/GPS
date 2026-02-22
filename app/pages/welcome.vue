@@ -390,7 +390,7 @@ const passwordRules = computed(() => [
                   size="sm"
                   variant="outline"
                 >
-                  Lire
+                  {{ $t("btn.read") }}
                 </UiButton>
               </TermDialog>
             </div>

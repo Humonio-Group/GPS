@@ -50,11 +50,11 @@ async function submit() {
   >
     <header class="grid gap-1.5 max-w-[55ch]">
       <h1 class="text-3xl font-extrabold">
-        Terms
+        {{ $t("auth.terms.title") }}
       </h1>
 
       <p class="text-sm text-muted-foreground max-w-[55ch]">
-        Il vous reste des conditions à lire et accepter. Accepter ces conditions afin d'avoir accès au reste de la plateforme.
+        {{ $t("auth.terms.description") }}
       </p>
     </header>
 
@@ -94,7 +94,7 @@ async function submit() {
             size="sm"
             variant="outline"
           >
-            Lire
+            {{ $t("btn.read") }}
           </UiButton>
         </TermDialog>
       </div>
@@ -110,7 +110,7 @@ async function submit() {
           @update:model-value="handleAllCheck"
         />
 
-        Accepter toutes les conditions
+        {{ $t("labels.accept-all-terms") }}
       </UiLabel>
     </main>
 

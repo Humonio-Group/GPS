@@ -152,7 +152,7 @@ function unselectAllAgents() {
                 size="sm"
                 @click="unselectAllAgents"
               >
-                Tout désélectionner
+                {{ $t("companion.history.filters.deselect-all") }}
               </UiButton>
               <UiButton
                 v-else
@@ -161,7 +161,7 @@ function unselectAllAgents() {
                 size="sm"
                 @click="selectAllAgents"
               >
-                Tout sélectionner
+                {{ $t("companion.history.filters.select-all") }}
               </UiButton>
             </UiPopoverContent>
           </UiPopover>

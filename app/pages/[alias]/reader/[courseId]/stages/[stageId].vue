@@ -80,9 +80,9 @@ function randomVariant() {
 
             <UiButton as-child>
               <NuxtLinkLocale :to="nextContent">
-                <span v-if="completed">Revoir</span>
-                <span v-else-if="started">Reprendre</span>
-                <span v-else>Commenter</span>
+                <span v-if="completed">{{ $t("btn.see-again") }}</span>
+                <span v-else-if="started">{{ $t("btn.resume") }}</span>
+                <span v-else>{{ $t("btn.start") }}</span>
 
                 <Play />
               </NuxtLinkLocale>
@@ -91,7 +91,7 @@ function randomVariant() {
 
           <div class="mt-3 flex items-center flex-wrap gap-2">
             <UiBadge variant="outline">
-              E-Learning
+              {{ $t("labels.content-type.e-learning") }}
             </UiBadge>
 
             <UiBadge v-if="completed">
@@ -115,7 +115,7 @@ function randomVariant() {
               v-if="stage.progress.total > 0"
               class="text-sm text-muted-foreground"
             >
-              {{ stage.progress.completed }} / {{ stage.progress.total }} activités
+              {{ $t("reader.stage.activities", { completed: stage.progress.completed, total: stage.progress.total }) }}
             </p>
             <span
               v-if="stage.progress.total > 0 && duration > 0"
@@ -125,7 +125,7 @@ function randomVariant() {
               v-if="duration > 0"
               class="text-sm text-muted-foreground"
             >
-              {{ fromMinutes(duration, "short") }} restantes
+              {{ $t("reader.stage.remaining", { time: fromMinutes(duration, "short") }) }}
             </p>
           </div>
         </header>
@@ -137,10 +137,10 @@ function randomVariant() {
           <UiCard class="border-destructive/20 bg-destructive/10">
             <UiCardHeader>
               <UiCardTitle>
-                Cette étape est bloquée
+                {{ $t("reader.stage.locked.title") }}
               </UiCardTitle>
               <UiCardDescription>
-                Certaines conditions ne sont pas respectées et vous empêche de consulter cette étape. Remplissez toutes les conditions afin de la débloquer.
+                {{ $t("reader.stage.locked.description") }}
               </UiCardDescription>
             </UiCardHeader>
 

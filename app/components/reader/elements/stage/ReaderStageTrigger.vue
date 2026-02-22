@@ -29,7 +29,7 @@ const { id } = useCourseUtils();
       </p>
       <span
         class="text-xs text-muted-foreground"
-      >e-learning</span>
+      >{{ $t("labels.content-type.e-learning") }}</span>
     </div>
 
     <div class="shrink-0 ml-auto z-10 flex items-center gap-1">

@@ -56,7 +56,7 @@ function commentEvent(event: KeyboardEvent) {
           <MessageCircle class="text-primary size-4" />
 
           <p class="text-muted-foreground text-sm leading-tight opacity-65">
-            Posez vos questions ou échangez avec vos pairs sur cette activité
+            {{ $t("reader.comments.helper") }}
           </p>
         </div>
       </div>

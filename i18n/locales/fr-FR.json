@@ -41,6 +41,7 @@
     "copy": {
       "default": "Copier"
     },
+    "read": "Lire",
     "change": "Changer",
     "continue": "Continuer",
     "resume": "Reprendre",
@@ -209,7 +210,14 @@
     "tooltips": {
       "conversation-history": "Historique des conversations"
     },
-    "search-results": "{count} résultat sur {total} | {count} résultats sur {total}"
+    "search-results": "{count} résultat sur {total} | {count} résultats sur {total}",
+    "accept-all-terms": "Accepter toutes les conditions",
+    "content-type": {
+      "e-learning": "E-Learning"
+    },
+    "plan": {
+      "free": "Gratuit"
+    }
   },
   "dialogs": {
     "image-crop": {
@@ -329,6 +337,10 @@
     }
   },
   "auth": {
+    "terms": {
+      "title": "Conditions",
+      "description": "Il vous reste des conditions à lire et accepter. Accepter ces conditions afin d'avoir accès au reste de la plateforme."
+    },
     "login-title": "Connexion",
     "fields": {
       "email": "Adresse e-mail",
@@ -647,6 +659,12 @@
   },
   "notifications": {
     "title": "Notifications",
+    "filters": {
+      "all": "Toutes",
+      "notifications": "Notifications",
+      "badges": "Badges",
+      "contents": "Contenus"
+    },
     "empty": {
       "title": "Oh non...",
       "description": "Il semblerait que vous n'ayez aucune notification."
@@ -654,6 +672,14 @@
   },
 
   "reader": {
+    "stage": {
+      "activities": "{completed} / {total} activités",
+      "remaining": "{time} restantes",
+      "locked": {
+        "title": "Cette étape est bloquée",
+        "description": "Certaines conditions ne sont pas respectées et vous empêche de consulter cette étape. Remplissez toutes les conditions afin de la débloquer."
+      }
+    },
     "mark-content": "Évaluer le contenu",
     "notes": [
       "Très mauvais",
@@ -668,6 +694,7 @@
     "comments": {
       "label": "Commentaires",
       "placeholder": "Rédiger un commentaire... (Maj+Entrer pour aller à la ligne)",
+      "helper": "Posez vos questions ou échangez avec vos pairs sur cette activité",
       "empty": "Aucun commentaire pour l'instant. Soyez le premier.",
       "reply": "Répondre",
       "like": "J'aime",
@@ -691,6 +718,8 @@
     "history": {
       "title": "Historique",
       "filters": {
+        "select-all": "Tout sélectionner",
+        "deselect-all": "Tout désélectionner",
         "sort": {
           "newest-first": "Les plus récentes",
           "oldest-first": "Les plus anciennes"
@@ -711,6 +740,7 @@
         "description": "Changer le nom d'une conversation vous permets de mieux vous y retrouver dans votre historique. Le nom généré par défaut peut ne plus être exact après quelques échanges."
       }
     },
+    "message-placeholder": "Message...",
     "warning": "L'IA peut commettre des erreurs et ne remplace pas un avis professionnel. Vérifiez les informations générées et évitez de partager des données sensibles."
   }
 }

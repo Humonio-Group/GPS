@@ -32,7 +32,7 @@ const companies = computed(() => availableCompanies.value.filter(c => c.alias !=
                 {{ company!.name }}
               </p>
               <span class="text-xs text-muted-foreground leading-none">
-                Gratuit <!-- todo: workspace plan - loic -->
+                {{ $t("labels.plan.free") }} <!-- todo: workspace plan - loic -->
               </span>
             </div>
 
@@ -59,7 +59,7 @@ const companies = computed(() => availableCompanies.value.filter(c => c.alias !=
             <p class="text-sm font-semibold">
               {{ company!.name }}
             </p>
-            <span class="text-xs text-muted-foreground">Gratuit</span> <!-- todo: bind plan - loic -->
+            <span class="text-xs text-muted-foreground">{{ $t("labels.plan.free") }}</span> <!-- todo: bind plan - loic -->
           </div>
         </UiDropdownMenuGroup>
 

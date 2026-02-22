@@ -29,25 +29,25 @@ store.loadNotifications();
           :variant="selectedFilter === null ? 'secondary' : 'outline'"
           @click="selectedFilter = null"
         >
-          Toutes
+          {{ $t("notifications.filters.all") }}
         </UiButton>
         <UiButton
           :variant="selectedFilter === EntityType.NOTIFICATION ? 'secondary' : 'outline'"
           @click="selectedFilter = EntityType.NOTIFICATION"
         >
-          Notifications
+          {{ $t("notifications.filters.notifications") }}
         </UiButton>
         <UiButton
           :variant="selectedFilter === EntityType.BADGE ? 'secondary' : 'outline'"
           @click="selectedFilter = EntityType.BADGE"
         >
-          Badges
+          {{ $t("notifications.filters.badges") }}
         </UiButton>
         <UiButton
           :variant="selectedFilter === EntityType.CONTENT ? 'secondary' : 'outline'"
           @click="selectedFilter = EntityType.CONTENT"
         >
-          Contenus
+          {{ $t("notifications.filters.contents") }}
         </UiButton>
       </div>
     </header>
