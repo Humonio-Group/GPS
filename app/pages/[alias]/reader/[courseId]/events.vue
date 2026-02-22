@@ -14,7 +14,7 @@ store.loadEvents();
   <PageRoot name="course.specific.events">
     <CalendarView
       class="flex-1 min-h-0"
-      :views-allowed="['list']"
+      :views-allowed="['list', 'month', 'week', 'day']"
       :default-view="'list'"
       :events="events"
       :loading="loading.specific.events"
