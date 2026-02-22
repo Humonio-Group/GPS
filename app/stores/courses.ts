@@ -24,6 +24,7 @@ import { Clock, File, Folder, Gauge, Lock } from "lucide-vue-next";
 import { StrategySection } from "~/types/entities/strategy";
 import { type ChartData, GraphType } from "~/types/entities/graph";
 import { toast } from "vue-sonner";
+import { buildScoreEntity } from "~/lib/score";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -38,6 +39,7 @@ interface CoursesState {
       activity: boolean;
       actions: boolean;
       badges: boolean;
+      scores: boolean;
       people: boolean;
       events: boolean;
       inviteManager: boolean;
@@ -663,6 +665,7 @@ export const useCoursesStore = defineStore("courses", {
         activity: false,
         actions: false,
         badges: false,
+        scores: false,
         people: false,
         events: false,
         inviteManager: false,
@@ -813,6 +816,7 @@ export const useCoursesStore = defineStore("courses", {
         stages: [],
         actions: [],
         badges: [],
+        scores: [],
         coaches: [],
         facilitators: [],
         participants: [],
@@ -960,6 +964,30 @@ export const useCoursesStore = defineStore("courses", {
       }
       finally {
         this.loading.specific.badges = false;
+      }
+    },
+    async loadScores() {
+      if (!this.selectedCourse) return;
+
+      this.loading.specific.scores = true;
+
+      try {
+        const response = await this.api.get("/scores", { version: 2, endpointVersion: 1 }, {
+          query: {
+            "journeys": this.selectedCourse.id,
+            "status": 1,
+            "fields[scores]": "default,recipient.currentScores,recipient.programCurrentScores",
+            "limit": -1,
+          },
+        });
+
+        this.selectedCourse.scores = response.data.map((s: any) => buildScoreEntity(this.selectedCourse!.id, s));
+      }
+      catch (e) {
+        this.logger.error(e);
+      }
+      finally {
+        this.loading.specific.scores = false;
       }
     },
     async loadPeople() {

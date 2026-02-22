@@ -17,6 +17,7 @@ import type {
 import type { LucideIcon } from "lucide-vue-next";
 import type { Strategy } from "~/types/entities/strategy";
 import type { GraphType, ChartData } from "~/types/entities/graph";
+import type { Scores } from "~/types/entities/score";
 
 export type VideoProvider = "youtube" | "vimeo" | "dailymotion" | "ted";
 
@@ -174,6 +175,7 @@ export interface RichCourse extends Course {
   stages: Stages;
   actions: Actions;
   badges: Badges;
+  scores: Scores;
   facilitators: Peoples;
   participants: Peoples;
   coaches: Peoples;

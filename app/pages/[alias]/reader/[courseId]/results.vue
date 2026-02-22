@@ -24,8 +24,14 @@ watch(course, val => useHead({
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.results`"
-    class="text-sm text-muted-foreground @container/results grid gap-4"
+    class="w-full"
+    wrapper
+    wrapper-class="text-sm @container/results grid gap-4 max-w-7xl w-full mx-auto"
   >
+    <h1 class="text-3xl font-extrabold">
+      {{ $t("courses.specimen.results.page-title") }}
+    </h1>
+
     <StatsGrid>
       <StatCard>
         <template #icon>
@@ -53,8 +59,8 @@ watch(course, val => useHead({
 
     <BadgeIntroCard v-if="course!.badges.length" />
 
-    <ScoresIntroCard />
+    <ScoresIntroCard v-if="course!.scores.length" />
 
-    <CertificationIntroCard />
+    <CertificationIntroCard v-if="false" /> <!-- todo: implement certificates - loic -->
   </PageRoot>
 </template>

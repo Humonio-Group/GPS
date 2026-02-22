@@ -50,6 +50,10 @@ store.loadPeople();
     wrapper
     wrapper-class="grid gap-4 max-w-7xl w-full mx-auto"
   >
+    <h1 class="text-3xl font-extrabold">
+      {{ $t("courses.specimen.people.page-title") }}
+    </h1>
+
     <header class="flex flex-col @md:flex-row @md:items-center gap-2">
       <div class="relative flex-1">
         <Search class="absolute top-2.5 left-2.5 size-4 text-muted-foreground pointer-events-none" />
