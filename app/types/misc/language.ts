@@ -10,7 +10,7 @@ export interface Locale {
  * en: 40
  * de: 51
  */
-export const availableLocales: Locale[] = [
+export const availableLocales = [
   {
     id: 47,
     code: "fr",
@@ -19,4 +19,8 @@ export const availableLocales: Locale[] = [
   },
 ] as const;
 
-export type AvailableLocale = "fr";
+export type AvailableLocale = typeof availableLocales[number]["code"];
+
+export function fromId(id: number): AvailableLocale | undefined {
+  return availableLocales.find(l => l.id === id)?.code;
+}

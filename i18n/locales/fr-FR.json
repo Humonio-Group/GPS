@@ -41,6 +41,7 @@
     "copy": {
       "default": "Copier"
     },
+    "change": "Changer",
     "continue": "Continuer",
     "resume": "Reprendre",
     "start": "Commencer",
@@ -161,7 +162,13 @@
       "description": "Description",
       "deadline": "Date de réalisation",
       "tasks": "Tâches",
-      "visibility": "Visibilité"
+      "visibility": "Visibilité",
+      "first-name": "Prénom",
+      "last-name": "Nom",
+      "email": "Email",
+      "password": "Mot de passe",
+      "password-confirm": "Confirmation",
+      "avatar": "Photo de profil"
     },
     "form-errors": {
       "email": {
@@ -306,6 +313,21 @@
     }
   },
 
+  "welcome": {
+    "title": "Bienvenue !",
+    "description": "Terminez la configuration de votre compte pour débloquer l'accès à l'application.",
+    "all-terms": "Accepter toutes les conditions",
+    "conditions": "Conditions",
+    "password-rules": {
+      "min": "8 caractères minimum",
+      "max": "150 caractères maximum",
+      "digit": "Au moins un chiffre",
+      "lowercase": "Au moins une minuscule",
+      "uppercase": "Au moins une majuscule",
+      "special": "Au moins un caractère spécial",
+      "match": "Les mots de passe correspondent"
+    }
+  },
   "auth": {
     "login-title": "Connexion",
     "fields": {

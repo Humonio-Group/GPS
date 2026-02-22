@@ -1,20 +1,11 @@
-import type { Term, Terms } from "~/types/entities/terms";
+import type { Terms } from "~/types/entities/terms";
+import { buildTermEntity } from "~/lib/terms";
 
 interface TermsState {
   terms: Terms;
   loading: {
     items: boolean;
     saving: boolean;
-  };
-}
-
-function buildTermEntity(data: any): Term {
-  return {
-    id: data.id,
-    name: data.attributes.displayTitle,
-    description: data.attributes.displayDescription,
-    canRevoke: data.attributes.permissions.isRevokable,
-    lastUpdate: new Date(data.attributes.dates.update),
   };
 }
 

@@ -39,7 +39,8 @@ const completed = computed(() => allContents.value.every(c => c.progress.value >
 const started = computed(() => allContents.value.some(c => c.progress.viewed));
 const nextContent = computed(() => {
   if (completed.value) return allContents.value[0];
-  return allContents.value.find(c => c.progress.viewed && c.progress.value < 1 && !c.locked);
+  if (started.value) return allContents.value.find(c => c.progress.viewed && c.progress.value < 1 && !c.locked);
+  return allContents.value[0];
 });
 
 onMounted(() => {
