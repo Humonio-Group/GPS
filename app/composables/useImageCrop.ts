@@ -1,5 +1,5 @@
-export function useImageCrop(onCrop: (blob: Blob) => void | Promise<void>) {
-  const inputRef = ref<HTMLInputElement>();
+export function useImageCrop(templateRef: string, onCrop: (blob: Blob) => void | Promise<void>) {
+  const inputRef = useTemplateRef<HTMLInputElement>(templateRef);
   const src = ref<string>();
   const mimeType = ref<string>();
   const open = ref(false);

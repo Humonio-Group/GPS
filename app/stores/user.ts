@@ -8,6 +8,8 @@ import { EntityType } from "~/types/entities/entities";
 import { availablePusherChannels } from "~/assets/pusher-channels";
 import type { PusherEventType } from "~/types/pusher";
 import { PusherEventFactory } from "~/types/pusher";
+import { buildUserEntity } from "~/lib/user";
+import { buildTermEntity } from "~/lib/terms";
 
 interface UserState {
   user: Nullable<User>;
@@ -28,41 +30,6 @@ interface UserState {
   };
 }
 
-function buildUserEntity(data: any, included: any): User {
-  return {
-    id: data.id,
-    key: data.attributes.key,
-    termsToApprove: data.attributes.termsToApprove,
-    avatar: data.attributes.picture.thumbnail,
-    name: {
-      first: data.attributes.firstname,
-      last: data.attributes.lastname,
-      full: data.attributes.name,
-    },
-    biography: {
-      base: data.attributes.biography,
-      long: data.attributes.longBiography,
-    },
-    contact: {
-      email: data.attributes.email,
-      phone: data.attributes.mobile,
-    },
-    social: {
-      linkedin: data.attributes.linkedin,
-    },
-    settings: {
-      language: included.filter((e: any) => e.type === EntityType.LANGUAGE)[0]!.attributes.code,
-      theme: data.attributes.theme ?? "light",
-      courseNotifications: data.attributes.settings.notifications.inApp.value,
-      activitySummaryFrequency: data.attributes.settings.notifications.summary.participant.value,
-    },
-    dates: {
-      creation: new Date(data.attributes.dates.creation),
-      update: new Date(data.attributes.dates.update),
-      lastConnection: new Date(data.attributes.dates.lastConnection),
-    },
-  };
-}
 function buildAvailableCompaniesMap(included: any): AvailableCompany[] {
   return included.filter((e: any) => e.type === EntityType.COMPANY).map((e: any): AvailableCompany => ({
     id: e.id,
@@ -198,13 +165,7 @@ export const useUserStore = defineStore("user", {
         });
         if (!_terms) return;
 
-        this.terms = [...(_terms.data as any[]).map((term: any) => ({
-          id: term.id,
-          name: term.attributes.displayTitle,
-          description: term.attributes.displayDescription,
-          canRevoke: term.attributes.permissions.isRevokable,
-          lastUpdate: new Date(term.attributes.dates.update),
-        }))];
+        this.terms = [...(_terms.data as any[]).map(buildTermEntity)];
       }
       catch (e) {
         useLogger().error(e);

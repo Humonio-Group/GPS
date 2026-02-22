@@ -45,7 +45,7 @@ export const useApi = () => {
 
             switch (status) {
               case 401: {
-                navigateTo(useLocalePath()("/auth/login"));
+                if (!useRoute().path.includes("/welcome")) if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
                 toast.error(t("toasts.error.expired-session"));
                 return resolve(null);
               }
@@ -70,7 +70,7 @@ export const useApi = () => {
 
               switch (status) {
                 case 401: {
-                  navigateTo(useLocalePath()("/auth/login"));
+                  if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
                   return resolve(null);
                 }
                 default: {
@@ -113,7 +113,7 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -149,7 +149,7 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -185,7 +185,7 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -221,7 +221,7 @@ export const useApi = () => {
 
           switch (status) {
             case 401: {
-              navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -264,7 +264,7 @@ export const useApi = () => {
       .then(async (response: any) => {
         if (!response.ok) {
           if (response.status === 401) {
-            navigateTo(useLocalePath()("/auth/login"));
+            if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
             return;
           }
           callbacks.onError?.(new Error(`SSE connection failed: ${response.status}`));

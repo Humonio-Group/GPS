@@ -2,6 +2,7 @@ const publicPaths = [
   "/auth/login",
   "/auth/portal",
   "/auth/terms",
+  "/welcome",
 ];
 
 export default defineNuxtRouteMiddleware(async (to) => {
@@ -12,5 +13,5 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (user.value && !alias && !publicPaths.includes(to.path)) return navigateTo("/auth/portal");
   if (store.isLoaded && storeToRefs(store).company.value!.alias === alias) return;
 
-  await store.fetchCompany(alias as string);
+  if (user.value) await store.fetchCompany(alias as string);
 });

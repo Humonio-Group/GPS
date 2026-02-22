@@ -107,7 +107,7 @@ const activitySummaryOptions = [
 const activitySummaryEnabled = ref<boolean>(user.value!.settings.activitySummaryFrequency > 0);
 watch(activitySummaryEnabled, val => activitySummary.value = val ? activitySummaryOptions[2].value : 0);
 
-const avatarCrop = useImageCrop(blob => store.uploadAvatar(blob));
+const avatarCrop = useImageCrop("userAvatarInput", blob => store.uploadAvatar(blob));
 
 store.fetchTerms();
 </script>
@@ -228,7 +228,7 @@ store.fetchTerms();
         </div>
 
         <input
-          ref="avatarCrop.inputRef.value"
+          ref="userAvatarInput"
           type="file"
           accept="image/*"
           class="hidden"
