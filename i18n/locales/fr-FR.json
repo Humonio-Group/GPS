@@ -52,6 +52,7 @@
     "other-products": "Autres produits",
     "copied": "Copié | Copiée",
     "miss-you": "Vous nous manquez déjà 😢",
+    "comments": "{count} commentaire | {count} commentaires",
     "time": {
       "long": {
         "months": "{value} mois | {value} mois",
@@ -631,7 +632,7 @@
   },
 
   "reader": {
-    "mark-content": "Noter le contenu",
+    "mark-content": "Évaluer le contenu",
     "notes": [
       "Très mauvais",
       "Mauvais",

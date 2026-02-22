@@ -1,17 +1,20 @@
 <script setup lang="ts">
-import { ChevronRight, ArrowRight, ArrowLeft } from "lucide-vue-next";
+import { ChevronRight, ArrowRight, ChevronLeft, MessageCircle } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
 import type { Content } from "~/types/entities/course";
+import StarFill from "~/components/icons/StarFill.vue";
 
 const store = useCoursesStore();
 const { selectedCourse: course, allContents } = storeToRefs(store);
 
 const { alias } = useWorkspaceUtils();
+const { fromMinutes } = useTimeUtils();
 
 const route = useRoute();
 const contentId = computed(() => route.params.contentId);
+const commentsOpen = ref<boolean>(false);
 
 const activeContent = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
 const activeStage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
@@ -126,69 +129,141 @@ const previous = computed<Content | undefined>(() => {
             <div class="flex items-center">
               <CommentsDialog
                 v-if="activeContent && activeContent.permissions.commentable"
+                v-model:open="commentsOpen"
                 :content="activeContent"
               />
             </div>
           </nav>
 
-          <main class="min-h-0 flex-1">
+          <section class="min-h-0 flex-1">
             <NuxtPage />
-          </main>
+          </section>
+
+          <section
+            v-if="activeContent"
+            class="max-w-4xl mx-auto w-full flex flex-col gap-4"
+          >
+            <section
+              v-if="activeContent?.permissions.rateable"
+              class="flex flex-col @lg:flex-row @lg:items-center gap-2 @lg:gap-4"
+            >
+              <div class="flex items-center gap-2 text-sm text-muted-foreground">
+                <StarFill class="size-4 opacity-50" />
+                <p>{{ $t("reader.mark-content") }}</p>
+              </div>
+              <ContentRating :content="activeContent" />
+
+              <div
+                v-if="false"
+                class="@lg:ml-auto"
+              >
+                stats
+              </div> <!-- todo: bind content rating stats - loic -->
+            </section>
+
+            <UiSeparator v-if="activeContent?.permissions.commentable && activeContent?.permissions.rateable" />
+
+            <UiButton
+              v-if="activeContent?.permissions.commentable"
+              variant="ghost"
+              class="h-auto text-muted-foreground! justify-between -mx-4"
+              @click="commentsOpen = true"
+            >
+              <div class="flex items-center gap-2">
+                <MessageCircle />
+                <span>{{ $t("reader.comments.label") }}</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span
+                  v-if="activeContent.topic.comments.length"
+                  class="text-xs"
+                >{{ $t("labels.comments", activeContent.topic.comments.length, { named: { count: activeContent.topic.comments.length } }) }}</span>
+                <ChevronRight />
+              </div>
+            </UiButton>
+
+            <section v-if="next">
+              <NuxtLinkLocale
+                :to="`/${alias}/reader/${course!.id}/${next.id}`"
+                class="group"
+              >
+                <UiCard class="group-hover:border-primary">
+                  <UiCardContent class="flex items-center gap-3">
+                    <NuxtImg
+                      v-if="next.picture"
+                      :src="next.picture"
+                      class="size-10 rounded-lg bg-primary object-cover"
+                    />
+
+                    <div class="*:leading-none grid gap-1">
+                      <p class="text-xs uppercase font-medium text-primary">
+                        Activité suivante
+                      </p>
+                      <p class="text-lg font-semibold">
+                        {{ next.name }}
+                      </p>
+                      <div
+                        v-if="next.duration"
+                        class="mt-1 flex items-center gap-2 text-xs text-muted-foreground"
+                      >
+                        <p v-if="next.duration">
+                          {{ fromMinutes(next.duration, "short") }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <ArrowRight class="ml-auto size-5 text-primary" />
+                  </UiCardContent>
+                </UiCard>
+              </NuxtLinkLocale>
+            </section>
+          </section>
 
           <footer
             v-if="activeContent"
-            class="sticky bottom-6 flex items-center justify-between gap-4"
+            class="sticky bottom-0 w-full flex items-center justify-end gap-2"
           >
-            <div>
-              <div
-                v-if="activeContent.permissions.rateable"
-                class="flex items-center bg-accent rounded-full overflow-hidden h-9 px-3"
-              >
-                <ContentRating :content="activeContent" />
-              </div>
-            </div>
+            <UiButton
+              v-if="!!previous"
+              size="icon-lg"
+              variant="outline"
+              class="rounded-full [&_>svg]:size-5! hover:bg-primary/15 hover:border-primary hover:scale-105"
+              as-child
+            >
+              <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${previous.id}`">
+                <ChevronLeft />
+              </NuxtLinkLocale>
+            </UiButton>
+            <UiButton
+              v-else
+              size="icon-lg"
+              variant="outline"
+              class="rounded-full [&_>svg]:size-5!"
+              disabled
+            >
+              <ChevronLeft />
+            </UiButton>
 
-            <div class="flex items-center bg-accent rounded-full overflow-hidden">
-              <UiButton
-                v-if="!!previous"
-                variant="ghost"
-                size="icon-lg"
-                as-child
-              >
-                <NuxtLinkLocale
-                  :to="`/${alias}/reader/${course!.id}/${previous.id}`"
-                >
-                  <ArrowLeft />
-                </NuxtLinkLocale>
-              </UiButton>
-              <UiButton
-                v-else
-                variant="ghost"
-                size="icon-lg"
-                disabled
-              >
-                <ArrowLeft />
-              </UiButton>
-
-              <UiButton
-                v-if="next"
-                variant="ghost"
-                size="icon-lg"
-                as-child
-              >
-                <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
-                  <ArrowRight />
-                </NuxtLinkLocale>
-              </UiButton>
-              <UiButton
-                v-else
-                variant="ghost"
-                size="icon-lg"
-                disabled
-              >
-                <ArrowRight />
-              </UiButton>
-            </div>
+            <UiButton
+              v-if="!!next"
+              size="icon-lg"
+              variant="outline"
+              class="rounded-full [&_>svg]:size-5! hover:bg-primary/15 hover:border-primary hover:scale-105"
+              as-child
+            >
+              <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
+                <ChevronRight />
+              </NuxtLinkLocale>
+            </UiButton>
+            <UiButton
+              v-else
+              size="icon-lg"
+              variant="outline"
+              class="rounded-full [&_>svg]:size-5!"
+              disabled
+            >
+              <ChevronRight />
+            </UiButton>
           </footer>
         </main>
       </UiSidebarInset>
