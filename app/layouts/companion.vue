@@ -4,6 +4,7 @@ import DefaultSidebar from "~/components/navigation/DefaultSidebar.vue";
 import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
 import { Bell, BellDot, MoreVertical, Plus, Send, History } from "lucide-vue-next";
 import CompanionActions from "~/components/companion/CompanionActions.vue";
+import HistoryDialog from "~/components/companion/HistoryDialog.vue";
 
 const { alias } = useWorkspaceUtils();
 const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificationStore());
@@ -77,22 +78,14 @@ async function sendMessage() {
 
             <GettingHelp />
 
-            <UiTooltip>
-              <UiTooltipTrigger as-child>
-                <UiButton
-                  size="icon"
-                  variant="ghost"
-                  as-child
-                >
-                  <NuxtLinkLocale :to="`/${alias}/companion/history`">
-                    <History />
-                  </NuxtLinkLocale>
-                </UiButton>
-              </UiTooltipTrigger>
-              <UiTooltipContent>
-                <p>{{ $t("labels.tooltips.conversation-history") }}</p>
-              </UiTooltipContent>
-            </UiTooltip>
+            <HistoryDialog>
+              <UiButton
+                size="icon"
+                variant="ghost"
+              >
+                <History />
+              </UiButton>
+            </HistoryDialog>
 
             <CompanionActions
               v-if="conversation"
