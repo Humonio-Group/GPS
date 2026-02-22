@@ -407,6 +407,7 @@
         }
       },
       "people": {
+        "page-title": "Personnes",
         "your-manager": "Votre mentor",
         "coaches": "Coachs",
         "facilitators": "Facilitateurs",
@@ -443,6 +444,7 @@
       },
       "results": {
         "title": "Résultats - {name}",
+        "page-title": "Résultats",
         "stats": {
           "time-elapsed": "Temps passé",
           "progress": "Progression"

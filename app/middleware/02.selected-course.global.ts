@@ -11,6 +11,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   if (!course.value) return navigateTo(`${useWorkspaceUtils().alias.value}/courses`);
 
   store.loadBadges().then();
+  store.loadScores().then();
 
   if (hasStagesLoaded.value) {
     if (!hasActivitiesLoaded.value) store.loadCourseContents().then();
