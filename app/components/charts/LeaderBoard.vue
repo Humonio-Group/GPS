@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import { Search, X } from "lucide-vue-next";
 import type { LeaderBoardChartData } from "~/types/entities/graph";
-import { computed } from "vue";
 
 const props = defineProps<{
   data: LeaderBoardChartData;
@@ -9,6 +9,7 @@ const props = defineProps<{
 const sortedSeries = computed(() =>
   [...props.data.series].sort((a, b) => a.position - b.position),
 );
+const { search, results, clear } = useSearch(sortedSeries, "label");
 
 function getInitials(label: string): string {
   return label
@@ -21,9 +22,31 @@ function getInitials(label: string): string {
 </script>
 
 <template>
-  <div class="h-full w-full overflow-y-auto flex flex-col gap-1.5">
+  <div class="h-full w-full p-2 overflow-y-auto flex flex-col gap-1.5">
+    <div class="relative mb-2">
+      <UiButton
+        v-if="search.length"
+        variant="ghost"
+        size="icon-xs"
+        class="size-6 rounded-full absolute top-1.5 left-1.5"
+        @click="clear"
+      >
+        <X />
+      </UiButton>
+      <Search
+        v-else
+        class="size-4 text-muted-foreground absolute top-2.5 left-2.5"
+      />
+
+      <UiInput
+        v-model="search"
+        :placeholder="$t('labels.search')"
+        class="pl-8"
+      />
+    </div>
+
     <div
-      v-for="entry in sortedSeries"
+      v-for="entry in results"
       :key="`lb-${entry.position}`"
       class="flex items-center gap-3 rounded-lg px-3 py-2 transition-colors border"
       :class="{
