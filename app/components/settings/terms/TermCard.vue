@@ -8,7 +8,7 @@ const { locale } = useI18n();
 
 interface TermCardProps {
   term: Term;
-  loading: boolean;
+  loading?: boolean;
 }
 
 defineProps<TermCardProps>();
