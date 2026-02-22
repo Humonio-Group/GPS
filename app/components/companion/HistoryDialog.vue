@@ -37,6 +37,7 @@ const convs = computed(() => conversationsList.value
   })
   .filter(c => agentFilter.value.includes(c.agent.id)));
 const { search, results, clear } = useSearch<Conversation>(convs, "title", "agent.name");
+// eslint-disable-next-line vue/no-side-effects-in-computed-properties
 const conversations = computed(() => results.value.sort((a, b) => {
   if (sort.value === "newest-first") return b.dates.createdAt.getTime() - a.dates.createdAt.getTime();
   return a.dates.createdAt.getTime() - b.dates.createdAt.getTime();
