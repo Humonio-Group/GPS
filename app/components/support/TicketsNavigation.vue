@@ -20,6 +20,9 @@ const tickets = computed(() => _tickets.value
 <template>
   <TicketsList class="flex flex-col gap-2">
     <header class="grid gap-3">
+      <h1 class="text-lg font-bold">
+        {{ $t("support.title") }}
+      </h1>
       <div class="flex items-center gap-2">
         <div class="relative flex-1">
           <Search class="absolute top-2.5 left-2.5 size-4 text-muted-foreground" />
