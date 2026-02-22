@@ -1,7 +1,6 @@
 import type { User } from "~/types/entities/user";
 import { EntityType } from "~/types/entities/entities";
 import { availableLocales, fromId } from "~/types/misc/language";
-import { language } from "happy-dom/lib/PropertySymbol";
 
 export function buildUserEntity(data: any, included?: any, lang?: number): User {
   return {
