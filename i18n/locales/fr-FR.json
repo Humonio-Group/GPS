@@ -688,6 +688,7 @@
         "title": "Renommer la conversation",
         "description": "Changer le nom d'une conversation vous permets de mieux vous y retrouver dans votre historique. Le nom généré par défaut peut ne plus être exact après quelques échanges."
       }
-    }
+    },
+    "warning": "L'IA peut commettre des erreurs et ne remplace pas un avis professionnel. Vérifiez les informations générées et évitez de partager des données sensibles."
   }
 }

@@ -106,7 +106,7 @@ async function sendMessage() {
 
           <footer
             v-if="showInput"
-            class="sticky bottom-0 mx-auto w-full max-w-5xl shrink-0 flex py-4 bg-background"
+            class="sticky bottom-0 mx-auto w-full max-w-5xl shrink-0 flex flex-col py-4 bg-background gap-2"
           >
             <div class="relative flex-1">
               <UiButton
@@ -132,6 +132,9 @@ async function sendMessage() {
                 <Send />
               </UiButton>
             </div>
+            <p class="text-muted-foreground text-xs px-2">
+              {{ $t("companion.warning") }}
+            </p>
           </footer>
         </main>
       </UiSidebarInset>
