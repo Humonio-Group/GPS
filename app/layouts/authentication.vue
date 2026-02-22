@@ -7,6 +7,8 @@ import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
     name="authentication"
     class="w-full min-h-dvh grid place-items-center px-6"
   >
-    <NuxtPage />
+    <UiTooltipProvider>
+      <NuxtPage />
+    </UiTooltipProvider>
   </LayoutRoot>
 </template>

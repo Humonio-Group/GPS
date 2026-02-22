@@ -1,6 +1,7 @@
 const publicPaths = [
   "/auth/login",
   "/auth/portal",
+  "/auth/terms",
 ];
 
 export default defineNuxtRouteMiddleware(async (to) => {

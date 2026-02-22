@@ -1,6 +1,6 @@
 import type { Nullable } from "~/types/primitives/objects";
 import type { UserRole, AvailableCompany, User } from "~/types/entities/user";
-import type { ApiResponse } from "~/types/primitives/api";
+import type { ApiResponse, ApiResponseData } from "~/types/primitives/api";
 import type { AvailableLocale, Locale } from "~/types/misc/language";
 import type { Theme, ThemeObject } from "~/types/misc/theme";
 import type { Terms } from "~/types/entities/terms";
@@ -32,6 +32,7 @@ function buildUserEntity(data: any, included: any): User {
   return {
     id: data.id,
     key: data.attributes.key,
+    termsToApprove: data.attributes.termsToApprove,
     avatar: data.attributes.picture.thumbnail,
     name: {
       first: data.attributes.firstname,
@@ -133,6 +134,8 @@ export const useUserStore = defineStore("user", {
         this.availableCompanies = buildAvailableCompaniesMap(response.included);
         await setupInterfaceWithUserSettings(this.user!);
 
+        if (response.data.attributes.termsToApprove) return navigateTo(localePath("/auth/terms"));
+
         if (this.availableCompanies.length === 1) navigateTo(localePath(`/${this.availableCompanies[0]!.alias}/courses`));
         else navigateTo(localePath("/auth/portal"));
       }
@@ -176,6 +179,9 @@ export const useUserStore = defineStore("user", {
         this.availableCompanies = buildAvailableCompaniesMap(response.included);
         await setupInterfaceWithUserSettings(this.user!);
         this.subscribeToPusherNotifications();
+
+        console.log((response.data as ApiResponseData).attributes.termsToApprove);
+        if ((response.data as ApiResponseData).attributes.termsToApprove) return navigateTo(useLocalePath()("/auth/terms"));
       }
       catch (e) {
         useLogger().error(e);
@@ -430,7 +436,9 @@ export const useUserStore = defineStore("user", {
           version: 2,
           endpointVersion: 1,
         });
-        navigateTo(useRuntimeConfig().public.urls.auth, { external: true });
+        useStoreClearing();
+        this.user = null;
+        navigateTo(useLocalePath()("/auth/login"));
       }
       catch (e) {
         useLogger().error(e);

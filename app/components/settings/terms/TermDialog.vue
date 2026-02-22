@@ -6,6 +6,7 @@ const { locale } = useI18n();
 
 interface TermDialogProps {
   term: Term;
+  trigger?: boolean;
 }
 
 defineProps<TermDialogProps>();
@@ -14,11 +15,17 @@ const df = new Intl.DateTimeFormat(locale.value, {
   dateStyle: "medium",
   timeStyle: "short",
 });
-const open = defineModel<boolean>("open", { required: true });
+const open = defineModel<boolean>("open", { default: false });
 </script>
 
 <template>
   <UiDialog v-model:open="open">
+    <UiDialogTrigger
+      v-if="trigger"
+      as-child
+    >
+      <slot />
+    </UiDialogTrigger>
     <UiDialogContent class="max-h-[80dvh] max-w-4xl! overflow-y-auto">
       <MarkdownRenderer
         :content="term.description"
