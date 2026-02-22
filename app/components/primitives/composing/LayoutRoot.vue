@@ -8,7 +8,7 @@ const props = defineProps<ComposingProps>();
 <template>
   <div
     :data-layout-name="name ?? 'default'"
-    :class="cn('', props.class)"
+    :class="cn('@container', props.class)"
   >
     <slot />
   </div>

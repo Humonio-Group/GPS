@@ -9,6 +9,7 @@ interface CommentsDialogProps {
 }
 
 const props = defineProps<CommentsDialogProps>();
+const open = defineModel<boolean>("open", { default: false });
 
 const comment = ref<string>("");
 const replyTo = ref<Nullable<number>>(null);
@@ -34,7 +35,7 @@ function commentEvent(event: KeyboardEvent) {
 </script>
 
 <template>
-  <UiSheet>
+  <UiSheet v-model:open="open">
     <UiSheetTrigger as-child>
       <UiButton
         variant="ghost"
