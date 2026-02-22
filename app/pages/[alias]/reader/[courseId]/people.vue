@@ -46,7 +46,9 @@ store.loadPeople();
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.peoples`"
-    class="grid gap-4"
+    class="w-full"
+    wrapper
+    wrapper-class="grid gap-4 max-w-7xl w-full mx-auto"
   >
     <header class="flex flex-col @md:flex-row @md:items-center gap-2">
       <div class="relative flex-1">
@@ -67,155 +69,160 @@ store.loadPeople();
           <X />
         </UiButton>
       </div>
-
-      <UiPopover v-model:open="popoverOpen">
-        <UiPopoverTrigger as-child>
-          <UiButton>
-            <template v-if="course!.manager">
-              <RefreshCw />
-              {{ $t("courses.specimen.people.manager.change") }}
-            </template>
-            <template v-else>
-              <UserPlus />
-              {{ $t("courses.specimen.people.manager.invite") }}
-            </template>
-          </UiButton>
-        </UiPopoverTrigger>
-        <UiPopoverContent align="end">
-          <form
-            class="flex flex-col gap-4"
-            @submit="submit"
-          >
-            <p class="text-sm text-muted-foreground">
-              {{ $t("courses.specimen.people.manager.captions.authorize", { brand: brand.name }) }}
-            </p>
-            <UiFormField
-              v-slot="{ componentField }"
-              name="email"
-            >
-              <UiFormItem>
-                <UiFormLabel>
-                  {{ $t("courses.specimen.people.manager.fields.email") }}
-                </UiFormLabel>
-                <UiFormControl v-bind="componentField">
-                  <UiInput
-                    type="email"
-                    :placeholder="$t('labels.placeholder.generic.email').replace('.at.', '@')"
-                    :disabled="loading.specific.inviteManager"
-                  />
-                </UiFormControl>
-                <UiFormMessage />
-              </UiFormItem>
-            </UiFormField>
-
-            <UiSeparator />
-
-            <p class="text-sm text-muted-foreground">
-              {{ $t("courses.specimen.people.manager.captions.more-results") }}
-            </p>
-            <UiFormField
-              v-slot="{ componentField }"
-              name="results"
-            >
-              <UiFormItem class="flex items-center gap-4">
-                <UiFormLabel class="grid gap-0.5">
-                  <p>{{ $t("courses.specimen.people.manager.fields.results.title") }}</p>
-                  <span class="text-xs text-muted-foreground">{{ $t("courses.specimen.people.manager.fields.results.caption", { brand: brand.name }) }}</span>
-                </UiFormLabel>
-
-                <UiFormControl>
-                  <UiCheckbox
-                    :model-value="componentField.modelValue"
-                    :disabled="loading.specific.inviteManager"
-                    @update:model-value="componentField['onUpdate:modelValue']"
-                  />
-                </UiFormControl>
-              </UiFormItem>
-            </UiFormField>
-
-            <UiButton
-              type="submit"
-              :disabled="loading.specific.inviteManager"
-            >
-              <UiSpinner v-if="loading.specific.inviteManager" />
-              <Plus v-else />
-              {{ $t("btn.invite") }}
-            </UiButton>
-          </form>
-        </UiPopoverContent>
-      </UiPopover>
     </header>
 
-    <UiCard
-      v-if="course!.manager"
-      class="gap-3 pb-3"
-    >
-      <UiCardHeader>
-        <UiCardTitle>
-          {{ $t("courses.specimen.people.your-manager") }}
-        </UiCardTitle>
-      </UiCardHeader>
-      <UiCardContent class="grid gap-1 px-3">
-        <PeopleProfileDialog
-          :people="course!.manager"
-          manager
-        />
-      </UiCardContent>
-    </UiCard> <!-- todo: bind manager if present - loic -->
-    <UiCard
-      v-if="coaches.length"
-      class="gap-3 pb-3"
-    >
-      <UiCardHeader>
-        <UiCardTitle>
-          {{ $t("courses.specimen.people.coaches") }}
-        </UiCardTitle>
-      </UiCardHeader>
-      <UiCardContent class="grid gap-1 px-3">
-        <PeopleProfileDialog
-          v-for="people in coaches"
-          :key="`coach#${people.id}`"
-          :people="people"
-          class="-mx-3"
-        />
-      </UiCardContent>
-    </UiCard>
-    <UiCard
-      v-if="facilitators.length"
-      class="gap-3 pb-3"
-    >
-      <UiCardHeader>
-        <UiCardTitle>
-          {{ $t("courses.specimen.people.facilitators") }}
-        </UiCardTitle>
-      </UiCardHeader>
-      <UiCardContent class="grid gap-1 px-3">
-        <PeopleProfileDialog
-          v-for="people in facilitators"
-          :key="`facilitator#${people.id}`"
-          :people="people"
-          class="-mx-3"
-        />
-      </UiCardContent>
-    </UiCard>
-    <UiCard
-      v-if="participants.length"
-      class="gap-3 pb-3"
-    >
-      <UiCardHeader>
-        <UiCardTitle>
-          {{ $t("courses.specimen.people.participants") }}
-        </UiCardTitle>
-      </UiCardHeader>
-      <UiCardContent class="grid gap-1">
-        <PeopleProfileDialog
-          v-for="people in participants"
-          :key="`participant#${people.id}`"
-          :people="people"
-          class="-mx-3"
-        />
-      </UiCardContent>
-    </UiCard>
+    <div class="grid items-start grid-cols-1 @lg:grid-cols-2 @xl:grid-cols-3 gap-4">
+      <div class="grid gap-4 @lg:col-start-2 @xl:col-start-3">
+        <UiCard class="gap-3 pb-3">
+          <UiCardHeader class="flex items-center justify-between gap-4">
+            <UiCardTitle>
+              {{ $t("courses.specimen.people.your-manager") }}
+            </UiCardTitle>
+
+            <UiPopover v-model:open="popoverOpen">
+              <UiPopoverTrigger as-child>
+                <UiButton>
+                  <template v-if="course!.manager">
+                    <RefreshCw />
+                    {{ $t("courses.specimen.people.manager.change") }}
+                  </template>
+                  <template v-else>
+                    <UserPlus />
+                    {{ $t("courses.specimen.people.manager.invite") }}
+                  </template>
+                </UiButton>
+              </UiPopoverTrigger>
+              <UiPopoverContent align="end">
+                <form
+                  class="flex flex-col gap-4"
+                  @submit="submit"
+                >
+                  <p class="text-sm text-muted-foreground">
+                    {{ $t("courses.specimen.people.manager.captions.authorize", { brand: brand.name }) }}
+                  </p>
+                  <UiFormField
+                    v-slot="{ componentField }"
+                    name="email"
+                  >
+                    <UiFormItem>
+                      <UiFormLabel>
+                        {{ $t("courses.specimen.people.manager.fields.email") }}
+                      </UiFormLabel>
+                      <UiFormControl v-bind="componentField">
+                        <UiInput
+                          type="email"
+                          :placeholder="$t('labels.placeholder.generic.email').replace('.at.', '@')"
+                          :disabled="loading.specific.inviteManager"
+                        />
+                      </UiFormControl>
+                      <UiFormMessage />
+                    </UiFormItem>
+                  </UiFormField>
+
+                  <UiSeparator />
+
+                  <p class="text-sm text-muted-foreground">
+                    {{ $t("courses.specimen.people.manager.captions.more-results") }}
+                  </p>
+                  <UiFormField
+                    v-slot="{ componentField }"
+                    name="results"
+                  >
+                    <UiFormItem class="flex items-center gap-4">
+                      <UiFormLabel class="grid gap-0.5">
+                        <p>{{ $t("courses.specimen.people.manager.fields.results.title") }}</p>
+                        <span class="text-xs text-muted-foreground">{{ $t("courses.specimen.people.manager.fields.results.caption", { brand: brand.name }) }}</span>
+                      </UiFormLabel>
+
+                      <UiFormControl>
+                        <UiCheckbox
+                          :model-value="componentField.modelValue"
+                          :disabled="loading.specific.inviteManager"
+                          @update:model-value="componentField['onUpdate:modelValue']"
+                        />
+                      </UiFormControl>
+                    </UiFormItem>
+                  </UiFormField>
+
+                  <UiButton
+                    type="submit"
+                    :disabled="loading.specific.inviteManager"
+                  >
+                    <UiSpinner v-if="loading.specific.inviteManager" />
+                    <Plus v-else />
+                    {{ $t("btn.invite") }}
+                  </UiButton>
+                </form>
+              </UiPopoverContent>
+            </UiPopover>
+          </UiCardHeader>
+          <UiCardContent
+            v-if="course!.manager"
+            class="grid gap-1 px-3"
+          >
+            <PeopleProfileDialog
+              :people="course!.manager"
+              manager
+            />
+          </UiCardContent>
+        </UiCard>
+        <UiCard
+          v-if="coaches.length"
+          class="gap-3 pb-3"
+        >
+          <UiCardHeader>
+            <UiCardTitle>
+              {{ $t("courses.specimen.people.coaches") }}
+            </UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="grid gap-1 px-3">
+            <PeopleProfileDialog
+              v-for="people in coaches"
+              :key="`coach#${people.id}`"
+              :people="people"
+              class="-mx-3"
+            />
+          </UiCardContent>
+        </UiCard>
+        <UiCard
+          v-if="facilitators.length"
+          class="gap-3 pb-3"
+        >
+          <UiCardHeader>
+            <UiCardTitle>
+              {{ $t("courses.specimen.people.facilitators") }}
+            </UiCardTitle>
+          </UiCardHeader>
+          <UiCardContent class="grid gap-1 px-3">
+            <PeopleProfileDialog
+              v-for="people in facilitators"
+              :key="`facilitator#${people.id}`"
+              :people="people"
+              class="-mx-3"
+            />
+          </UiCardContent>
+        </UiCard>
+      </div>
+
+      <UiCard
+        v-if="participants.length"
+        class="@lg:row-start-1 @xl:col-span-2 gap-3 pb-3"
+      >
+        <UiCardHeader>
+          <UiCardTitle>
+            {{ $t("courses.specimen.people.participants") }}
+          </UiCardTitle>
+        </UiCardHeader>
+        <UiCardContent class="grid gap-1">
+          <PeopleProfileDialog
+            v-for="people in participants"
+            :key="`participant#${people.id}`"
+            :people="people"
+            class="-mx-3"
+          />
+        </UiCardContent>
+      </UiCard>
+    </div>
 
     <div
       v-if="loading.specific.people"
