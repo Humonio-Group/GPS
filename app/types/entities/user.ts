@@ -48,6 +48,7 @@ export interface User {
   id: number;
   key: string;
   avatar: Nullable<string>;
+  termsToApprove?: boolean;
   name: UserName;
   biography: UserBiography;
   contact: UserContact;
