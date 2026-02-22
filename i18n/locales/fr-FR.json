@@ -434,6 +434,7 @@
       },
       "actions": {
         "title": "Actions - {name}",
+        "page-title": "Actions",
         "empty": {
           "title": "Oh non...",
           "description": "Il semblerait qu'il n'y ait aucune action..."

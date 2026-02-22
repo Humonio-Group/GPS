@@ -14,8 +14,14 @@ store.loadActions();
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.actions`"
-    class="text-sm text-muted-foreground grid gap-4"
+    class="w-full"
+    wrapper
+    wrapper-class="w-full max-w-7xl mx-auto grid gap-4"
   >
+    <h1 class="text-3xl font-extrabold">
+      {{ $t("courses.specimen.actions.page-title") }}
+    </h1>
+
     <div
       v-if="course!.actions.length > 0"
       class="grid gap-4"
