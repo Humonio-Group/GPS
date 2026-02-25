@@ -1,12 +1,17 @@
 <script setup lang="ts">
-import { Zap, Plus } from "lucide-vue-next";
+import { Zap, Plus, X, Search } from "lucide-vue-next";
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
 import ActionCard from "~/components/course/action/ActionCard.vue";
+import CreateActionFromTemplateDialog from "~/components/course/action/CreateActionFromTemplateDialog.vue";
 
 const id = computed(() => useRoute().params.courseId as string);
 
 const store = useCoursesStore();
+const { isMobile } = useResponsive();
 const { selectedCourse: course, loading } = storeToRefs(store);
+
+const actions = computed(() => course.value?.actions ?? []);
+const { search, results, clear } = useSearch(actions, "description.original");
 
 store.loadActions();
 </script>
@@ -22,12 +27,42 @@ store.loadActions();
       {{ $t("courses.specimen.actions.page-title") }}
     </h1>
 
+    <nav class="flex items-center w-full gap-1">
+      <div class="relative flex-1">
+        <UiInput
+          v-model="search"
+          class="w-full pl-8"
+          :placeholder="$t('labels.search')"
+        />
+        <UiButton
+          v-if="search.length"
+          variant="ghost"
+          size="icon-xs"
+          class="absolute top-1.5 left-1.5 size-6 rounded-full"
+          @click="clear"
+        >
+          <X />
+        </UiButton>
+        <Search
+          v-else
+          class="absolute top-2.5 left-2.5 size-4 text-muted-foreground"
+        />
+      </div>
+
+      <CreateActionFromTemplateDialog trigger>
+        <UiButton :size="isMobile ? 'icon' : 'default'">
+          <Plus />
+          {{ $t("btn.create.action") }}
+        </UiButton>
+      </CreateActionFromTemplateDialog>
+    </nav>
+
     <div
-      v-if="course!.actions.length > 0"
+      v-if="results.length > 0"
       class="grid gap-4"
     >
       <ActionCard
-        v-for="action in course!.actions"
+        v-for="action in results"
         :key="`c${course!.id}-action#${action.id}`"
         :action="action"
       />

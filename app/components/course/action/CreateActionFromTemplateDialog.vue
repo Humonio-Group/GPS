@@ -1,39 +1,35 @@
 <script setup lang="ts">
+import { MarkdownEditor } from "~/components/ui/markdown-editor";
+import { Plus } from "lucide-vue-next";
 import { v4 as uuid } from "uuid";
-import type { Content } from "~/types/entities/course";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import { Plus } from "lucide-vue-next";
-import { z } from "zod";
-import { MarkdownEditor } from "~/components/ui/markdown-editor";
 import { today, getLocalTimeZone, type DateValue, fromDate } from "@internationalized/date";
+import z from "zod";
+import type { Strategy } from "~/types/entities/strategy";
+import type { Nullable } from "~/types/primitives/objects";
 
-interface CreateActionDialogProps {
-  content: Content;
+interface CreateActionFromTemplateDialog {
+  trigger?: boolean;
 }
 
-const { locale, t } = useI18n();
+const { t, locale } = useI18n();
+
+defineProps<CreateActionFromTemplateDialog>();
+
+const api = useApi();
+const logger = useLogger();
 const { formatDate } = useDateUtils();
 
-const props = defineProps<CreateActionDialogProps>();
+const store = useCoursesStore();
+const { selectedCourse: course, loading } = storeToRefs(store);
+
+const loadingStrategies = ref<boolean>(false);
 const open = defineModel<boolean>("open", { default: false });
 watch(open, async (val) => {
   if (!val) return;
-  await strategyStore.loadStrategies(props.content.activity.action!.reference);
-  form.resetForm({
-    values: {
-      objective: strategies.value[0]!.id,
-    },
-  });
-  tasks.value = [
-    { id: uuid(), checked: false, label: "" },
-  ];
-});
-
-const strategyStore = useStrategyStore();
-const store = useCoursesStore();
-const { loading: loadingStrategies, strategies } = storeToRefs(strategyStore);
-const { loading } = storeToRefs(store);
+  await loadAction();
+}, { immediate: true });
 
 const form = useForm({
   validationSchema: toTypedSchema(z.object({
@@ -61,23 +57,113 @@ const form = useForm({
     ],
   },
 });
+const { tasks, add: addTask, keyDown: handleTaskKeydown } = useTasks(val => form.setFieldValue("tasks", val.map(t => ({ label: t.label, checked: t.checked }))));
 
 const deadline = computed({
   get: () => fromDate(form.values.deadline ?? new Date(), getLocalTimeZone()),
   set: (value: DateValue) => form.setFieldValue("deadline", value.toDate(getLocalTimeZone())),
 });
 
-const { tasks, add: addTask, keyDown: handleTaskKeydown }
-  = useTasks(val => form.setFieldValue("tasks", val.map(t => ({ checked: t.checked, label: t.label }))));
+const action = ref<any>();
+const templates = ref<any[]>([]);
+const selectedTemplateId = ref<Nullable<number>>(null);
+const selectedTemplate = computed<Nullable<any>>(() => templates.value.find((t: any) => t.id === selectedTemplateId.value) || null);
+watch(selectedTemplate, (val) => {
+  if (!val) {
+    form.resetForm({
+      values: {
+        objective: strategies.value[0]!.id,
+        deadline: new Date(),
+      },
+    });
+    tasks.value = [
+      { id: uuid(), checked: false, label: "" },
+    ];
+    return;
+  }
+
+  const dueDate = new Date();
+  dueDate.setDate(dueDate.getDate() + Number(val.initial.deadline || 0));
+
+  form.resetForm({
+    values: {
+      objective: val.initial.strategy,
+      description: val.initial.description,
+      deadline: dueDate,
+      tasks: [],
+    },
+  });
+  tasks.value = val.initial.tasks.map((t: any) => ({
+    id: uuid(),
+    ...t,
+  }));
+});
+const strategies = ref<Strategy[]>([]);
 
 const submit = form.handleSubmit(async (values) => {
-  open.value = !(await store.createAction(props.content.activity.action!.id, values));
+  open.value = !(await store.createAction(selectedTemplate.value?.reference ?? action.value.actionPlan.id, values));
 });
+
+async function loadAction() {
+  loadingStrategies.value = true;
+
+  try {
+    const response = await api.get(`/journeys/${course.value!.id}/action-creation-config`, { version: 2, endpointVersion: 3, vanilla: true });
+    const { defaultActionPlan, strategies: _strategies, templates: _templates } = response.data;
+    logger.log(_templates);
+
+    action.value = defaultActionPlan;
+    templates.value = _templates.map((t: any) => {
+      const fields = t.embedContent.fields;
+
+      return {
+        id: t.id,
+        reference: t.actionPlanId,
+        name: t.displayName,
+        readonly: {
+          strategy: fields.isStrategiesReadonly,
+          description: fields.isDescriptionReadonly,
+          deadline: fields.isDueDateReadonly,
+          tasks: fields.isTasklistReadonly,
+        },
+        initial: {
+          strategy: fields.preFilledStrategies[0],
+          description: fields.preFilledDescription,
+          deadline: fields.preFilledDueDate,
+          tasks: fields.preFilledTasklist.map((task: any) => ({ checked: false, label: task.name })),
+        },
+      };
+    });
+    strategies.value = _strategies.map((s: any) => ({
+      id: s.id,
+      name: s.name,
+      description: s.description,
+    }));
+
+    form.resetForm({
+      values: {
+        objective: strategies.value[0]!.id,
+      },
+    });
+    tasks.value = [
+      { id: uuid(), checked: false, label: "" },
+    ];
+  }
+  catch (e) {
+    logger.error(e);
+  }
+  finally {
+    loadingStrategies.value = false;
+  }
+}
 </script>
 
 <template>
   <UiDialog v-model:open="open">
-    <UiDialogTrigger as-child>
+    <UiDialogTrigger
+      v-if="trigger"
+      as-child
+    >
       <slot />
     </UiDialogTrigger>
 
@@ -98,13 +184,46 @@ const submit = form.handleSubmit(async (values) => {
         class="grid gap-4"
         @submit="submit"
       >
+        <div
+          v-if="templates.length"
+          class="space-y-2"
+        >
+          <UiLabel for="template">
+            Modèle
+          </UiLabel>
+          <UiSelect
+            id="template"
+            v-model="selectedTemplateId"
+          >
+            <UiSelectTrigger class="w-full">
+              <UiSelectValue />
+            </UiSelectTrigger>
+
+            <UiSelectContent>
+              <UiSelectItem :value="null">
+                Aucun modèle
+              </UiSelectItem>
+              <UiSelectItem
+                v-for="template in templates"
+                :key="template.id"
+                :value="template.id"
+              >
+                {{ template.name }}
+              </UiSelectItem>
+            </UiSelectContent>
+          </UiSelect>
+        </div>
+
         <UiFormField
           v-slot="{ componentField }"
           name="objective"
         >
           <UiFormItem>
             <UiFormLabel>{{ $t("labels.fields.objective") }}</UiFormLabel>
-            <UiSelect v-bind="componentField">
+            <UiSelect
+              v-bind="componentField"
+              :disabled="selectedTemplate && selectedTemplate.readonly.strategy"
+            >
               <UiFormControl>
                 <UiSelectTrigger class="w-full">
                   <UiSelectValue />
@@ -130,7 +249,10 @@ const submit = form.handleSubmit(async (values) => {
           <UiFormItem>
             <UiFormLabel>{{ $t("labels.fields.description") }}</UiFormLabel>
             <UiFormControl v-bind="componentField">
-              <MarkdownEditor :show-menu-bar="false" />
+              <MarkdownEditor
+                :show-menu-bar="false"
+                :editable="!selectedTemplate || !selectedTemplate.readonly.description "
+              />
             </UiFormControl>
             <UiFormDescription>
               <i18n-t keypath="dialogs.create-action.markdown-handled">
@@ -159,6 +281,7 @@ const submit = form.handleSubmit(async (values) => {
                 <UiButton
                   variant="outline"
                   class="justify-start"
+                  :disabled="selectedTemplate && selectedTemplate.readonly.deadline"
                 >
                   {{ formatDate("medium")(value) }}
                 </UiButton>
@@ -182,6 +305,7 @@ const submit = form.handleSubmit(async (values) => {
             <div class="flex items-center justify-between">
               <UiLabel>{{ $t("labels.fields.tasks") }}</UiLabel>
               <UiButton
+                v-if="!selectedTemplate || !selectedTemplate.readonly.tasks"
                 size="icon-xs"
                 variant="ghost"
                 @click="addTask"
@@ -201,6 +325,7 @@ const submit = form.handleSubmit(async (values) => {
               <UiInput
                 :id="`task-input-${task.id}`"
                 v-model="task.label"
+                :disabled="selectedTemplate && selectedTemplate.readonly.tasks"
                 class="border-none shadow-none px-1 bg-background!"
                 :placeholder="$t('labels.placeholder.task')"
                 @keydown="handleTaskKeydown(task.id, $event)"

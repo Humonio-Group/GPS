@@ -9,10 +9,7 @@ definePageMeta({
 const store = useUserStore();
 const { availableCompanies } = storeToRefs(store);
 
-const search = ref<string>("");
-const companies = computed(() => availableCompanies.value.filter(c => sanitize(c.name).includes(sanitize(search.value || "")) || sanitize(c.alias).includes(sanitize(search.value || ""))));
-
-const sanitize = (input: string): string => input.trim().toLowerCase();
+const { search, results, clear } = useSearch(availableCompanies, "name", "alias");
 </script>
 
 <template>
@@ -36,7 +33,7 @@ const sanitize = (input: string): string => input.trim().toLowerCase();
           class="absolute top-1.75 right-1.75 size-6 rounded-full"
           size="icon-xs"
           variant="ghost"
-          @click="search = ''"
+          @click="clear"
         >
           <X />
         </UiButton>
@@ -45,9 +42,9 @@ const sanitize = (input: string): string => input.trim().toLowerCase();
           class="size-4 text-muted-foreground absolute top-2.5 right-2.5"
         />
       </div>
-      <template v-if="companies.length">
+      <template v-if="results.length">
         <template
-          v-for="(company, index) in companies"
+          v-for="(company, index) in results"
           :key="company.alias"
         >
           <UiSeparator v-if="index > 0" />

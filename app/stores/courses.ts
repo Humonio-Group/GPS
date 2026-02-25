@@ -1339,6 +1339,9 @@ export const useCoursesStore = defineStore("courses", {
 
       try {
         const response = await this.api.post("/actions", { version: 2, endpointVersion: 1 }, {
+          query: {
+            include: "impactMapCategory1,impactMapCategory2,impactMapCategory3,impactMapCategory4",
+          },
           body: {
             data: {
               type: EntityType.ACTION,
@@ -1382,7 +1385,7 @@ export const useCoursesStore = defineStore("courses", {
           },
         });
 
-        this.logger.log(response);
+        this.selectedCourse.actions = [buildActionEntity(response.data, response.included), ...this.selectedCourse.actions];
       }
       catch (e) {
         this.logger.error(e);
