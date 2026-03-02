@@ -440,8 +440,10 @@
           "description": "Il semblerait qu'il n'y ait aucune action..."
         },
         "tasklist": "Liste de tâches",
+        "recommendations": "Contenus recommandés",
         "to-finish-for": "À terminer pour aujourd'hui | À terminer pour le {date}",
-        "count": "{done} / {total} tâche | {done} / {total} tâches"
+        "count": "{done} / {total} tâche | {done} / {total} tâches",
+        "details-title": "Détails de votre action"
       },
       "results": {
         "title": "Résultats - {name}",

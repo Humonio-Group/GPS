@@ -110,6 +110,13 @@ onBeforeUnmount(() => {
   }
 });
 
+function focusEditor() {
+  if (!props.editable) return;
+  if (editor.value && !editor.value.isFocused) {
+    editor.value.commands.focus("end");
+  }
+}
+
 // Expose editor instance for parent components
 defineExpose({
   editor: computed(() => editor.value),
@@ -123,11 +130,15 @@ defineExpose({
 <template>
   <div
     :class="cn(
-      'border-input w-full rounded-md border bg-background shadow-xs',
+      'border-input w-full rounded-md border bg-background shadow-xs outline-none',
+      props.editable && 'cursor-text',
       'focus-within:border-ring focus-within:ring-ring/50 focus-within:ring-[3px]',
       'transition-[color,box-shadow]',
       props.class,
     )"
+    tabindex="-1"
+    @focus="focusEditor"
+    @click="focusEditor"
   >
     <MenuBar
       v-if="showMenuBar && editor"

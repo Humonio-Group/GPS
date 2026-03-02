@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { TrendingUp } from "lucide-vue-next";
-import type { Action } from "~/types/entities/action";
+import { Lock } from "lucide-vue-next";
+import type { Action, Objective } from "~/types/entities/action";
 import MarkdownRenderer from "~/components/primitives/MarkdownRenderer.vue";
 import type { Nullable } from "~/types/primitives/objects";
 import { EntityType } from "~/types/entities/entities";
+import { buildActionEntity } from "~/lib/action";
+import ObjectiveCard from "~/components/course/action/ObjectiveCard.vue";
 
 interface ActionActivityDialogProps {
   actionId: number;
@@ -27,6 +29,9 @@ const store = useCoursesStore();
 const action = ref<Nullable<Action>>(null);
 const loading = ref<boolean>(false);
 const updating = ref<boolean>(false);
+const selectedStrategy = ref<Nullable<Objective>>(null);
+const { alias } = useWorkspaceUtils();
+const { selectedCourse: course } = storeToRefs(store);
 
 const tasks = computed(() => action.value?.tasks ?? []);
 
@@ -41,34 +46,23 @@ async function loadAction() {
   try {
     const response = await api.get(`/actions/${id}`, { version: 2, endpointVersion: 1, vanilla: true }, {
       query: {
-        include: "impactMapCategory4",
+        "include": "topic,journey,journey.program,followers,requesterFollow,impactMapCategory1,impactMapCategory2,impactMapCategory3,impactMapCategory4,changr,changr.content,user,recommended,recommended.recommendedStrategies,recommended.activityUsers",
+        "fields[actions]": "default,stats,tasklist",
+        "fields[programs]": "config.impact",
+        "fields[topics]": "default,recipient,stats.all",
+        "fields[contents]": "display,design,embedContent",
+        "fields[strategies]": "display,section",
+        "fields[changrs]": "specific",
+        "fields[journeys]": "displayName",
+        "fields[tags]": "displayName,stats,stats.users",
+        "fields[users]": "name,picture,email",
+        "fields[activityUsers]": "default,graphics",
       },
     });
 
-    const strategy = response.included.filter((i: any) => i.type === EntityType.STRATEGY)[0];
-    action.value = {
-      id: response.data.id,
-      objective: {
-        id: strategy.id,
-        name: strategy.attributes.displayName,
-        description: strategy.attributes.displayDesc,
-      },
-      description: {
-        original: response.data.attributes.description,
-        raw: response.data.attributes.rawDescription,
-      },
-      end: new Date(response.data.attributes.dates.endAction),
-      progression: response.data.attributes.progression,
-      tasks: response.data.attributes.tasklist.map((t: any) => ({
-        name: t.name,
-        done: t.done,
-      })),
-      stats: {
-        likes: response.data.attributes.stats.nbLikes,
-        followers: response.data.attributes.stats.nbFollowers,
-        comments: response.data.attributes.stats.nbComments,
-      },
-    };
+    const { data, included } = response;
+    action.value = buildActionEntity(data, included);
+    useLogger().log("[ACTION DIALOG]", action.value);
   }
   catch (e) {
     useLogger().error(e);
@@ -105,6 +99,10 @@ async function updateAction() {
     updating.value = false;
   }
 }
+function selectStrategy(strategy: Objective) {
+  if (selectedStrategy.value?.id === strategy.id) selectedStrategy.value = null;
+  else selectedStrategy.value = strategy;
+}
 </script>
 
 <template>
@@ -113,6 +111,12 @@ async function updateAction() {
       <slot />
     </UiDialogTrigger>
     <UiDialogContent>
+      <UiDialogHeader>
+        <UiDialogTitle>
+          {{ $t("courses.specimen.actions.details-title") }}
+        </UiDialogTitle>
+      </UiDialogHeader>
+
       <div
         v-if="loading"
         class="h-24 grid place-items-center"
@@ -120,20 +124,42 @@ async function updateAction() {
         <UiSpinner />
       </div>
       <template v-else-if="action">
+        <!-- objective -->
+        <section
+          v-if="action.hasImpactMap"
+          class="grid gap-2"
+        >
+          <div class="flex items-center flex-wrap gap-2">
+            <UiButton
+              v-for="strategy in action.strategies"
+              :key="strategy.id"
+              :variant="selectedStrategy?.id === strategy.id ? 'secondary' : 'outline'"
+              @click="selectStrategy(strategy)"
+            >
+              {{ strategy.name }}
+            </UiButton>
+          </div>
+          <ObjectiveCard
+            v-if="selectedStrategy"
+            :objective="selectedStrategy"
+          />
+        </section>
+        <ObjectiveCard
+          v-else
+          :objective="action.objective"
+        />
+
+        <!-- description -->
         <section>
-          <MarkdownRenderer :content="action.description.original" />
+          <MarkdownRenderer
+            :content="action.description.original"
+            use-markdown
+          />
         </section>
 
-        <!-- objective -->
-        <UiCard class="p-4 gap-3 flex-row">
-          <TrendingUp class="size-4 text-muted-foreground" />
+        <UiSeparator />
 
-          <UiCardHeader class="flex-1 px-0">
-            <UiCardTitle>{{ action.objective.name }}</UiCardTitle>
-            <UiCardDescription>{{ action.objective.description }}</UiCardDescription>
-          </UiCardHeader>
-        </UiCard>
-
+        <!-- tasklist -->
         <section
           v-if="action.tasks.length"
           class="grid gap-2"
@@ -176,6 +202,51 @@ async function updateAction() {
             </li>
           </ul>
         </section>
+
+        <!-- recommendations -->
+        <template v-if="action.recommendations.length">
+          <UiSeparator />
+
+          <section class="flex flex-col gap-2 overflow-hidden">
+            <header class="flex items-center justify-between">
+              <h3 class="text-lg font-bold">
+                {{ $t("courses.specimen.actions.recommendations") }}
+              </h3>
+            </header>
+
+            <template
+              v-for="recommendation in action.recommendations"
+              :key="recommendation.id"
+            >
+              <UiButton
+                v-if="recommendation.locked"
+                variant="outline"
+                class="pl-1.5 overflow-hidden"
+              >
+                <div class="size-6 grid place-items-center">
+                  <Lock class="size-4 text-muted-foreground" />
+                </div>
+
+                <span class="flex-1 truncate">{{ recommendation.name }}</span>
+              </UiButton>
+              <UiButton
+                v-else
+                variant="outline"
+                class="pl-1.5 overflow-hidden"
+                as-child
+              >
+                <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${recommendation.id}`">
+                  <NuxtImg
+                    class="size-6 rounded-sm object-cover bg-primary"
+                    :src="recommendation.icon"
+                  />
+
+                  <span class="flex-1 truncate">{{ recommendation.name }}</span>
+                </NuxtLinkLocale>
+              </UiButton>
+            </template>
+          </section>
+        </template>
       </template>
     </UiDialogContent>
   </UiDialog>

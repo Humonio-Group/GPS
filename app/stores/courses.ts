@@ -25,6 +25,7 @@ import { StrategySection } from "~/types/entities/strategy";
 import { type ChartData, GraphType } from "~/types/entities/graph";
 import { toast } from "vue-sonner";
 import { buildScoreEntity } from "~/lib/score";
+import { buildActionEntity } from "~/lib/action";
 
 interface CoursesState {
   courses: Nullable<Course[]>;
@@ -111,7 +112,7 @@ function buildCourseEntity(journey: any, program: any, strategies: any): Course 
     },
   };
 }
-function buildActionEntity(data: any, included: any): Action {
+function _buildActionEntity(data: any, included: any): Action {
   const { id, attributes, relations } = extractBasicInfo(data);
 
   const objectiveId = relations.impactMapCategory4.data[0].id;
@@ -123,11 +124,15 @@ function buildActionEntity(data: any, included: any): Action {
       original: attributes.description ?? "",
       raw: attributes.rawDescription ?? "",
     },
+    hasImpactMap: false,
     objective: {
       id: objective.id,
       name: objective.attributes.name,
       description: objective.attributes.displayDesc,
+      section: 4,
     },
+    strategies: [],
+    recommendations: [],
     end: new Date(attributes.dates.endAction),
     progression: attributes.progression,
     tasks: attributes.tasklist.map((task: any, index: number) => ({ ...task, order: index })),
@@ -1385,7 +1390,8 @@ export const useCoursesStore = defineStore("courses", {
           },
         });
 
-        this.selectedCourse.actions = [buildActionEntity(response.data, response.included), ...this.selectedCourse.actions];
+        const { data, included } = response;
+        this.selectedCourse.actions = [buildActionEntity(data, included), ...this.selectedCourse.actions];
       }
       catch (e) {
         this.logger.error(e);
