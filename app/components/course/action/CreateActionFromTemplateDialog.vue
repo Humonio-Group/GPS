@@ -6,7 +6,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { today, getLocalTimeZone, type DateValue, fromDate } from "@internationalized/date";
 import z from "zod";
-import type { Strategy } from "~/types/entities/strategy";
+import { StrategySection, type Strategy } from "~/types/entities/strategy";
 import type { Nullable } from "~/types/primitives/objects";
 
 interface CreateActionFromTemplateDialog {
@@ -87,7 +87,7 @@ watch(selectedTemplate, (val) => {
 
   form.resetForm({
     values: {
-      objective: val.initial.strategy,
+      objective: strategies.value.find(s => s.id === val.initial.strategy)?.id ?? strategies.value.filter(s => s.section === StrategySection.OBJECTIVE)[0]?.id,
       description: val.initial.description,
       deadline: dueDate,
       tasks: [],
@@ -110,7 +110,6 @@ async function loadAction() {
   try {
     const response = await api.get(`/journeys/${course.value!.id}/action-creation-config`, { version: 2, endpointVersion: 3, vanilla: true });
     const { defaultActionPlan, strategies: _strategies, templates: _templates } = response.data;
-    logger.log(_templates);
 
     action.value = defaultActionPlan;
     templates.value = _templates.map((t: any) => {
@@ -138,6 +137,7 @@ async function loadAction() {
       id: s.id,
       name: s.name,
       description: s.description,
+      section: s.section?.value,
     }));
 
     form.resetForm({
