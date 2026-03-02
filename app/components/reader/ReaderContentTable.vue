@@ -146,7 +146,6 @@ const courseProgress = computed(() => {
                       :key="`stage-${stage.id}-c#${content.id}`"
                     >
                       <UiSidebarMenuButton v-if="content.locked">
-                        <span class="truncate flex-1">{{ content.name }}</span>
                         <UiPopover>
                           <UiPopoverTrigger as-child>
                             <Lock class="size-3 text-muted-foreground" />
@@ -164,10 +163,12 @@ const courseProgress = computed(() => {
                             </div>
                           </UiPopoverContent>
                         </UiPopover>
+                        <span class="truncate flex-1">{{ content.name }}</span>
                       </UiSidebarMenuButton>
                       <UiSidebarMenuButton
                         v-else
                         as-child
+                        class="overflow-hidden"
                       >
                         <NuxtLinkLocale
                           :to="`/${alias}/reader/${id}/${content.id}`"
@@ -178,7 +179,7 @@ const courseProgress = computed(() => {
                             :src="content.picture"
                           />
 
-                          <span class="truncate">
+                          <span class="flex-1 truncate">
                             {{ content.name }}
                           </span>
 
