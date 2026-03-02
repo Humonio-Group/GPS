@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { TrendingUp, Lock } from "lucide-vue-next";
+import { Lock } from "lucide-vue-next";
 import type { Action, Objective } from "~/types/entities/action";
 import MarkdownRenderer from "~/components/primitives/MarkdownRenderer.vue";
 import type { Nullable } from "~/types/primitives/objects";
