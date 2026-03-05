@@ -22,9 +22,10 @@ export function useScormPlayer() {
    * Generate wrapper URL with query parameters
    */
   function generateWrapperUrl(scorm: ScormActivity): string {
-    const baseUrl = `${window.location.origin}/scorm-wrapper.html`;
-    const { user } = storeToRefs(useUserStore());
     const config = useRuntimeConfig();
+    const { user } = storeToRefs(useUserStore());
+    const appBase = (config.app.baseURL || "/").replace(/\/$/, "") + "/";
+    const baseUrl = `${window.location.origin}${appBase}scorm-wrapper.html`;
 
     // Detect if SCORM URL is cross-origin (external)
     let isExternal = false;
@@ -75,7 +76,7 @@ export function useScormPlayer() {
     // Use direct load only for truly cross-origin (not same base domain)
     // For same-origin OR same-base-domain content (including ECHO), use fetch mode with bridge injection
     // ECHO will use Blob URL (not srcdoc) to allow relative resource loading with <base> tag
-    const useDirectLoad = isExternal && !isSameBaseDomain;
+    const useDirectLoad = scorm.isEcho ? false : (isExternal && !isSameBaseDomain);
 
     const params = new URLSearchParams({
       scormUrl: scorm.button.url,

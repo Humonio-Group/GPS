@@ -41,22 +41,6 @@
       'use strict';
 
       // ==============================================
-      // 0. Set document.domain for cross-subdomain access
-      // ==============================================
-      try {
-        // Detect if we're on qigu.app domain (or any other base domain)
-        const hostname = window.location.hostname;
-
-        // Extract base domain (e.g., qigu.app from staging.qigu.app or localhost.qigu.app)
-        if (hostname.includes('qigu.app')) {
-          document.domain = 'qigu.app';
-          console.log('[SCORM Wrapper] document.domain set to qigu.app for cross-subdomain access');
-        }
-      } catch (e) {
-        console.warn('[SCORM Wrapper] Cannot set document.domain:', e);
-      }
-
-      // ==============================================
       // 1. Configuration et contexte depuis URL params
       // ==============================================
       const urlParams = new URLSearchParams(window.location.search);
@@ -65,8 +49,13 @@
       const contentId = parseInt(urlParams.get('contentId') || '0', 10);
       const learnerId = parseInt(urlParams.get('learnerId') || '0', 10);
       const isEcho = urlParams.get('isEcho') === 'true';
-      const useDirectLoad = urlParams.get('useDirectLoad') !== 'false';
+      let useDirectLoad = urlParams.get('useDirectLoad') !== 'false';
       const env = urlParams.get('env') || 'production';
+
+      // Force fetch mode for Echo content (never use direct load)
+      if (isEcho) {
+        useDirectLoad = false;
+      }
 
       // Helper function for conditional logging
       const isDev = env === 'development';
@@ -581,7 +570,14 @@
           })
           .catch(error => {
             console.error('[SCORM Wrapper] Failed to load SCORM content:', error);
-            loading.textContent = 'Erreur de chargement du contenu SCORM: ' + error.message;
+            if (isEcho) {
+              console.warn('[SCORM Wrapper] Echo fetch failed, falling back to direct iframe load (SCORM tracking may be unavailable)');
+              iframe.src = scormUrl;
+              iframe.style.display = 'block';
+              loading.style.display = 'none';
+            } else {
+              loading.textContent = 'Erreur de chargement du contenu SCORM: ' + error.message;
+            }
           });
       }
 
@@ -591,7 +587,7 @@
 
       function generateBridgeScript() {
         // Generate bridge for BOTH SCORM versions - matches Angular implementation
-        var script = '<' + 'script>';
+        var script = '<' + 'script data-scorm-bridge>';
         script += 'var isDev = ' + isDev + ';';  // Pass isDev flag to bridge
         script += 'function debugLog() { if (isDev) console.log.apply(console, arguments); }';
         script += 'debugLog("[SCORM Bridge] Injecting dual bridge (1.2 + 2004)");';
@@ -648,6 +644,81 @@
 
         script += 'debugLog("[SCORM Bridge] APIs installed - window.API:", typeof window.API, "window.API_1484_11:", typeof window.API_1484_11);';
 
+        // === Sub-iframe interception for Echo ===
+        if (isEcho) {
+          var echoBaseUrl = scormUrl.split('?')[0].split('#')[0];
+          echoBaseUrl = echoBaseUrl.substring(0, echoBaseUrl.lastIndexOf('/') + 1);
+
+          script += '(function() {';
+          script += '  var ECHO_BASE = "' + echoBaseUrl + '";';
+
+          // Function to process sub-iframe HTML (rewrite URLs, inject bridge, handle nested iframes)
+          script += '  function processSubIframeHtml(html, baseHref) {';
+          script += '    var bridgeEl = document.querySelector("script[data-scorm-bridge]");';
+          script += '    var bridgeCode = bridgeEl ? bridgeEl.textContent.replace(/<\\//g, "<\\\\/") : "";';
+          script += '    var bridgeTag = "<" + "script data-scorm-bridge>" + bridgeCode + "<" + "/script>";';
+          // Defer nested iframes (relative src)
+          script += '    html = html.replace(/<iframe([^>]*?)\\ssrc=(["\'])(?!https?:\\/\\/|data:|blob:)([^"\']+)\\2/gi, function(m, pre, q, u) {';
+          script += '      return "<iframe" + pre + " data-scorm-src=" + q + baseHref + u.replace(/^\\.?\\//, "") + q;';
+          script += '    });';
+          // Defer nested iframes (absolute src)
+          script += '    html = html.replace(/<iframe([^>]*?)\\ssrc=(["\'])(https?:\\/\\/[^"\']+)\\2/gi, function(m, pre, q, u) {';
+          script += '      return "<iframe" + pre + " data-scorm-src=" + q + u + q;';
+          script += '    });';
+          // Rewrite remaining relative src to absolute
+          script += '    html = html.replace(/src=(["\'])(?!https?:\\/\\/|data:|blob:)([^"\']+)\\1/gi, function(m, q, u) {';
+          script += '      return "src=" + q + baseHref + u.replace(/^\\.?\\//, "") + q;';
+          script += '    });';
+          // Rewrite remaining relative href to absolute
+          script += '    html = html.replace(/href=(["\'])(?!https?:\\/\\/|#|data:|blob:|mailto:|tel:)([^"\']+)\\1/gi, function(m, q, u) {';
+          script += '      return "href=" + q + baseHref + u.replace(/^\\.?\\//, "") + q;';
+          script += '    });';
+          // Inject bridge into <head>
+          script += '    var headM = html.match(/<head[^>]*>/i);';
+          script += '    if (headM) { html = html.replace(/<head[^>]*>/i, headM[0] + bridgeTag); }';
+          script += '    else { html = bridgeTag + html; }';
+          script += '    return html;';
+          script += '  }';
+
+          // Function to intercept a single iframe
+          script += '  function interceptIframe(iframe) {';
+          script += '    var src = iframe.getAttribute("data-scorm-src") || iframe.getAttribute("src");';
+          script += '    if (!src || iframe.hasAttribute("data-scorm-processed")) return;';
+          script += '    if (src.startsWith("data:") || src.startsWith("blob:") || src.startsWith("about:") || src.startsWith("javascript:")) return;';
+          script += '    iframe.setAttribute("data-scorm-processed", "true");';
+          script += '    if (iframe.hasAttribute("src")) iframe.removeAttribute("src");';
+          script += '    debugLog("[SCORM Bridge] Intercepting sub-iframe:", src);';
+          script += '    var iframeBase = src.substring(0, src.lastIndexOf("/") + 1);';
+          script += '    fetch(src).then(function(r) {';
+          script += '      if (!r.ok) throw new Error("HTTP " + r.status);';
+          script += '      return r.text();';
+          script += '    }).then(function(html) {';
+          script += '      iframe.srcdoc = processSubIframeHtml(html, iframeBase);';
+          script += '      debugLog("[SCORM Bridge] Sub-iframe loaded via srcdoc:", src);';
+          script += '    }).catch(function(err) {';
+          script += '      console.warn("[SCORM Bridge] Sub-iframe fetch failed, falling back to direct load:", src, err);';
+          script += '      iframe.src = src;';
+          script += '    });';
+          script += '  }';
+
+          // Process existing data-scorm-src iframes and observe for new ones
+          script += '  function processAll() { document.querySelectorAll("iframe[data-scorm-src]").forEach(interceptIframe); }';
+          script += '  var obs = new MutationObserver(function(muts) {';
+          script += '    muts.forEach(function(m) { m.addedNodes.forEach(function(n) {';
+          script += '      if (n.nodeType === 1) {';
+          script += '        if (n.tagName === "IFRAME") interceptIframe(n);';
+          script += '        if (n.querySelectorAll) n.querySelectorAll("iframe").forEach(interceptIframe);';
+          script += '      }';
+          script += '    }); });';
+          script += '  });';
+          script += '  if (document.readyState === "loading") {';
+          script += '    document.addEventListener("DOMContentLoaded", function() { processAll(); if (document.body) obs.observe(document.body, { childList: true, subtree: true }); });';
+          script += '  } else {';
+          script += '    processAll(); if (document.body) obs.observe(document.body, { childList: true, subtree: true });';
+          script += '  }';
+          script += '})();';
+        }
+
         script += '<' + '/script>';
 
         return script;
@@ -664,18 +735,25 @@
         var baseTagOrRewrite = '';
 
         if (isEcho) {
-          // ECHO: Convert relative URLs to absolute (no <base> tag)
-          html = html
-            // src="..." and src='...'
-            .replace(/src=["'](?!https?:\/\/|data:|blob:)([^"']+)["']/gi, function(match, url) {
-              return 'src="' + baseUrl + url.replace(/^\.?\//, '') + '"';
-            })
-            // href="..." and href='...'
-            .replace(/href=["'](?!https?:\/\/|#|data:|blob:|mailto:|tel:)([^"']+)["']/gi, function(match, url) {
-              return 'href="' + baseUrl + url.replace(/^\.?\//, '') + '"';
-            });
+          // ECHO: Defer iframe loading to prevent cross-origin errors
+          // Step 1: Convert <iframe src="relative"> to <iframe data-scorm-src="absolute">
+          html = html.replace(/<iframe([^>]*?)\ssrc=(["'])(?!https?:\/\/|data:|blob:)([^"']+)\2/gi, function(match, pre, quote, url) {
+            return '<iframe' + pre + ' data-scorm-src=' + quote + baseUrl + url.replace(/^\.?\//, '') + quote;
+          });
+          // Step 2: Convert <iframe src="absolute"> to <iframe data-scorm-src="absolute">
+          html = html.replace(/<iframe([^>]*?)\ssrc=(["'])(https?:\/\/[^"']+)\2/gi, function(match, pre, quote, url) {
+            return '<iframe' + pre + ' data-scorm-src=' + quote + url + quote;
+          });
+          // Step 3: Rewrite remaining relative src (scripts, images, etc.) to absolute
+          html = html.replace(/src=(["'])(?!https?:\/\/|data:|blob:)([^"']+)\1/gi, function(match, quote, url) {
+            return 'src=' + quote + baseUrl + url.replace(/^\.?\//, '') + quote;
+          });
+          // Step 4: Rewrite relative href to absolute
+          html = html.replace(/href=(["'])(?!https?:\/\/|#|data:|blob:|mailto:|tel:)([^"']+)\1/gi, function(match, quote, url) {
+            return 'href=' + quote + baseUrl + url.replace(/^\.?\//, '') + quote;
+          });
 
-          debugLog('[SCORM Wrapper] Converted relative URLs to absolute (ECHO) with base:', baseUrl);
+          debugLog('[SCORM Wrapper] Converted relative URLs to absolute and deferred iframes (ECHO) with base:', baseUrl);
         } else {
           // Non-ECHO: Use <base> tag to resolve relative URLs
           baseTagOrRewrite = '<base href="' + baseUrl + '">';
@@ -705,7 +783,7 @@
       function injectBridgeIntoIframe(iframe) {
         const doc = iframe.contentDocument || iframe.contentWindow.document;
         const bridgeScript = doc.createElement('script');
-        bridgeScript.textContent = generateBridgeScript().replace(/<\/?script>/g, '');
+        bridgeScript.textContent = generateBridgeScript().replace(/<\/?script[^>]*>/g, '');
 
         if (doc.head) {
           doc.head.insertBefore(bridgeScript, doc.head.firstChild);
