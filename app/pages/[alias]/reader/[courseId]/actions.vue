@@ -49,7 +49,10 @@ store.loadActions();
         />
       </div>
 
-      <CreateActionFromTemplateDialog trigger>
+      <CreateActionFromTemplateDialog
+        v-if="actions.length"
+        trigger
+      >
         <UiButton :size="isMobile ? 'icon' : 'default'">
           <Plus />
           {{ $t("btn.create.action") }}
@@ -84,10 +87,12 @@ store.loadActions();
       </UiEmptyHeader>
 
       <UiEmptyContent>
-        <UiButton>
-          <Plus />
-          {{ $t("btn.create.action") }}
-        </UiButton>
+        <CreateActionFromTemplateDialog trigger>
+          <UiButton>
+            <Plus />
+            {{ $t("btn.create.action") }}
+          </UiButton>
+        </CreateActionFromTemplateDialog>
       </UiEmptyContent>
     </UiEmpty>
 
