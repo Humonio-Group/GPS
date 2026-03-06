@@ -50,6 +50,7 @@
     "report": "Signaler"
   },
   "labels": {
+    "next-activity": "Activité suivante",
     "other-workspaces": "Autres espaces de travail",
     "other-products": "Autres produits",
     "copied": "Copié | Copiée",

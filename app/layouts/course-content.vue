@@ -179,7 +179,7 @@ const next = computed<Content | undefined>(() => {
 
                     <div class="grid gap-1">
                       <p class="text-xs leading-none uppercase font-medium text-primary">
-                        Activité suivante
+                        {{ $t("labels.next-activity") }}
                       </p>
                       <p class="text-lg leading-tight font-semibold truncate">
                         {{ next.name }}
