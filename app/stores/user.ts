@@ -134,6 +134,7 @@ export const useUserStore = defineStore("user", {
         const response = await this.api.get<ApiResponse>("/users/me", {
           version: 2,
           endpointVersion: 1,
+          vanilla: true,
         }, {
           query: {
             include: "interfaceLanguage,companies,workspaces",
@@ -147,7 +148,6 @@ export const useUserStore = defineStore("user", {
         await setupInterfaceWithUserSettings(this.user!);
         this.subscribeToPusherNotifications();
 
-        console.log((response.data as ApiResponseData).attributes.termsToApprove);
         if ((response.data as ApiResponseData).attributes.termsToApprove) return navigateTo(useLocalePath()("/auth/terms"));
       }
       catch (e) {

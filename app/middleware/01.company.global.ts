@@ -10,6 +10,7 @@ export default defineNuxtRouteMiddleware(async (to) => {
   const { user } = storeToRefs(useUserStore());
   const store = useCompanyStore();
 
+  if (!user.value && !publicPaths.includes(to.path)) return navigateTo("/auth/login");
   if (user.value && !alias && !publicPaths.includes(to.path)) return navigateTo("/auth/portal");
   if (store.isLoaded && storeToRefs(store).company.value!.alias === alias) return;
 
