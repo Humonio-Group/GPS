@@ -19,7 +19,7 @@
       "link": "Ouvrir le lien",
       "ticket": "Ouvrir un ticket",
       "file": "Ouvrir le fichier",
-      "content": "Ouvrir le contenu"
+      "content": "Ouvrir l'activité"
     },
     "close": {
       "default": "Fermer",
@@ -113,36 +113,36 @@
       }
     },
     "scorm": {
-      "loading": "Chargement du contenu SCORM...",
+      "loading": "Chargement de l'activité SCORM...",
       "player": "Lecteur SCORM",
-      "launch": "Lancer le contenu",
+      "launch": "Lancer l'activité",
       "error": {
         "title": "Erreur de chargement",
-        "description": "Impossible de charger le contenu SCORM. Veuillez réessayer plus tard."
+        "description": "Impossible de charger l'activité SCORM. Veuillez réessayer plus tard."
       },
-      "echo-info": "Ce contenu est hébergé sur une plateforme externe (ECHO). Votre progression sera synchronisée automatiquement.",
-      "external-info": "Ce contenu est hébergé sur une plateforme externe. Votre progression sera synchronisée automatiquement.",
+      "echo-info": "Cette activité est hébergée sur une plateforme externe (ECHO). Votre progression sera synchronisée automatiquement.",
+      "external-info": "Cette activité est hébergée sur une plateforme externe. Votre progression sera synchronisée automatiquement.",
       "completion": {
-        "initialized": "Contenu initialisé",
+        "initialized": "Activité initialisée",
         "progressed": "Progression enregistrée",
-        "completed": "Contenu complété avec succès !",
+        "completed": "Activité complétée avec succès !",
         "passed": "Vous avez réussi !",
         "failed": "Échec de la validation",
         "suspended": "Progression sauvegardée"
       }
     },
     "h5p": {
-      "loading": "Chargement du contenu H5P...",
+      "loading": "Chargement de l'activité H5P...",
       "player": "Lecteur H5P",
-      "launch": "Lancer le contenu",
+      "launch": "Lancer l'activité",
       "error": {
         "title": "Erreur de chargement",
-        "description": "Impossible de charger le contenu H5P. Veuillez réessayer plus tard."
+        "description": "Impossible de charger l'activité H5P. Veuillez réessayer plus tard."
       },
       "completion": {
-        "initialized": "Contenu initialisé",
+        "initialized": "Activité initialisée",
         "progressed": "Progression enregistrée",
-        "completed": "Contenu complété avec succès !",
+        "completed": "Activité complétée avec succès !",
         "passed": "Vous avez réussi !",
         "failed": "Échec de la validation"
       }
@@ -184,7 +184,7 @@
       }
     },
     "notification": {
-      "new-content": "Nouveau contenu disponible : {name}",
+      "new-content": "Nouvelle activité disponible : {name}",
       "badge-awarded": "Nouveau badge débloqué : {name}",
       "custom-message": "Nouvelle notification."
     },
@@ -245,7 +245,7 @@
     "my-courses": "Formations",
     "events": "Calendrier",
     "ai-coach": "Coach IA",
-    "contents": "Contenus",
+    "contents": "Activités",
     "course": {
       "overview": "Vue d'ensemble",
       "peoples": "Personnes",
@@ -288,7 +288,7 @@
       "suggested": "Suggérés",
       "user": "Utilisateur",
       "courses": "Formations",
-      "contents": "Contenus"
+      "contents": "Activités"
     }
   },
   "toasts": {
@@ -380,10 +380,10 @@
     },
     "specimen": {
       "overview": {
-        "title": "Contenus - {name}",
-        "contents-progress": "{current}/{max} contenus",
+        "title": "Activités - {name}",
+        "contents-progress": "{current}/{max} activités",
         "stages": {
-          "empty": "Il n'y a aucun contenu dans ce module."
+          "empty": "Il n'y a aucune activité dans ce module."
         },
         "sections": {
           "objectives": "Objectifs",
@@ -415,7 +415,7 @@
         "participants": "Participants",
         "manager": {
           "captions": {
-            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les contenus sur {brand}.",
+            "authorize": "Autorisez votre mentor à consulter le statut de vos actions ainsi que votre progression dans les activités sur {brand}.",
             "more-results": "Pour donner davantage de visibilité à votre mentor, veuillez cocher la case"
           },
           "invite": "Inviter mon mentor",
@@ -423,8 +423,8 @@
           "fields": {
             "email": "Adresse e-mail du mentor",
             "results": {
-              "title": "Résultats du contenu",
-              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les contenus sur {brand}."
+              "title": "Résultats de l'activité",
+              "caption": "Autorisez le mentor à consulter le détail de vos réponses dans les activités sur {brand}."
             }
           },
           "settings": {
@@ -441,7 +441,7 @@
           "description": "Il semblerait qu'il n'y ait aucune action..."
         },
         "tasklist": "Liste de tâches",
-        "recommendations": "Contenus recommandés",
+        "recommendations": "Activités recommandées",
         "to-finish-for": "À terminer pour aujourd'hui | À terminer pour le {date}",
         "count": "{done} / {total} tâche | {done} / {total} tâches",
         "details-title": "Détails de votre action"
@@ -546,7 +546,7 @@
         "title": "Interface",
         "main-language": {
           "name": "Langue de l'interface",
-          "description": "Sélectionnez la langue dans laquelle vous souhaitez utiliser la plateforme. Celle-ci sera la langue sélectionnée par défaut pour la lecture des contenus."
+          "description": "Sélectionnez la langue dans laquelle vous souhaitez utiliser la plateforme. Celle-ci sera la langue sélectionnée par défaut pour la lecture des activités."
         },
         "theme": {
           "name": "Thème général",
@@ -558,7 +558,7 @@
           }
         },
         "content-languages": {
-          "title": "Langues des contenus",
+          "title": "Langues des activités",
           "coming-soon": "À venir..."
         }
       },
@@ -654,7 +654,7 @@
         "dpo-related-question": "Question concernant la protection des données"
       },
       "placeholders": {
-        "subject": "Ex: J'ai une question sur le contenu de la formation"
+        "subject": "Ex: J'ai une question sur l'activité de la formation"
       }
     },
     "close-dialog": {
@@ -669,7 +669,7 @@
       "all": "Toutes",
       "notifications": "Notifications",
       "badges": "Badges",
-      "contents": "Contenus"
+      "contents": "Activités"
     },
     "empty": {
       "title": "Oh non...",
@@ -686,7 +686,7 @@
         "description": "Certaines conditions ne sont pas respectées et vous empêche de consulter cette étape. Remplissez toutes les conditions afin de la débloquer."
       }
     },
-    "mark-content": "Évaluer le contenu",
+    "mark-content": "Évaluer l'activité",
     "notes": [
       "Très mauvais",
       "Mauvais",
