@@ -23,6 +23,7 @@
     "version:export": "tsx ./scripts/utils/generate-version.ts"
   },
   "dependencies": {
+    "@inspira-ui/plugins": "^0.0.2",
     "@nuxt/eslint": "1.12.1",
     "@nuxt/image": "2.0.0",
     "@nuxt/scripts": "0.13.2",
