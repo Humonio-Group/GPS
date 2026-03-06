@@ -66,68 +66,75 @@ function randomVariant() {
       </div>
 
       <main class="px-8">
-        <header class="flex flex-col py-8">
-          <div class="flex items-center justify-between">
-            <div class="overflow-hidden">
-              <span class="block h-1 rounded-full w-12 bg-primary mb-2" />
-              <h2 class="text-3xl font-bold line-clamp-2 break-all">
-                {{ stage.name }}
-              </h2>
+        <header class="flex gap-8 py-8 items-start justify-between">
+          <div class="flex flex-col">
+            <div>
+              <div class="overflow-hidden">
+                <span class="block h-1 rounded-full w-12 bg-primary mb-2" />
+                <h2 class="text-3xl font-bold line-clamp-2 break-all">
+                  {{ stage.name }}
+                </h2>
+                <div class="mt-2 flex items-center flex-wrap gap-2">
+                  <UiBadge variant="outline">
+                    {{ $t("labels.content-type.e-learning") }}
+                  </UiBadge>
+
+                  <UiBadge v-if="completed">
+                    {{ $t("labels.state.completed") }}
+                  </UiBadge>
+                  <UiBadge
+                    v-else-if="started"
+                    variant="secondary"
+                    class="text-primary"
+                  >
+                    {{ $t("labels.state.in-progress") }} · <span class="font-bold">{{ Math.round((stage.progress.completed / stage.progress.total) * 100) }}%</span>
+                  </UiBadge>
+                  <UiBadge
+                    v-else
+                    variant="outline"
+                  >
+                    {{ $t("labels.state.to-start") }}
+                  </UiBadge>
+
+                  <p
+                    v-if="stage.progress.total > 0"
+                    class="text-sm text-muted-foreground"
+                  >
+                    {{ $t("reader.stage.activities", { completed: stage.progress.completed, total: stage.progress.total }) }}
+                  </p>
+                  <span
+                    v-if="stage.progress.total > 0 && duration > 0"
+                    class="hidden @md:block"
+                  >·</span>
+                  <p
+                    v-if="duration > 0"
+                    class="text-sm text-muted-foreground"
+                  >
+                    {{ $t("reader.stage.remaining", { time: fromMinutes(duration, "short") }) }}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 overflow-hidden">
               <p class="whitespace-pre-line text-pretty text-muted-foreground break-all">
                 {{ stage.description }}
               </p>
             </div>
-
-            <UiButton as-child>
-              <NuxtLinkLocale :to="nextContent">
-                <span v-if="completed">{{ $t("btn.see-again") }}</span>
-                <span v-else-if="started">{{ $t("btn.resume") }}</span>
-                <span v-else>{{ $t("btn.start") }}</span>
-
-                <Play />
-              </NuxtLinkLocale>
-            </UiButton>
           </div>
 
-          <div class="mt-3 flex items-center flex-wrap gap-2">
-            <UiBadge variant="outline">
-              {{ $t("labels.content-type.e-learning") }}
-            </UiBadge>
+          <UiButton
+            class="mt-4"
+            as-child
+          >
+            <NuxtLinkLocale :to="nextContent">
+              <span v-if="completed">{{ $t("btn.see-again") }}</span>
+              <span v-else-if="started">{{ $t("btn.resume") }}</span>
+              <span v-else>{{ $t("btn.start") }}</span>
 
-            <UiBadge v-if="completed">
-              {{ $t("labels.state.completed") }}
-            </UiBadge>
-            <UiBadge
-              v-else-if="started"
-              variant="secondary"
-              class="text-primary"
-            >
-              {{ $t("labels.state.in-progress") }} · <span class="font-bold">{{ Math.round((stage.progress.completed / stage.progress.total) * 100) }}%</span>
-            </UiBadge>
-            <UiBadge
-              v-else
-              variant="outline"
-            >
-              {{ $t("labels.state.to-start") }}
-            </UiBadge>
-
-            <p
-              v-if="stage.progress.total > 0"
-              class="text-sm text-muted-foreground"
-            >
-              {{ $t("reader.stage.activities", { completed: stage.progress.completed, total: stage.progress.total }) }}
-            </p>
-            <span
-              v-if="stage.progress.total > 0 && duration > 0"
-              class="hidden @md:block"
-            >·</span>
-            <p
-              v-if="duration > 0"
-              class="text-sm text-muted-foreground"
-            >
-              {{ $t("reader.stage.remaining", { time: fromMinutes(duration, "short") }) }}
-            </p>
-          </div>
+              <Play />
+            </NuxtLinkLocale>
+          </UiButton>
         </header>
 
         <main
