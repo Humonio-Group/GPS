@@ -49,7 +49,6 @@ watch(content, async (val) => {
   });
   await store.sendXAPIStatement(val.reference, 0, statement, headers);
 }, { immediate: true });
-const stage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(content.value.id))));
 
 const { formatDate, sameDate } = useDateUtils();
 const { formatTime } = useTimeUtils();
@@ -92,13 +91,7 @@ const workshop = computed(() => {
             />
 
             <div class="grid">
-              <p
-                v-if="stage"
-                class="order-1 @lg:order-0 text-muted-foreground text-xs truncate leading-none"
-              >
-                {{ stage?.name }}
-              </p>
-              <h3 class="text-2xl font-bold leading-none">
+              <h3 class="text-2xl font-bold leading-none truncate">
                 {{ content!.name }}
               </h3>
             </div>
