@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, ArrowRight, ChevronLeft, MessageCircle } from "lucide-vue-next";
+import { ChevronRight, ArrowRight, MessageCircle } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
@@ -39,24 +39,6 @@ const next = computed<Content | undefined>(() => {
   }
 
   return nextContent;
-});
-const previous = computed<Content | undefined>(() => {
-  const currentIndex = allContents.value.findIndex(c => c.id === activeContent.value?.id);
-  let index = currentIndex - 1;
-
-  if (index < 0 || !allContents.value[index]) return undefined;
-
-  let previous: Content = allContents.value[index]!;
-  while (previous!.locked) {
-    index--;
-    if (index < 0) return;
-
-    const c: Content | undefined = allContents.value[index];
-    if (!c) return;
-    previous = c;
-  }
-
-  return previous;
 });
 </script>
 
