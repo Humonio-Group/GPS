@@ -101,7 +101,8 @@ const courseProgress = computed(() => {
     <UiSidebarFooter class="border-t">
       <UiSidebarGroup>
         <UiSidebarMenu>
-          <UiSidebarMenuItem>
+          <UiSidebarMenuItem v-if="false">
+            :
             <UiSidebarMenuButton disabled>
               <Newspaper />
               {{ $t("navigation.reader.community") }}
