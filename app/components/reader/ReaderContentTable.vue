@@ -3,10 +3,7 @@ import {
   ArrowLeft,
   Calendar,
   ChartLine,
-  Check, ChevronDown,
-  ChevronUp,
   HelpCircle,
-  Lock,
   Newspaper,
   Users,
   Zap,
@@ -15,11 +12,15 @@ import ReaderStage from "~/components/reader/elements/stage/ReaderStage.vue";
 import type { Content, Contents } from "~/types/entities/course";
 
 const { alias } = useWorkspaceUtils();
-const { id } = useCourseUtils();
 
 const store = useCoursesStore();
 const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
 const selectedContent = inject("content") as Ref<Content>;
+watch(selectedContent, async (val) => {
+  if (!val) return;
+  await nextTick();
+  document.getElementById(`content-${val.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+});
 
 const courseProgress = computed(() => {
   const contents = course.value?.stages.map(s => s.contents).reduce((acc, contents) => {
@@ -84,124 +85,10 @@ const courseProgress = computed(() => {
         </UiSidebarGroup>
       </template>
       <template
-        v-for="(stage, index) in stages"
+        v-for="stage in stages"
         v-else
         :key="`stage-${stage.id}`"
       >
-        <template v-if="false">
-          <UiSidebarSeparator
-            v-if="index > 0"
-            class="w-full! mx-0"
-          />
-          <UiCollapsible
-            v-slot="{ open }"
-            :default-open="true"
-          >
-            <UiSidebarGroup>
-              <div class="sticky top-0 bg-sidebar z-10 flex items-center">
-                <Check
-                  v-if="stage.contents.filter(c => c.progress.value >= 1).length === stage.contents.length"
-                  class="size-3 shrink-0"
-                />
-
-                <UiSidebarGroupLabel class="flex items-center gap-1">
-                  <UiPopover v-if="stage.locked">
-                    <UiPopoverTrigger>
-                      <Lock class="size-3 text-muted-foreground" />
-                    </UiPopoverTrigger>
-                    <UiPopoverContent class="grid gap-2">
-                      <div
-                        v-for="(condition, i) in stage.conditions"
-                        :key="`stage#${stage.id}-condition#${i}`"
-                        class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-                      >
-                        <component :is="condition.icon" />
-                        <p class="text-sm">
-                          {{ condition.label }}
-                        </p>
-                      </div>
-                    </UiPopoverContent>
-                  </UiPopover>
-                  {{ stage.name }}
-                </UiSidebarGroupLabel>
-
-                <UiCollapsibleTrigger as-child>
-                  <UiSidebarGroupAction class="top-1.5 right-1">
-                    <ChevronUp v-if="open" />
-                    <ChevronDown v-else />
-                  </UiSidebarGroupAction>
-                </UiCollapsibleTrigger>
-              </div>
-              <UiCollapsibleContent>
-                <div
-                  v-if="loading.specific.stageContents.includes(stage.reference)"
-                  class="grid place-items-center"
-                >
-                  <UiSpinner />
-                </div>
-                <template v-else>
-                  <UiSidebarMenu>
-                    <UiSidebarMenuItem
-                      v-for="content in stage.contents"
-                      :key="`stage-${stage.id}-c#${content.id}`"
-                    >
-                      <UiSidebarMenuButton v-if="content.locked">
-                        <UiPopover>
-                          <UiPopoverTrigger as-child>
-                            <Lock class="size-3 text-muted-foreground" />
-                          </UiPopoverTrigger>
-                          <UiPopoverContent class="grid gap-1.5">
-                            <div
-                              v-for="condition in content.conditions"
-                              :key="`c#${content.id}-condition#${condition.label}`"
-                              class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-                            >
-                              <component :is="condition.icon" />
-                              <p class="text-sm">
-                                {{ condition.label }}
-                              </p>
-                            </div>
-                          </UiPopoverContent>
-                        </UiPopover>
-                        <span class="truncate flex-1">{{ content.name }}</span>
-                      </UiSidebarMenuButton>
-                      <UiSidebarMenuButton
-                        v-else
-                        as-child
-                        class="overflow-hidden"
-                      >
-                        <NuxtLinkLocale
-                          :to="`/${alias}/reader/${id}/${content.id}`"
-                          active-class="bg-sidebar-primary! text-sidebar-primary-foreground! *:text-sidebar-primary-foreground!"
-                        >
-                          <NuxtImg
-                            class="aspect-square size-6 rounded-sm"
-                            :src="content.picture"
-                          />
-
-                          <span class="flex-1 truncate">
-                            {{ content.name }}
-                          </span>
-
-                          <UiCircularProgress
-                            v-if="content.progress.viewed"
-                            class="size-4 ml-auto"
-                            :model-value="content.progress.value * 100"
-                          />
-                          <span
-                            v-else-if="content.duration && content.duration > 0"
-                            class="shrink-0 ml-auto text-xs text-muted-foreground"
-                          >{{ content.duration }} min</span>
-                        </NuxtLinkLocale>
-                      </UiSidebarMenuButton>
-                    </UiSidebarMenuItem>
-                  </UiSidebarMenu>
-                </template>
-              </UiCollapsibleContent>
-            </UiSidebarGroup>
-          </UiCollapsible>
-        </template>
-
         <UiSidebarGroup class="p-0 px-2">
           <ReaderStage
             :stage
