@@ -110,6 +110,7 @@ async function sendMessage() {
           >
             <div class="relative flex-1">
               <UiButton
+                v-if="false"
                 size="icon-sm"
                 variant="ghost"
                 class="absolute bottom-0.75 left-0.75"
@@ -119,7 +120,7 @@ async function sendMessage() {
               <UiTextarea
                 v-model="message"
                 :placeholder="$t('companion.message-placeholder')"
-                class="min-h-9 max-h-32 resize-none px-9"
+                class="min-h-9 max-h-32 resize-none pr-9 appearance-none"
                 submit-on-enter
                 @submit="sendMessage"
               />
