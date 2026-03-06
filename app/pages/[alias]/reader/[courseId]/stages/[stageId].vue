@@ -68,12 +68,12 @@ function randomVariant() {
       <main class="px-8">
         <header class="flex flex-col py-8">
           <div class="flex items-center justify-between">
-            <div>
+            <div class="overflow-hidden">
               <span class="block h-1 rounded-full w-12 bg-primary mb-2" />
-              <h2 class="text-3xl font-bold line-clamp-2">
+              <h2 class="text-3xl font-bold line-clamp-2 break-all">
                 {{ stage.name }}
               </h2>
-              <p class="text-pretty text-muted-foreground">
+              <p class="whitespace-pre-line text-pretty text-muted-foreground break-all">
                 {{ stage.description }}
               </p>
             </div>
