@@ -44,7 +44,9 @@ function randomVariant() {
 </script>
 
 <template>
-  <PageRoot :name="`reader.stage.${stage?.name}`">
+  <PageRoot
+    :name="`reader.stage.${stage?.name}`"
+  >
     <div
       v-if="!stage && loading.specific.stages"
       class="h-24 grid place-items-center"
@@ -52,7 +54,7 @@ function randomVariant() {
       <UiSpinner />
     </div>
     <template v-else-if="stage">
-      <div class="relative isolate h-[55dvh] @md:h-[65dvh] w-full rounded-2xl overflow-hidden">
+      <div class="h-[55dvh] @md:h-[65dvh] w-full rounded-2xl overflow-hidden">
         <NuxtImg
           v-if="stage.picture"
           class="size-full object-cover"
@@ -66,7 +68,7 @@ function randomVariant() {
       </div>
 
       <main class="px-8">
-        <header class="flex gap-8 py-8 items-start justify-between">
+        <header class="flex gap-8 py-8 flex-col @md:flex-row @md:items-start @md:justify-between">
           <div class="flex flex-col">
             <div>
               <div class="overflow-hidden">
@@ -124,7 +126,7 @@ function randomVariant() {
           </div>
 
           <UiButton
-            class="mt-4"
+            class="@md:mt-4 sticky bottom-4"
             as-child
           >
             <NuxtLinkLocale :to="nextContent">
