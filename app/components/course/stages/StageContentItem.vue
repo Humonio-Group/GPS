@@ -15,14 +15,14 @@ const { id } = useCourseUtils();
 </script>
 
 <template>
-  <div class="relative flex items-center gap-2 p-2 pr-3 rounded-lg border hover:bg-accent hover:text-accent-foreground">
+  <div class="relative flex items-center gap-2 p-2 pr-3 rounded-lg border hover:bg-accent hover:text-accent-foreground overflow-hidden">
     <StageContentIcon :content="content" />
     <p class="flex-1 truncate">
       {{ content.name }}
     </p>
     <span
       v-if="content.duration"
-      class="text-sm text-muted-foreground"
+      class="text-sm text-muted-foreground truncate"
     >{{ $t("labels.time.short.minutes", { value: content.duration }) }}</span>
     <StageContentConditions
       v-if="content.locked"

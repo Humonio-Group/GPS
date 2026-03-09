@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { CalendarViewType } from "~/types/entities/calendar";
-import { ChevronLeft, ChevronRight, Filter, X } from "lucide-vue-next";
+import { Search, ChevronLeft, ChevronRight, Filter, X } from "lucide-vue-next";
 
 interface CalendarToolbarProps {
   label: string;
@@ -9,6 +9,8 @@ interface CalendarToolbarProps {
   filterStart?: string;
   filterEnd?: string;
 }
+
+const search = defineModel<string>("search", { default: "" });
 
 const props = withDefaults(defineProps<CalendarToolbarProps>(), {
   viewsAllowed: () => ["month", "week", "day", "list"],
@@ -23,6 +25,7 @@ const emit = defineEmits<{
   "update:view": [view: CalendarViewType];
   "update:filterStart": [value: string];
   "update:filterEnd": [value: string];
+  "clear:search": [];
 }>();
 
 const showFilter = ref(!!props.filterStart || !!props.filterEnd);
@@ -111,9 +114,24 @@ const views = computed((): { value: CalendarViewType; labelKey: string }[] => {
           :class="{ 'w-full': views.length === 1 }"
         >
           <UiInput
+            v-model="search"
             :placeholder="$t('labels.search')"
+            class="pl-8"
             :class="{ 'w-full': views.length === 1 }"
-            disabled
+          />
+
+          <UiButton
+            v-if="search?.length"
+            variant="ghost"
+            size="icon-sm"
+            class="size-6 absolute top-1.5 left-1.5 rounded-full"
+            @click="$emit('clear:search')"
+          >
+            <X />
+          </UiButton>
+          <Search
+            v-else
+            class="size-4 absolute top-2.5 left-2.5 text-muted-foreground pointer-events-none"
           />
         </div>
 

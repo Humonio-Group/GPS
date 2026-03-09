@@ -21,6 +21,9 @@ const store = useTicketStore();
 const { courses: _courses, loading: courseLoader } = storeToRefs(coursesStore);
 const { categories, loading: ticketLoader } = storeToRefs(store);
 
+const { public: config } = useRuntimeConfig();
+const { contacts } = config;
+
 const courses = computed(() => {
   if (!_courses.value) return [];
 
@@ -34,6 +37,7 @@ const courses = computed(() => {
 
   return c;
 });
+const { truncate } = useStringUtils();
 
 coursesStore.loadCourses();
 store.loadCategories();
@@ -76,8 +80,10 @@ const submit = form.handleSubmit(async (values) => {
               @update:model-value="componentField['onUpdate:modelValue']"
             >
               <UiFormControl>
-                <UiSelectTrigger class="w-full">
-                  <UiSelectValue />
+                <UiSelectTrigger class="w-full overflow-hidden">
+                  <span class="flex-1 truncate">
+                    <UiSelectValue />
+                  </span>
                 </UiSelectTrigger>
               </UiFormControl>
               <UiSelectContent class="w-full">
@@ -86,7 +92,7 @@ const submit = form.handleSubmit(async (values) => {
                   :key="`course#${course.id}`"
                   :value="course.id"
                 >
-                  {{ course.name }}
+                  {{ truncate(course.name, 55) }}
                 </UiSelectItem>
               </UiSelectContent>
             </UiSelect>
@@ -178,8 +184,8 @@ const submit = form.handleSubmit(async (values) => {
             variant="link"
             as-child
           >
-            <NuxtLink :to="`mailto:privacy@humonio.com?subject=${$t('support.create-dialog.contacts.dto-related-question')}`">
-              Nicolas Sigrist
+            <NuxtLink :to="`mailto:${contacts.email}?subject=${$t('support.create-dialog.contacts.dto-related-question')}`">
+              {{ contacts.dto }}
               <Mail />
             </NuxtLink>
           </UiButton>
@@ -192,8 +198,8 @@ const submit = form.handleSubmit(async (values) => {
             variant="link"
             as-child
           >
-            <NuxtLink :to="`mailto:privacy@humonio.com?subject=${$t('support.create-dialog.contacts.dpo-related-question')}`">
-              Loïc Maes
+            <NuxtLink :to="`mailto:${contacts.email}?subject=${$t('support.create-dialog.contacts.dpo-related-question')}`">
+              {{ contacts.dpo }}
               <Mail />
             </NuxtLink>
           </UiButton>

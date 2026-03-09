@@ -19,7 +19,7 @@ store.loadPeople();
   <div
     v-if="course"
     :class="cn(
-      'grid grid-cols-1 gap-4',
+      'grid grid-cols-1 items-start gap-4',
       course.participants.length > 1 && course.facilitators.length ? '@xl:grid-cols-2' : '',
       props.class,
     )"
@@ -28,7 +28,6 @@ store.loadPeople();
       v-if="course.facilitators.length > 0"
       :people="course.facilitators"
       translation-key="courses.specimen.overview.sections.teachers"
-      show-c-v
     />
 
     <PeopleEntitySection

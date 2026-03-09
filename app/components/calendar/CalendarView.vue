@@ -41,6 +41,7 @@ const filteredEvents = computed<Events>(() => {
     return eventStart < rangeEnd && eventEnd > rangeStart;
   });
 });
+const { search, results, clear } = useSearch(filteredEvents, "name");
 
 const handleSelectDay = (date: Date) => {
   goToDate(date);
@@ -52,6 +53,7 @@ const handleSelectDay = (date: Date) => {
   <div :class="cn('flex flex-col min-h-0', props.class)">
     <div class="shrink-0">
       <CalendarToolbar
+        v-model:search="search"
         :label="currentLabel"
         :view="view"
         :views-allowed="viewsAllowed"
@@ -63,6 +65,7 @@ const handleSelectDay = (date: Date) => {
         @update:view="view = $event"
         @update:filter-start="filterStart = $event"
         @update:filter-end="filterEnd = $event"
+        @clear:search="clear"
       />
     </div>
 
@@ -71,34 +74,34 @@ const handleSelectDay = (date: Date) => {
       :class="{ 'flex-1': view !== 'list' }"
     >
       <div
-        v-if="loading && !filteredEvents.length"
+        v-if="loading && !results.length"
         class="flex items-center justify-center h-96"
       >
         <UiSpinner />
       </div>
 
-      <template v-else-if="filteredEvents.length">
+      <template v-else-if="results.length">
         <MonthView
           v-if="view === 'month'"
           :current-date="currentDate"
-          :events="filteredEvents"
+          :events="results"
           @select-day="handleSelectDay"
         />
         <WeekView
           v-else-if="view === 'week'"
           :current-date="currentDate"
-          :events="filteredEvents"
+          :events="results"
           @select-day="handleSelectDay"
         />
         <DayView
           v-else-if="view === 'day'"
           :current-date="currentDate"
-          :events="filteredEvents"
+          :events="results"
         />
         <ListView
           v-else
           :current-date="currentDate"
-          :events="filteredEvents"
+          :events="results"
         />
       </template>
 

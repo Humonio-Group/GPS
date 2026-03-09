@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Lock, ChevronRight } from "lucide-vue-next";
+import { Lock, Info } from "lucide-vue-next";
 import type { Stage } from "~/types/entities/course";
 
 interface ReaderStageTriggerProps {
@@ -34,10 +34,26 @@ const { id } = useCourseUtils();
 
     <div class="shrink-0 ml-auto z-10 flex items-center gap-1">
       <div class=" md:group-hover/stage:hidden">
-        <Lock
-          v-if="stage.locked"
-          class="text-muted-foreground size-4"
-        />
+        <UiPopover v-if="stage.locked">
+          <UiPopoverTrigger>
+            <Lock class="size-3 text-muted-foreground" />
+          </UiPopoverTrigger>
+          <UiPopoverContent class="grid gap-2">
+            <div
+              v-for="(condition, i) in stage.conditions"
+              :key="`stage#${stage.id}-condition#${i}`"
+              class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+            >
+              <component
+                :is="condition.icon"
+                class="shrink-0"
+              />
+              <p class="text-sm">
+                {{ condition.label }}
+              </p>
+            </div>
+          </UiPopoverContent>
+        </UiPopover>
         <UiCircularProgress
           v-else
           :model-value="progress"
@@ -53,7 +69,7 @@ const { id } = useCourseUtils();
           as-child
         >
           <NuxtLinkLocale :to="`/${alias}/reader/${id}/stages/${stage.id}`">
-            <ChevronRight class="size-5" />
+            <Info class="size-5" />
           </NuxtLinkLocale>
         </UiButton>
       </div>

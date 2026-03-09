@@ -21,18 +21,47 @@ const isMe = computed(() => props.comment.sender.id === user.value!.id);
     class="relative flex gap-2 items-end max-w-2/3 group/text-message"
     :class="{ 'self-end': isMe }"
   >
-    <UiAvatar
-      class="mb-1"
-      :class="{ 'order-1': isMe }"
-    >
-      <UiAvatarImage
-        v-if="comment.sender.avatar"
-        :src="comment.sender.avatar"
-      />
-      <UiAvatarFallback class="text-sm text-muted-foreground">
-        {{ comment.sender.firstName[0] }}{{ comment.sender.lastName[0] }}
-      </UiAvatarFallback>
-    </UiAvatar>
+    <UiHoverCard>
+      <UiHoverCardTrigger as-child>
+        <UiAvatar
+          class="mb-1"
+          :class="{ 'order-1': isMe }"
+        >
+          <UiAvatarImage
+            v-if="comment.sender.avatar"
+            :src="comment.sender.avatar"
+          />
+          <UiAvatarFallback class="text-sm text-muted-foreground">
+            {{ comment.sender.firstName[0] }}{{ comment.sender.lastName[0] }}
+          </UiAvatarFallback>
+        </UiAvatar>
+      </UiHoverCardTrigger>
+      <UiHoverCardContent
+        :align="isMe ? 'end' : 'start'"
+        class="flex items-center gap-2"
+      >
+        <UiAvatar class="mb-1 size-7">
+          <UiAvatarImage
+            v-if="comment.sender.avatar"
+            :src="comment.sender.avatar"
+          />
+          <UiAvatarFallback class="text-muted-foreground">
+            {{ comment.sender.firstName[0] }}{{ comment.sender.lastName[0] }}
+          </UiAvatarFallback>
+        </UiAvatar>
+
+        <p class="font-semibold leading-tight">
+          {{ comment.sender.firstName }} {{ comment.sender.lastName }}
+        </p>
+
+        <UiBadge
+          v-if="isMe"
+          variant="outline"
+        >
+          {{ $t("labels.you") }}
+        </UiBadge>
+      </UiHoverCardContent>
+    </UiHoverCard>
 
     <div
       class="flex flex-col items-start gap-2"

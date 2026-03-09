@@ -40,14 +40,16 @@ export const useApi = () => {
 
             resolve(response as T);
           })
-          .catch((error: any) => {
+          .catch(async (error: any) => {
             const status = error.statusCode;
+
+            useLogger().log("[API GET ERROR]", status);
 
             switch (status) {
               case 401: {
-                if (!useRoute().path.includes("/welcome")) if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+                if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
                 toast.error(t("toasts.error.expired-session"));
-                return resolve(null);
+                return reject(error);
               }
               default: {
                 toast.error(t("toasts.error.default", { code: status }));
@@ -64,13 +66,13 @@ export const useApi = () => {
           ...(body ? { body } : {}),
           credentials: "include",
         })
-          .then((response) => {
+          .then(async (response) => {
             if (response.error.value) {
               const status = response.error.value.statusCode;
 
               switch (status) {
                 case 401: {
-                  if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+                  if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
                   return resolve(null);
                 }
                 default: {
@@ -108,12 +110,12 @@ export const useApi = () => {
 
           resolve(response as T);
         })
-        .catch((error: any) => {
+        .catch(async (error: any) => {
           const status = error.statusCode;
 
           switch (status) {
             case 401: {
-              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -144,12 +146,12 @@ export const useApi = () => {
 
           resolve(response as T);
         })
-        .catch((error: any) => {
+        .catch(async (error: any) => {
           const status = error.statusCode;
 
           switch (status) {
             case 401: {
-              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -180,12 +182,12 @@ export const useApi = () => {
 
           resolve(response as T);
         })
-        .catch((error: any) => {
+        .catch(async (error: any) => {
           const status = error.statusCode;
 
           switch (status) {
             case 401: {
-              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }
@@ -216,12 +218,12 @@ export const useApi = () => {
 
           resolve(response as T);
         })
-        .catch((error: any) => {
+        .catch(async (error: any) => {
           const status = error.statusCode;
 
           switch (status) {
             case 401: {
-              if (!useRoute().path.includes("/welcome")) navigateTo(useLocalePath()("/auth/login"));
+              if (!useRoute().path.includes("/welcome")) await navigateTo(useLocalePath()("/auth/login"));
               toast.error(t("toasts.error.expired-session"));
               return resolve(null);
             }

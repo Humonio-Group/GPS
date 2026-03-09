@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronRight, ArrowRight, ChevronLeft, MessageCircle } from "lucide-vue-next";
+import { ChevronRight, ArrowRight, MessageCircle } from "lucide-vue-next";
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import CommentsDialog from "~/components/course/content/comments/CommentsDialog.vue";
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
@@ -39,24 +39,6 @@ const next = computed<Content | undefined>(() => {
   }
 
   return nextContent;
-});
-const previous = computed<Content | undefined>(() => {
-  const currentIndex = allContents.value.findIndex(c => c.id === activeContent.value?.id);
-  let index = currentIndex - 1;
-
-  if (index < 0 || !allContents.value[index]) return undefined;
-
-  let previous: Content = allContents.value[index]!;
-  while (previous!.locked) {
-    index--;
-    if (index < 0) return;
-
-    const c: Content | undefined = allContents.value[index];
-    if (!c) return;
-    previous = c;
-  }
-
-  return previous;
 });
 </script>
 
@@ -195,11 +177,11 @@ const previous = computed<Content | undefined>(() => {
                       class="size-10 rounded-lg bg-primary object-cover"
                     />
 
-                    <div class="*:leading-none grid gap-1">
-                      <p class="text-xs uppercase font-medium text-primary">
-                        Activité suivante
+                    <div class="grid gap-1">
+                      <p class="text-xs leading-none uppercase font-medium text-primary">
+                        {{ $t("labels.next-activity") }}
                       </p>
-                      <p class="text-lg font-semibold">
+                      <p class="text-lg leading-tight font-semibold truncate">
                         {{ next.name }}
                       </p>
                       <div
@@ -212,59 +194,12 @@ const previous = computed<Content | undefined>(() => {
                       </div>
                     </div>
 
-                    <ArrowRight class="ml-auto size-5 text-primary" />
+                    <ArrowRight class="shrink-0 ml-auto size-5 text-primary" />
                   </UiCardContent>
                 </UiCard>
               </NuxtLinkLocale>
             </section>
           </section>
-
-          <footer
-            v-if="activeContent"
-            class="sticky bottom-0 w-full flex items-center justify-end gap-2"
-          >
-            <UiButton
-              v-if="!!previous"
-              size="icon-lg"
-              variant="outline"
-              class="rounded-full [&_>svg]:size-5! hover:bg-primary/15 hover:border-primary hover:scale-105"
-              as-child
-            >
-              <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${previous.id}`">
-                <ChevronLeft />
-              </NuxtLinkLocale>
-            </UiButton>
-            <UiButton
-              v-else
-              size="icon-lg"
-              variant="outline"
-              class="rounded-full [&_>svg]:size-5!"
-              disabled
-            >
-              <ChevronLeft />
-            </UiButton>
-
-            <UiButton
-              v-if="!!next"
-              size="icon-lg"
-              variant="outline"
-              class="rounded-full [&_>svg]:size-5! hover:bg-primary/15 hover:border-primary hover:scale-105"
-              as-child
-            >
-              <NuxtLinkLocale :to="`/${alias}/reader/${course!.id}/${next.id}`">
-                <ChevronRight />
-              </NuxtLinkLocale>
-            </UiButton>
-            <UiButton
-              v-else
-              size="icon-lg"
-              variant="outline"
-              class="rounded-full [&_>svg]:size-5!"
-              disabled
-            >
-              <ChevronRight />
-            </UiButton>
-          </footer>
         </main>
       </UiSidebarInset>
     </UiSidebarProvider>

@@ -50,6 +50,11 @@ export default defineNuxtConfig({
         key: "",
         cluster: "",
       },
+      contacts: {
+        email: "",
+        dto: "",
+        dpo: "",
+      },
     },
   },
 

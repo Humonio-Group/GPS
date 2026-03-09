@@ -20,7 +20,10 @@ const { alias } = useWorkspaceUtils();
       align="end"
     >
       <UiDropdownMenuGroup>
-        <UiDropdownMenuItem disabled>
+        <UiDropdownMenuItem
+          v-if="false"
+          disabled
+        >
           <CircleHelp />
           {{ $t("navigation.actions.getting-help.help-center") }}
 

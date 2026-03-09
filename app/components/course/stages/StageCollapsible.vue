@@ -45,7 +45,7 @@ onMounted(() => {
         </UiCardHeader>
       </UiCollapsibleTrigger>
       <UiCollapsibleContent as-child>
-        <UiCardContent class="p-6 pt-0 grid gap-2">
+        <UiCardContent class="p-6 pt-0 grid gap-2 overflow-hidden">
           <div
             v-if="(stage.description || stage.picture) && false"
             class="flex flex-col @lg:flex-row @lg:items-center gap-2 @lg:gap-4 mb-2"
