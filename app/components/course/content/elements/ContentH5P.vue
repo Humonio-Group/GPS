@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Play, ChevronDown, SquareArrowOutUpRight, AlertCircle } from "lucide-vue-next";
+import { Play, ChevronDown, SquareArrowOutUpRight, AlertCircle, X } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 
 interface ContentH5PProps {
@@ -117,7 +117,10 @@ async function initializeH5PPlayer() {
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-4 overflow-auto">
+      <UiDialogContent
+        :show-close-button="false"
+        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-4 overflow-auto"
+      >
         <!-- Error State -->
         <UiEmpty v-if="hasError">
           <UiEmptyHeader>
@@ -150,6 +153,16 @@ async function initializeH5PPlayer() {
           class="w-full h-full min-h-125"
           :class="{ hidden: hasError || isLoading }"
         />
+
+        <UiDialogClose as-child>
+          <UiButton
+            variant="secondary"
+            class="absolute bottom-4 right-4"
+          >
+            <X />
+            {{ $t("btn.close.default") }}
+          </UiButton>
+        </UiDialogClose>
       </UiDialogContent>
     </UiDialog>
 
