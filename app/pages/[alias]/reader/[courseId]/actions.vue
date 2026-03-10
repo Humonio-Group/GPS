@@ -21,7 +21,7 @@ store.loadActions();
     :name="`courses.specimen.${id}.actions`"
     class="w-full"
     wrapper
-    wrapper-class="w-full max-w-7xl mx-auto grid gap-4"
+    wrapper-class="w-full max-w-7xl mx-auto grid gap-2"
   >
     <h1 class="text-3xl font-extrabold">
       {{ $t("courses.specimen.actions.page-title") }}
@@ -62,7 +62,7 @@ store.loadActions();
 
     <div
       v-if="results.length > 0"
-      class="grid gap-4"
+      class="grid gap-2"
     >
       <ActionCard
         v-for="action in results"

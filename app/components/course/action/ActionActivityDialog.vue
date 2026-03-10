@@ -38,6 +38,26 @@ const tasks = computed(() => action.value?.tasks ?? []);
 const completedCount = computed(() => tasks.value.filter(t => t.done).length);
 const totalCount = computed(() => tasks.value.length);
 const api = useApi();
+const { isOn, isOnOrBefore, formatDate } = useDateUtils();
+
+const end = computed(() => {
+  if (!action.value) return null;
+
+  const date = new Date(action.value.end);
+  date.setDate(date.getDate() + 1);
+  return date;
+});
+const today = computed(() => {
+  if (!action.value) return null;
+
+  const _end = new Date(action.value.end);
+  _end.setHours(0, 0, 0, 0);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return isOn(_end, today);
+});
+const late = computed(() => end.value ? isOnOrBefore(end.value) : false);
 
 async function loadAction() {
   const id = props.actionId;
@@ -153,55 +173,67 @@ function selectStrategy(strategy: Objective) {
         <section>
           <MarkdownRenderer
             :content="action.description.original"
-            use-markdown
           />
         </section>
 
-        <UiSeparator />
+        <template v-if="action.tasks.length">
+          <UiSeparator />
 
-        <!-- tasklist -->
-        <section
-          v-if="action.tasks.length"
-          class="grid gap-2"
-        >
-          <header class="flex items-center justify-between">
-            <h3 class="text-lg font-bold">
-              {{ $t("courses.specimen.actions.tasklist") }}
-            </h3>
+          <!-- tasklist -->
+          <section
+            class="grid gap-2"
+          >
+            <header class="flex items-center justify-between">
+              <h3 class="text-lg font-bold">
+                {{ $t("courses.specimen.actions.tasklist") }}
+              </h3>
 
-            <UiBadge variant="outline">
-              {{ $t("courses.specimen.actions.count", totalCount, { named: { done: completedCount, total: totalCount } }) }}
-            </UiBadge>
-          </header>
+              <UiBadge variant="outline">
+                {{ $t("courses.specimen.actions.count", totalCount, { named: { done: completedCount, total: totalCount } }) }}
+              </UiBadge>
+            </header>
 
-          <ul>
-            <li
-              v-for="task in tasks"
-              :key="`a${action.id}-task#${task.name.substring(0, 8)}`"
-              class="flex items-center gap-2"
-            >
-              <UiLabel
-                :for="`a${action.id}-task#${task.name.substring(0, 8)}`"
-                class="text-base! font-normal! leading-normal! cursor-pointer"
+            <ul>
+              <li
+                v-for="task in tasks"
+                :key="`a${action.id}-task#${task.name.substring(0, 8)}`"
+                class="flex items-center gap-2"
               >
-                <UiCheckbox
-                  :id="`a${action.id}-task#${task.name.substring(0, 8)}`"
-                  :model-value="task.done"
-                  class="size-5"
-                  :disabled="updating"
-                  @update:model-value="(val) => {
-                    task.done = val as boolean;
-                    updateAction();
-                  }"
-                />
+                <UiLabel
+                  :for="`a${action.id}-task#${task.name.substring(0, 8)}`"
+                  class="text-base! font-normal! leading-normal! cursor-pointer"
+                >
+                  <UiCheckbox
+                    :id="`a${action.id}-task#${task.name.substring(0, 8)}`"
+                    :model-value="task.done"
+                    class="size-5"
+                    :disabled="updating"
+                    @update:model-value="(val) => {
+                      task.done = val as boolean;
+                      updateAction();
+                    }"
+                  />
 
-                <span :class="{ 'text-muted-foreground line-through': task.done, 'opacity-50': updating }">
-                  {{ task.name }}
-                </span>
-              </UiLabel>
-            </li>
-          </ul>
-        </section>
+                  <span :class="{ 'text-muted-foreground line-through': task.done, 'opacity-50': updating }">
+                    {{ task.name }}
+                  </span>
+                </UiLabel>
+              </li>
+            </ul>
+          </section>
+        </template>
+
+        <UiCardDescription :class="{ 'text-primary!': action.progression >= 1, 'text-destructive!': late && action.progression < 1 }">
+          <template v-if="action.progression >= 1">
+            {{ $t("labels.state.done", 2) }}
+          </template>
+          <template v-else-if="late">
+            {{ $t("courses.specimen.actions.to-finish-for", today ? 1 : 2, { named: { date: formatDate("medium")(action.end) } }) }} · {{ $t("labels.state.late") }}
+          </template>
+          <template v-else>
+            {{ $t("courses.specimen.actions.to-finish-for", today ? 1 : 2, { named: { date: formatDate("medium")(action.end) } }) }}
+          </template>
+        </UiCardDescription>
 
         <!-- recommendations -->
         <template v-if="action.recommendations.length">
