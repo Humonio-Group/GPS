@@ -15,6 +15,8 @@ const emit = defineEmits<{
   close: [];
 }>();
 
+const { containsHtml } = useHtmlDetection();
+
 const open = defineModel<boolean>("open", { default: false });
 watch(open, (val) => {
   if (!val) {
@@ -173,6 +175,7 @@ function selectStrategy(strategy: Objective) {
         <section>
           <MarkdownRenderer
             :content="action.description.original"
+            :use-markdown="!containsHtml(action.description.original)"
           />
         </section>
 
