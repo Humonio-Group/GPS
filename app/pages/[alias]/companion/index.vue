@@ -36,12 +36,13 @@ useHead({
 });
 
 function submit(event: KeyboardEvent) {
-  handleChatShortcuts(event, async () => {
-    const value = message.value.trim();
-    if (!value.length || agent.value === null) return;
+  handleChatShortcuts(event, send);
+}
+async function send() {
+  const value = message.value.trim();
+  if (!value.length || agent.value === null) return;
 
-    await store.createConversation(agent.value!, value);
-  });
+  await store.createConversation(agent.value!, value);
 }
 </script>
 
@@ -114,6 +115,7 @@ function submit(event: KeyboardEvent) {
             <UiButton
               size="icon"
               :disabled="loading.creating"
+              @click="send"
             >
               <UiSpinner v-if="loading.creating" />
               <Send v-else />
