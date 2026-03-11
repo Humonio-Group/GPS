@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Content } from "~/types/entities/course";
-import { MessageCircle, X } from "lucide-vue-next";
+import { Send, MessageCircle, X } from "lucide-vue-next";
 import CommentBubble from "~/components/course/content/comments/CommentBubble.vue";
 import type { Nullable } from "~/types/primitives/objects";
 
@@ -21,16 +21,17 @@ const adding = ref<boolean>(false);
 const { handleChatShortcuts } = useKeyboard();
 
 function commentEvent(event: KeyboardEvent) {
-  handleChatShortcuts(event, async () => {
-    const value = comment.value?.trim() ?? "";
-    if (!value.length) return;
+  handleChatShortcuts(event, submit);
+}
+async function submit() {
+  const value = comment.value?.trim() ?? "";
+  if (!value.length) return;
 
-    adding.value = true;
-    await store.createComment(props.content, comment.value, commentReplyingTo.value ?? undefined);
-    if (replyTo.value !== null) replyTo.value = null;
-    adding.value = false;
-    comment.value = "";
-  });
+  adding.value = true;
+  await store.createComment(props.content, comment.value, commentReplyingTo.value ?? undefined);
+  if (replyTo.value !== null) replyTo.value = null;
+  adding.value = false;
+  comment.value = "";
 }
 </script>
 
@@ -84,14 +85,23 @@ function commentEvent(event: KeyboardEvent) {
             <X />
           </UiButton>
         </div>
-        <UiTextarea
-          id="comment"
-          v-model="comment"
-          :disabled="adding"
-          :placeholder="$t('reader.comments.placeholder')"
-          class="min-h-9 resize-none bg-background! disabled:opacity-100! disabled:text-current/50"
-          @keydown="commentEvent"
-        />
+        <div class="flex items-start gap-2">
+          <UiTextarea
+            id="comment"
+            v-model="comment"
+            :disabled="adding"
+            :placeholder="$t('reader.comments.placeholder')"
+            class="min-h-9 resize-none bg-background! disabled:opacity-100! disabled:text-current/50"
+            @keydown="commentEvent"
+          />
+          <UiButton
+            size="icon"
+            :disabled="!comment?.trim().length"
+            :@click="submit"
+          >
+            <Send />
+          </UiButton>
+        </div>
       </div>
 
       <div class="px-4 min-h-0 flex-1 overflow-y-auto">
