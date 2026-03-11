@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Eye } from "lucide-vue-next";
+import { Eye, X } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 import { StatementFactory, XApiId } from "~/types/entities/xapi";
 
@@ -36,13 +36,26 @@ async function handleOpen(value: boolean) {
         <Eye />
       </UiButton>
     </UiDialogTrigger>
-    <UiDialogContent class="w-full max-w-[calc(100dvw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0">
+    <UiDialogContent
+      :show-close-button="false"
+      class="w-full max-w-[calc(100dvw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0"
+    >
       <iframe
         :src="content.activity.link"
         class="size-full block"
         allow="microphone; camera; autoplay; encrypted-media; fullscreen; picture-in-picture"
         frameborder="0"
       />
+
+      <UiDialogClose as-child>
+        <UiButton
+          variant="secondary"
+          class="absolute top-4 right-4"
+        >
+          <X />
+          {{ $t("btn.close.default") }}
+        </UiButton>
+      </UiDialogClose>
     </UiDialogContent>
   </UiDialog>
 </template>

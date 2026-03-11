@@ -27,14 +27,17 @@ const late = computed(() => isOnOrBefore(end.value));
 
 <template>
   <ActionActivityDialog :action-id="action.id">
-    <UiCard class="p-4 gap-4 flex-row cursor-pointer">
+    <UiCard class="p-4 gap-4 flex-row cursor-pointer hover:border-primary hover:scale-101 transition-all duration-100">
       <UiCardHeader class="px-0 flex-1 flex flex-col gap-1 overflow-hidden">
         <UiCardTitle class="truncate w-full">
           {{ action.description.raw }}
         </UiCardTitle>
-        <UiCardDescription :class="{ 'text-destructive!': late }">
-          <template v-if="late">
-            {{ $t("labels.state.late") }}
+        <UiCardDescription :class="{ 'text-primary!': action.progression >= 1, 'text-destructive!': late && action.progression < 1 }">
+          <template v-if="action.progression >= 1">
+            {{ $t("labels.state.done", 2) }}
+          </template>
+          <template v-else-if="late">
+            {{ $t("courses.specimen.actions.to-finish-for", today ? 1 : 2, { named: { date: formatDate("medium")(action.end) } }) }} · {{ $t("labels.state.late") }}
           </template>
           <template v-else>
             {{ $t("courses.specimen.actions.to-finish-for", today ? 1 : 2, { named: { date: formatDate("medium")(action.end) } }) }}

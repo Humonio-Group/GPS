@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ChevronDown, SquareArrowOutUpRight, Play } from "lucide-vue-next";
+import { ChevronDown, SquareArrowOutUpRight, Play, X } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 import { StatementFactory } from "~/types/entities/xapi";
 
@@ -42,7 +42,10 @@ async function handleOpen(value: boolean) {
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden isolate">
+      <UiDialogContent
+        :show-close-button="false"
+        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden isolate"
+      >
         <div class="absolute inset-0 grid place-items-center -z-10">
           <UiSpinner />
         </div>
@@ -52,6 +55,16 @@ async function handleOpen(value: boolean) {
           allow="microphone; camera; autoplay; encrypted-media; fullscreen; picture-in-picture"
           frameborder="0"
         />
+
+        <UiDialogClose as-child>
+          <UiButton
+            variant="secondary"
+            class="absolute bottom-4 right-4"
+          >
+            <X />
+            {{ $t("btn.close.default") }}
+          </UiButton>
+        </UiDialogClose>
       </UiDialogContent>
     </UiDialog>
     <UiButton

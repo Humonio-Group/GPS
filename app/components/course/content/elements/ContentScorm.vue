@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Play, AlertCircle, ChevronDown } from "lucide-vue-next";
+import { Play, AlertCircle, ChevronDown, X } from "lucide-vue-next";
 import type { Content } from "~/types/entities/course";
 import type { ScormXApiEvent } from "~/types/entities/xapi";
 
@@ -118,7 +118,10 @@ const debugInfo = computed(() => {
           <Play />
         </UiButton>
       </UiDialogTrigger>
-      <UiDialogContent class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0">
+      <UiDialogContent
+        :show-close-button="false"
+        class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0"
+      >
         <!-- Error State -->
         <UiEmpty v-if="hasError || !hasScorm">
           <UiEmptyHeader>
@@ -192,6 +195,16 @@ const debugInfo = computed(() => {
             </div>
           </div>
         </div>
+
+        <UiDialogClose as-child>
+          <UiButton
+            variant="secondary"
+            class="absolute bottom-4 right-4"
+          >
+            <X />
+            {{ $t("btn.close.default") }}
+          </UiButton>
+        </UiDialogClose>
       </UiDialogContent>
     </UiDialog>
 
