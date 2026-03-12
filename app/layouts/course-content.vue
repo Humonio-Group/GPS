@@ -58,7 +58,7 @@ const next = computed<Content | undefined>(() => {
         <main
           class="flex flex-col flex-1 p-6 pt-0"
         >
-          <nav class="sticky top-0 pb-2 pt-3 flex items-center gap-6 justify-between bg-background">
+          <nav class="sticky top-0 z-20 pb-2 pt-3 flex items-center gap-6 justify-between bg-background">
             <div class="flex items-center gap-2">
               <UiSidebarTrigger />
 
