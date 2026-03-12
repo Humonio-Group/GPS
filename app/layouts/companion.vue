@@ -121,6 +121,7 @@ async function sendMessage() {
                 v-model="message"
                 :placeholder="$t('companion.message-placeholder')"
                 class="min-h-9 max-h-32 resize-none pr-9 appearance-none"
+                rows="1"
                 submit-on-enter
                 @submit="sendMessage"
               />
