@@ -73,6 +73,12 @@ async function sendProgress() {
   await store.sendXAPIStatement(props.content.id, progress / 100, statement, headers);
 }
 
+const play = () => {
+  youtubePlayer.value?.playVideo();
+};
+
+defineExpose({ play });
+
 onUnmounted(() => {
   if (timeUpdateInterval)
     clearInterval(timeUpdateInterval);
@@ -84,6 +90,7 @@ onUnmounted(() => {
     :key="`youtube-${code}`"
     :video-id="code"
     class="aspect-video rounded-lg overflow-hidden"
+    trigger="visible"
     :player-vars="{ rel: 0 }"
     @ready="onReady"
     @state-change="onStateChange"
