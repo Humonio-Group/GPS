@@ -25,7 +25,7 @@ function handleClick() {
     case EntityType.BADGE: {
       const data = props.notification.data as NotificationBadgeData;
 
-      navigateTo(useLocalePath()(`/${alias.value}/courses/${data.courseId}/results`));
+      navigateTo(useLocalePath()(`/${alias.value}/reader/${data.courseId}/results`));
       break;
     }
     case EntityType.CONTENT: {
@@ -79,7 +79,7 @@ function handleClick() {
       v-if="notification.event === EventName.CUSTOM_MESSAGE_SENT"
       v-model:open="detailsDialogOpen"
     >
-      <UiDialogContent>
+      <UiDialogContent :show-close-button="false">
         <UiDialogHeader>
           <UiDialogTitle>
             {{ (notification.data as NotificationCustomMessageData).title }}

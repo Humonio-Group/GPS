@@ -45,6 +45,12 @@ export default defineNuxtConfig({
         manage: "",
         execute: "",
         develop: "",
+        qigu: {
+          play: "",
+          check: "",
+          rate: "",
+          meet: "",
+        },
       },
       pusher: {
         key: "",

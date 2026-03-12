@@ -669,7 +669,7 @@
     "title": "Notifications",
     "filters": {
       "all": "Toutes",
-      "notifications": "Notifications",
+      "notifications": "Personnalisées",
       "badges": "Badges",
       "contents": "Activités"
     },

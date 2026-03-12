@@ -20,8 +20,10 @@ const code = computed(() => props.content.activity.video!.code);
 const store = useCoursesStore();
 let sent = false;
 
-const onReady = (event: any, player: any) => {
-  useLogger().log("Vimeo Ready - event:", event, "player:", player);
+const scriptPlayerRef = ref<any>(null);
+
+const onLoaded = (event: any, player: any) => {
+  useLogger().log("Vimeo Loaded - event:", event, "player:", player);
   playerState.value.isReady = true;
 
   const vimeoPlayer = player || event;
@@ -76,6 +78,12 @@ const onTimeUpdate = (event: any) => {
   store.sendXAPIStatement(props.content.id, progress / 100, statement, headers).then();
   sent = true;
 };
+const play = () => {
+  scriptPlayerRef.value?.play();
+};
+
+defineExpose({ play });
+
 const onDurationChange = (event: any) => {
   useLogger().log("Vimeo duration change:", event);
   if (event.duration) {
@@ -86,10 +94,12 @@ const onDurationChange = (event: any) => {
 
 <template>
   <ScriptVimeoPlayer
+    ref="scriptPlayerRef"
     :id="Number(code)"
     :key="`vimeo-${code}`"
     class="aspect-video rounded-lg overflow-hidden"
-    @ready="onReady"
+    trigger="visible"
+    @loaded="onLoaded"
     @play="onPlay"
     @pause="onPause"
     @timeupdate="onTimeUpdate"

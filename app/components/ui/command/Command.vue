@@ -74,6 +74,11 @@ provideCommandContext({
   allGroups,
   filterState,
 });
+
+defineExpose({
+  filterState,
+  filterItems,
+});
 </script>
 
 <template>

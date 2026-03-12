@@ -7,6 +7,9 @@ const { isMobile } = useSidebar();
 const { company } = storeToRefs(useCompanyStore());
 const { availableCompanies, activeRoles } = storeToRefs(useUserStore());
 const platform = usePlatform();
+const { public: config } = useRuntimeConfig();
+
+const qigu = config.urls.qigu;
 
 const companies = computed(() => availableCompanies.value.filter(c => c.alias !== company.value?.alias));
 </script>
@@ -147,22 +150,42 @@ const companies = computed(() => availableCompanies.value.filter(c => c.alias !=
               {{ $t("labels.other-products") }}
             </UiDropdownMenuLabel>
 
-            <UiDropdownMenuItem>
-              <Play />
-              Qigu Play
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem>
-              <ListChecks />
-              Qigu Check
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem>
-              <Form />
-              Qigu Rate
-            </UiDropdownMenuItem>
-            <UiDropdownMenuItem>
-              <Airplay />
-              Qigu Meet
-            </UiDropdownMenuItem>
+            <NuxtLink
+              :to="qigu.play"
+              external
+            >
+              <UiDropdownMenuItem>
+                <Play />
+                Qigu Play
+              </UiDropdownMenuItem>
+            </NuxtLink>
+            <NuxtLink
+              :to="qigu.check"
+              external
+            >
+              <UiDropdownMenuItem>
+                <ListChecks />
+                Qigu Check
+              </UiDropdownMenuItem>
+            </NuxtLink>
+            <NuxtLink
+              :to="qigu.rate"
+              external
+            >
+              <UiDropdownMenuItem>
+                <Form />
+                Qigu Rate
+              </UiDropdownMenuItem>
+            </NuxtLink>
+            <NuxtLink
+              :to="qigu.meet"
+              external
+            >
+              <UiDropdownMenuItem>
+                <Airplay />
+                Qigu Meet
+              </UiDropdownMenuItem>
+            </NuxtLink>
           </UiDropdownMenuGroup>
         </template>
 

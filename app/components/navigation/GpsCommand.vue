@@ -2,11 +2,23 @@
 import { Book, Calendar, MessageCircle, User, Settings } from "lucide-vue-next";
 import { useDebounceFn, useMagicKeys, whenever } from "@vueuse/core";
 import type { AcceptableValue } from "reka-ui";
-import type { Content } from "~/types/entities/course";
+import type { UiCommand } from "#components";
+import type { Nullable } from "~/types/primitives/objects";
+import { EntityType } from "~/types/entities/entities";
+
+interface ResultContent {
+  id: number;
+  name: string;
+  picture: Nullable<string>;
+  course: {
+    id: number;
+    name: string;
+  };
+}
 
 const open = defineModel<boolean>("open", { default: false });
 const { alias } = useWorkspaceUtils();
-const { log, error } = useLogger();
+const { error } = useLogger();
 
 const coursesStore = useCoursesStore();
 const { courses } = storeToRefs(coursesStore);
@@ -18,24 +30,76 @@ whenever(meta_k, () => {
 
 const search = ref<string>("");
 const searching = ref<boolean>(false);
-const results = ref<Content[]>([]);
+const results = ref<ResultContent[]>([]);
+const groupedResults = computed(() => {
+  const courses = results.value.map(r => r.course.id).reduce((acc, curr) => {
+    if (acc.includes(curr)) return acc;
+
+    acc = [...acc, curr];
+    return acc;
+  }, [] as number[]);
+  return courses.map((c: number) => {
+    const contents = results.value.filter(r => r.course.id === c);
+    const courseName = contents[0]?.course.name;
+
+    if (!courseName) return null;
+
+    return {
+      id: c,
+      name: courseName,
+      contents,
+    };
+  }).filter(c => !!c);
+});
+const commandRef = ref<InstanceType<typeof UiCommand> | null>(null);
 
 const applySearch = useDebounceFn(async (keywords: string) => {
+  const filteredCount = commandRef.value?.filterState?.filtered.count ?? 0;
+  if (filteredCount > 0) {
+    results.value = [];
+    return;
+  }
+
   searching.value = true;
 
   try {
     const response = await useApi().get("/activity_users", { version: 2, endpointVersion: 1 }, {
       query: {
-        journeys: (courses.value ?? []).map(course => course.id).join(","),
-        keywords,
-        types: "3,4",
-        limit: -1,
+        "journeys": (courses.value ?? []).map(course => course.id).join(","),
+        "keyword": keywords,
+        "type": "3,4",
+        "fields[activityUsers]": "title,design,permissions",
+        "fields[journeys]": "name,displayName",
+        "include": "journey",
+        "limit": -1,
+        "sort": "content_name",
       },
     });
-    log(response);
+
+    const { data, included } = response;
+    results.value = data.map((result: any) => {
+      const course = included.find((j: any) => j.type === EntityType.JOURNEY && j.id === result.relationships.journey.data[0]!.id);
+      return {
+        id: result.id,
+        name: result.attributes.title,
+        picture: result.attributes.design?.picture?.thumbnail,
+        course: {
+          id: course.id,
+          name: course.attributes.displayName,
+        },
+      };
+    }) as ResultContent[];
+
+    await nextTick();
+    commandRef.value?.filterItems();
   }
   catch (e) {
     error(e);
+    search.value = "";
+    results.value = [];
+    if (commandRef.value?.filterState) {
+      commandRef.value.filterState.search = "";
+    }
   }
   finally {
     searching.value = false;
@@ -48,8 +112,6 @@ watch(search, (val) => {
 
 const localePath = useLocalePath();
 function handleAction(value: AcceptableValue) {
-  log(value);
-
   open.value = false;
 
   switch (value) {
@@ -81,8 +143,11 @@ function handleAction(value: AcceptableValue) {
         return;
       }
       if (val.startsWith("contents.")) {
-        const id = Number(val.split(".")[1]);
-        log(`[COMMAND] Navigating to content #${id}`);
+        const [_key, courseItem, idItem] = val.split(".");
+        const course = Number(courseItem);
+        const id = Number(idItem);
+
+        navigateTo(localePath(`/${alias.value}/reader/${course}/${id}`));
         return;
       }
     }
@@ -94,7 +159,10 @@ coursesStore.loadCourses();
 
 <template>
   <UiCommandDialog v-model:open="open">
-    <UiCommand @update:model-value="handleAction">
+    <UiCommand
+      ref="commandRef"
+      @update:model-value="handleAction"
+    >
       <UiCommandList>
         <UiCommandInput @update-search="search = $event" />
 
@@ -153,11 +221,15 @@ coursesStore.loadCourses();
 
         <template v-if="results.length">
           <UiCommandSeparator />
-          <UiCommandGroup :heading="$t('navigation.command-group.contents')">
+          <UiCommandGroup
+            v-for="group in groupedResults"
+            :key="`course-group.${group.id}`"
+            :heading="group.name"
+          >
             <UiCommandItem
-              v-for="content in results"
-              :key="`content-${content.id}`"
-              :value="`content.${content.id}`"
+              v-for="content in group.contents"
+              :key="`contents.${group.id}.${content.id}`"
+              :value="`contents.${group.id}.${content.id}`"
             >
               <NuxtImg
                 class="aspect-square object-cover size-4 rounded-sm"

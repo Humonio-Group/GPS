@@ -43,6 +43,7 @@ store.loadCourses();
         </div>
 
         <UiButton
+          v-if="false"
           size="icon"
           variant="outline"
           disabled

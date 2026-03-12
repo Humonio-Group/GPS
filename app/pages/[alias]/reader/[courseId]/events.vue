@@ -11,7 +11,10 @@ store.loadEvents();
 </script>
 
 <template>
-  <PageRoot name="course.specific.events">
+  <PageRoot
+    name="course.specific.events"
+    class="min-h-0 flex-1 h-full flex flex-col"
+  >
     <CalendarView
       class="flex-1 min-h-0"
       :views-allowed="['list', 'month', 'week', 'day']"
