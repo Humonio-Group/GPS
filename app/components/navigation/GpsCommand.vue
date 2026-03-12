@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Book, Calendar, MessageCircle, User, Settings } from "lucide-vue-next";
+import { Bell, Book, Calendar, MessageCircle, User, Settings } from "lucide-vue-next";
 import { useDebounceFn, useMagicKeys, whenever } from "@vueuse/core";
 import type { AcceptableValue } from "reka-ui";
 import type { UiCommand } from "#components";
@@ -131,6 +131,10 @@ function handleAction(value: AcceptableValue) {
       navigateTo(localePath(`/${alias.value}/profile`));
       break;
     }
+    case "notifications": {
+      navigateTo(localePath(`/${alias.value}/notifications`));
+      break;
+    }
     case "settings": {
       navigateTo(localePath(`/${alias.value}/profile/settings`));
       break;
@@ -195,6 +199,10 @@ coursesStore.loadCourses();
           <UiCommandItem value="profile">
             <User />
             {{ $t("navigation.user-menu.profile") }}
+          </UiCommandItem>
+          <UiCommandItem value="notifications">
+            <Bell />
+            {{ $t("navigation.actions.notifications") }}
           </UiCommandItem>
           <UiCommandItem value="settings">
             <Settings />
