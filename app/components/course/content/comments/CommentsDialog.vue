@@ -13,7 +13,7 @@ const open = defineModel<boolean>("open", { default: false });
 
 const comment = ref<string>("");
 const replyTo = ref<Nullable<number>>(null);
-const commentReplyingTo = computed(() => props.content.topic.comments.find(c => c.id === (replyTo.value ?? -1)) ?? null);
+const commentReplyingTo = computed(() => props.content.topic.comments.find(c => c.id === (replyTo.value ?? null)) ?? null);
 
 const store = useCoursesStore();
 const adding = ref<boolean>(false);
@@ -97,7 +97,7 @@ async function submit() {
           <UiButton
             size="icon"
             :disabled="!comment?.trim().length"
-            :@click="submit"
+            @click="submit"
           >
             <Send />
           </UiButton>
