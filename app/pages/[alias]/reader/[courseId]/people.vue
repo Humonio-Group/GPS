@@ -23,6 +23,10 @@ const coaches = computed(() => course.value!.coaches.filter(entry =>
 const facilitators = computed(() => course.value!.facilitators.filter(entry =>
   entry.name.full.toLowerCase().includes(search.value.toLowerCase())
   || entry.contact.email.toLowerCase().includes(search.value.toLowerCase())));
+const manager = computed(() =>
+  course.value!.manager?.name.full.toLowerCase().includes(search.value.toLowerCase())
+  || course.value!.manager?.contact.email.toLowerCase().includes(search.value.toLowerCase()),
+);
 const participants = computed(() => course.value!.participants.filter(entry =>
   entry.name.full.toLowerCase().includes(search.value.toLowerCase())
   || entry.contact.email.toLowerCase().includes(search.value.toLowerCase())));
@@ -77,7 +81,10 @@ store.loadPeople();
 
     <div class="grid items-start grid-cols-1 @lg:grid-cols-2 @xl:grid-cols-3 gap-4">
       <div class="grid gap-4 @lg:col-start-2 @xl:col-start-3">
-        <UiCard class="gap-3 pb-3">
+        <UiCard
+          v-if="manager"
+          class="gap-3 pb-3"
+        >
           <UiCardHeader class="flex items-center justify-between gap-4">
             <UiCardTitle>
               {{ $t("courses.specimen.people.your-manager") }}
@@ -160,12 +167,9 @@ store.loadPeople();
               </UiPopoverContent>
             </UiPopover>
           </UiCardHeader>
-          <UiCardContent
-            v-if="course!.manager"
-            class="grid gap-1 px-3"
-          >
+          <UiCardContent class="grid gap-1 px-3">
             <PeopleProfileDialog
-              :people="course!.manager"
+              :people="course!.manager!"
               manager
             />
           </UiCardContent>
