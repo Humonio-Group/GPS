@@ -19,12 +19,12 @@ store.loadNotifications();
     name="notifications"
     class="grid gap-6 mx-auto w-full max-w-3xl"
   >
-    <header class="flex items-center justify-between">
+    <header class="flex flex-col gap-3 @2xl:flex-row flex-start @2xl:items-center @2xl:justify-between overflow-hidden">
       <h1 class="text-3xl font-bold">
         {{ $t("notifications.title") }}
       </h1>
 
-      <div class="flex items-center gap-1">
+      <div class="flex items-center gap-1 overflow-x-auto">
         <UiButton
           :variant="selectedFilter === null ? 'secondary' : 'outline'"
           @click="selectedFilter = null"
