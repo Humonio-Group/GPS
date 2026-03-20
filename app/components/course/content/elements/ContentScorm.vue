@@ -120,7 +120,7 @@ const debugInfo = computed(() => {
       </UiDialogTrigger>
       <UiDialogContent
         :show-close-button="false"
-        class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0"
+        class="max-w-[calc(100vw-2rem)]! h-[calc(100dvh-2rem)] flex flex-col gap-2 overflow-hidden p-0 pb-2"
       >
         <!-- Error State -->
         <UiEmpty v-if="hasError || !hasScorm">
@@ -138,7 +138,7 @@ const debugInfo = computed(() => {
         <!-- SCORM Player -->
         <div
           v-else
-          class="relative"
+          class="relative flex-1"
         >
           <!-- SCORM iframe container -->
           <div
@@ -199,7 +199,8 @@ const debugInfo = computed(() => {
         <UiDialogClose as-child>
           <UiButton
             variant="secondary"
-            class="absolute bottom-4 right-4"
+            size="sm"
+            class="self-center"
           >
             <X />
             {{ $t("btn.close.default") }}

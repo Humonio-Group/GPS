@@ -119,7 +119,7 @@ async function initializeH5PPlayer() {
       </UiDialogTrigger>
       <UiDialogContent
         :show-close-button="false"
-        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-4 overflow-auto"
+        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! flex flex-col gap-2 overflow-auto p-0 pb-2"
       >
         <!-- Error State -->
         <UiEmpty v-if="hasError">
@@ -157,7 +157,8 @@ async function initializeH5PPlayer() {
         <UiDialogClose as-child>
           <UiButton
             variant="secondary"
-            class="absolute bottom-4 right-4"
+            size="sm"
+            class="self-center"
           >
             <X />
             {{ $t("btn.close.default") }}
