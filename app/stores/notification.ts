@@ -7,6 +7,7 @@ import type {
 } from "~/types/entities/notification";
 import { EventName } from "~/types/entities/notification";
 import { EntityType } from "~/types/entities/entities";
+import { toast } from "vue-sonner";
 
 interface NotificationState {
   notifications: Notifications;
@@ -97,6 +98,8 @@ export const useNotificationStore = defineStore("notification", {
   }),
   getters: {
     api: () => useApi(),
+    t: () => useNuxtApp().$i18n.t,
+
     hasNewNotifications: state => state.notifications.filter(notif => !!notif.dates.readAt).length,
   },
   actions: {
@@ -133,6 +136,41 @@ export const useNotificationStore = defineStore("notification", {
       }
       finally {
         this.loading.list = false;
+      }
+    },
+    async sendReadStatement(id: number) {
+      const notification = this.notifications.find(n => n.id === id);
+
+      if (!notification || notification.dates.readAt) return;
+
+      const now = new Date();
+
+      try {
+        await useApi().put(`/notifications/${id}`, { version: 2, endpointVersion: 1 }, {
+          body: {
+            data: {
+              id: id,
+              type: EntityType.NOTIFICATION,
+              attributes: {
+                dates: {
+                  read: now,
+                },
+              },
+            },
+          },
+        });
+        this.notifications = this.notifications.map(n => n.id === id
+          ? {
+              ...n,
+              dates: {
+                ...n.dates,
+                readAt: now,
+              },
+            }
+          : n);
+      }
+      catch {
+        toast.error(this.t("toasts.error.default"));
       }
     },
   },

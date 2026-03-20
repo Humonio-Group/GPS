@@ -15,11 +15,12 @@ const props = defineProps<NotificationLineProps>();
 
 const { alias } = useWorkspaceUtils();
 const { relativeDate } = useDateUtils();
+const store = useNotificationStore();
 
 const detailsDialogOpen = ref<boolean>(false);
 
-function handleClick() {
-  // todo: mark notification as read/viewed - loic
+async function handleClick() {
+  store.sendReadStatement(props.notification.id).then();
 
   switch (props.notification.data.type) {
     case EntityType.BADGE: {
