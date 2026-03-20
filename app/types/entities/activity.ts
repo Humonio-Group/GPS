@@ -3,6 +3,7 @@ import type { Nullable } from "~/types/primitives/objects";
 export interface DocumentActivity {
   name: string;
   url: string;
+  target: "_blank" | "_self";
   permissions: {
     download: boolean;
     zoom: boolean;

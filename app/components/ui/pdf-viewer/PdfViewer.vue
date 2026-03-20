@@ -145,6 +145,7 @@ const download = () => {
   if (props.allowDownload) {
     const link = document.createElement("a");
     link.href = props.source;
+    link.target = "_blank";
     link.download = props.source.split("/").pop() || "document.pdf";
     link.click();
   }
@@ -348,7 +349,8 @@ onUnmounted(() => {
 }
 
 .pdf-content {
-  flex: 1;
+  flex: 1 1 0px;
+  min-height: 0;
   overflow: auto;
   position: relative;
 }
