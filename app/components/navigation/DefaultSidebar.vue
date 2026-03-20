@@ -15,8 +15,8 @@ const contents = useProductNavigation();
 
 <template>
   <div>
+    <!-- variant="floating" -->
     <UiSidebar
-      variant="floating"
       collapsible="icon"
     >
       <UiSidebarHeader>
