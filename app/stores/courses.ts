@@ -264,6 +264,7 @@ function buildFileActivity(data: any): ContentActivity["document"] | ContentActi
   return {
     name: fileName,
     url: link,
+    target: "_blank",
     permissions: {
       download: true,
       zoom: true,

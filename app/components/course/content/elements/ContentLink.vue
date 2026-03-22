@@ -38,11 +38,11 @@ async function handleOpen(value: boolean) {
     </UiDialogTrigger>
     <UiDialogContent
       :show-close-button="false"
-      class="w-full max-w-[calc(100dvw-2rem)]! h-[calc(100dvh-2rem)] overflow-hidden p-0"
+      class="w-full max-w-[calc(100dvw-2rem)]! h-[calc(100dvh-2rem)] flex flex-col gap-2 overflow-hidden p-0 pb-2"
     >
       <iframe
         :src="content.activity.link"
-        class="size-full block"
+        class="size-full block flex-1"
         allow="microphone; camera; autoplay; encrypted-media; fullscreen; picture-in-picture"
         frameborder="0"
       />
@@ -50,7 +50,8 @@ async function handleOpen(value: boolean) {
       <UiDialogClose as-child>
         <UiButton
           variant="secondary"
-          class="absolute top-4 right-4"
+          size="sm"
+          class="self-center"
         >
           <X />
           {{ $t("btn.close.default") }}

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import PageRoot from "~/components/primitives/composing/PageRoot.vue";
-import { Menu } from "lucide-vue-next";
+import { Menu, X } from "lucide-vue-next";
 import TicketsNavigation from "~/components/support/TicketsNavigation.vue";
 import { TicketStatus } from "~/types/entities/ticket";
-import TicketActions from "~/components/support/elements/TicketActions.vue";
+// import TicketActions from "~/components/support/elements/TicketActions.vue";
 
 const { isMobile } = useBrowser();
 const open = ref<boolean>(false);
@@ -68,11 +68,46 @@ store.loadTickets();
             {{ $t("labels.state.reviewable") }}
           </UiBadge>
 
-          <TicketActions
+          <!-- <TicketActions
             v-if="ticket.metadata.status !== TicketStatus.CLOSED"
             :ticket="ticket"
             class="ml-auto"
-          />
+          /> -->
+          <UiAlertDialog
+            v-if="ticket.metadata.status !== TicketStatus.CLOSED"
+            v-model:open="open"
+          >
+            <UiAlertDialogTrigger as-child>
+              <UiButton
+                size="sm"
+                variant="secondary"
+                class="ml-auto"
+              >
+                <X />
+                {{ $t("btn.close.ticket") }}
+              </UiButton>
+            </UiAlertDialogTrigger>
+
+            <UiAlertDialogContent>
+              <UiAlertDialogHeader>
+                <UiAlertDialogTitle>
+                  {{ $t("support.close-dialog.title", { ticketId: ticket.id }) }}
+                </UiAlertDialogTitle>
+                <UiAlertDialogDescription>
+                  {{ $t("support.close-dialog.description") }}
+                </UiAlertDialogDescription>
+              </UiAlertDialogHeader>
+
+              <UiAlertDialogFooter>
+                <UiAlertDialogCancel>
+                  {{ $t("btn.cancel") }}
+                </UiAlertDialogCancel>
+                <UiAlertDialogAction @click="store.closeTicket(ticket.id)">
+                  {{ $t("btn.close.default") }}
+                </UiAlertDialogAction>
+              </UiAlertDialogFooter>
+            </UiAlertDialogContent>
+          </UiAlertDialog>
         </template>
       </header>
 

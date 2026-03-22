@@ -44,7 +44,7 @@ async function handleOpen(value: boolean) {
       </UiDialogTrigger>
       <UiDialogContent
         :show-close-button="false"
-        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 overflow-hidden isolate"
+        class="max-w-none! w-[calc(100%-2rem)]! h-[calc(100dvh-2rem)]! p-0 pb-2 flex flex-col gap-2 overflow-hidden isolate"
       >
         <div class="absolute inset-0 grid place-items-center -z-10">
           <UiSpinner />
@@ -59,7 +59,8 @@ async function handleOpen(value: boolean) {
         <UiDialogClose as-child>
           <UiButton
             variant="secondary"
-            class="absolute bottom-4 right-4"
+            size="sm"
+            class="self-center"
           >
             <X />
             {{ $t("btn.close.default") }}

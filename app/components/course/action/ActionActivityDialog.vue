@@ -69,6 +69,7 @@ async function loadAction() {
     const response = await api.get(`/actions/${id}`, { version: 2, endpointVersion: 1, vanilla: true }, {
       query: {
         "include": "topic,journey,journey.program,followers,requesterFollow,impactMapCategory1,impactMapCategory2,impactMapCategory3,impactMapCategory4,changr,changr.content,user,recommended,recommended.recommendedStrategies,recommended.activityUsers",
+        "journey": course.value!.id,
         "fields[actions]": "default,stats,tasklist",
         "fields[programs]": "config.impact",
         "fields[topics]": "default,recipient,stats.all",
