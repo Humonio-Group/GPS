@@ -79,8 +79,9 @@ function detectAutoComplete(data: any, activity: ContentActivity): boolean {
   const completeOnOpen = attributes.specific.sendCompletionOnOpen;
   const isWYSIWYG = !hasTypeOrSubtype && !hasEmbedContent && attributes.specific.data.type === 0;
   const isImage = !hasTypeOrSubtype && attributes.specific.data.type === 3 && !!activity.image;
+  const noWorkshopConfig = !!activity.blended && !activity.results.length;
 
-  return completeOnOpen || isWYSIWYG || isImage;
+  return completeOnOpen || isWYSIWYG || isImage || noWorkshopConfig;
 }
 function buildCourseEntity(journey: any, program: any, strategies: any): Course {
   return {
@@ -109,37 +110,6 @@ function buildCourseEntity(journey: any, program: any, strategies: any): Course 
         name: strategy.attributes.displayName,
         description: strategy.attributes.displayDesc,
       })),
-    },
-  };
-}
-function _buildActionEntity(data: any, included: any): Action {
-  const { id, attributes, relations } = extractBasicInfo(data);
-
-  const objectiveId = relations.impactMapCategory4.data[0].id;
-  const objective = included.find((i: any) => i.type === EntityType.STRATEGY && i.id === objectiveId);
-
-  return {
-    id,
-    description: {
-      original: attributes.description ?? "",
-      raw: attributes.rawDescription ?? "",
-    },
-    hasImpactMap: false,
-    objective: {
-      id: objective.id,
-      name: objective.attributes.name,
-      description: objective.attributes.displayDesc,
-      section: 4,
-    },
-    strategies: [],
-    recommendations: [],
-    end: new Date(attributes.dates.endAction),
-    progression: attributes.progression,
-    tasks: attributes.tasklist.map((task: any, index: number) => ({ ...task, order: index })),
-    stats: {
-      likes: attributes.stats.nbLikes,
-      followers: attributes.stats.nbFollowers,
-      comments: attributes.stats.nbComments,
     },
   };
 }
