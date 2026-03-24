@@ -47,37 +47,40 @@ async function send() {
 </script>
 
 <template>
-  <PageRoot class="w-full max-w-7xl mx-auto flex-1 py-2 grid place-items-center">
-    <div class="w-full md:w-3/5 flex flex-col items-center gap-2">
-      <div class="relative size-min">
-        <UiAvatar
-          v-if="selectedAgent?.avatar"
-          class="size-22 md:size-28"
-        >
-          <UiAvatarImage :src="selectedAgent?.avatar" />
-        </UiAvatar>
-        <NuxtImg
-          v-if="isXmas"
-          class="absolute -top-3 -right-3 object-contain size-16"
-          src="/assets/images/xmas-hat.png"
-        />
-        <NuxtImg
-          v-if="isEaster"
-          class="absolute -bottom-1.5 -right-1 object-contain size-10"
-          src="/assets/images/easter-eggs.webp"
-        />
+  <PageRoot class="w-full max-w-7xl mx-auto flex-1 py-2 px-6 grid place-items-center">
+    <div class="relative w-full md:w-3/5 flex flex-col items-center gap-2">
+      <div class="absolute w-full top-0 left-1/2 -translate-x-1/2 -translate-y-[160%] flex items-center justify-center gap-4">
+        <div class="relative size-min">
+          <UiAvatar class="size-11 md:size-13">
+            <UiAvatarImage
+              v-if="company?.icon"
+              :src="company?.icon"
+            />
+            <UiAvatarFallback>{{ company?.name.substring(0, 2) }}</UiAvatarFallback>
+          </UiAvatar>
+          <NuxtImg
+            v-if="isXmas"
+            class="absolute -top-3 -right-3 object-contain size-9"
+            src="/assets/images/xmas-hat.png"
+          />
+          <NuxtImg
+            v-if="isEaster"
+            class="absolute -bottom-1.5 -right-1 object-contain size-8"
+            src="/assets/images/easter-eggs.webp"
+          />
+        </div>
+
+        <h1 class="text-3xl md:text-4xl">
+          {{ $t(`companion.intro.greetings.${index}`, { name: user!.name.first }) }}
+        </h1>
       </div>
 
-      <h1 class="text-2xl md:text-3xl font-bold text-center md:max-w-[20ch]">
-        {{ $t(`companion.intro.greetings.${index}`, { name: user!.name.first }) }}
-      </h1>
-
-      <div class="grid gap-2 w-full mt-12">
+      <div class="rounded-2xl border grid gap-1 w-full p-1 pt-2 shadow-lg/7">
         <div class="relative">
           <UiTextarea
             v-model="message"
             :disabled="loading.creating"
-            class="min-h-9 max-h-48 resize-none"
+            class="min-h-16 px-5 rounded-lg! py-3 border-none! shadow-none! max-h-48 resize-none outline-0! ring-0! bg-background!"
             :placeholder="$t('companion.intro.ask-question')"
             @keydown="submit"
           />
@@ -88,14 +91,26 @@ async function send() {
           />
         </div>
         <div
-          class="flex justify-between gap-1 md:gap-4"
+          class="flex justify-end gap-2 md:gap-4 p-2"
         >
           <UiSelect
             v-model="agent"
             :disabled="loading.creating"
           >
-            <UiSelectTrigger>
-              <UiSelectValue />
+            <UiSelectTrigger
+              size="sm"
+              class="border-none! shadow-none! bg-accent! text-accent-foreground! mr-auto pl-1.5 pr-2"
+            >
+              <UiAvatar class="size-5 rounded-full!">
+                <UiAvatarImage
+                  v-if="selectedAgent?.avatar"
+                  :src="selectedAgent.avatar"
+                />
+                <UiAvatarFallback class="text-xs text-foreground!">
+                  {{ selectedAgent?.name }}
+                </UiAvatarFallback>
+              </UiAvatar>
+              {{ selectedAgent?.name }}
             </UiSelectTrigger>
             <UiSelectContent>
               <UiSelectItem
@@ -103,24 +118,29 @@ async function send() {
                 :key="_agent.key"
                 :value="_agent.id"
               >
+                <UiAvatar class="size-5 rounded-full!">
+                  <UiAvatarImage
+                    v-if="_agent.avatar"
+                    :src="_agent.avatar"
+                  />
+                  <UiAvatarFallback class="text-xs">
+                    {{ _agent.name[0] }}
+                  </UiAvatarFallback>
+                </UiAvatar>
+
                 {{ _agent.name }}
               </UiSelectItem>
             </UiSelectContent>
           </UiSelect>
 
-          <div
-            v-if="canSend"
-            class="flex items-center gap-1"
+          <UiButton
+            size="icon"
+            :disabled="!canSend || loading.creating"
+            @click="send"
           >
-            <UiButton
-              size="icon"
-              :disabled="loading.creating"
-              @click="send"
-            >
-              <UiSpinner v-if="loading.creating" />
-              <Send v-else />
-            </UiButton>
-          </div>
+            <UiSpinner v-if="loading.creating" />
+            <Send v-else />
+          </UiButton>
         </div>
       </div>
     </div>

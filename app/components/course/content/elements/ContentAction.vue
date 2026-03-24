@@ -22,6 +22,7 @@ const getActionId = (url: string): number => Number(url.split("=")[1] ?? -1);
     <template v-if="content.activity.results.length">
       <UiButton
         v-if="content.activity.results.length === 1"
+        size="xl"
         variant="outline"
         @click="selectedAction = getActionId(content.activity.results[0]!.internalUrl)"
       >
@@ -29,7 +30,10 @@ const getActionId = (url: string): number => Number(url.split("=")[1] ?? -1);
       </UiButton>
       <UiDropdownMenu v-else>
         <UiDropdownMenuTrigger as-child>
-          <UiButton variant="outline">
+          <UiButton
+            size="xl"
+            variant="outline"
+          >
             {{ $t("btn.see-my-results") }}
             <ChevronDown />
           </UiButton>
@@ -59,6 +63,7 @@ const getActionId = (url: string): number => Number(url.split("=")[1] ?? -1);
       :content="content"
     >
       <UiButton
+        size="xl"
         :variant="action.main ? 'default' : 'outline'"
         :disabled="action.disabled"
       >

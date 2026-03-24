@@ -23,7 +23,10 @@ defineProps<TeacherCardProps>();
       <p class="font-medium">
         {{ people.name.full }}
       </p>
-      <span class="text-sm text-muted-foreground">{{ people.contact.email }}</span>
+      <span
+        v-if="false"
+        class="text-sm text-muted-foreground"
+      >{{ people.contact.email }}</span>
     </div>
 
     <UiBadge

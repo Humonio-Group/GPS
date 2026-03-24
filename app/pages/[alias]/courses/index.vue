@@ -21,6 +21,7 @@ store.loadCourses();
 <template>
   <PageRoot
     name="courses.home"
+    class="px-6 md:py-10"
     wrapper
     wrapper-class="mx-auto w-full max-w-7xl grid gap-4 pb-2"
   >

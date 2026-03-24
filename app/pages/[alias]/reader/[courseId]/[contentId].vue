@@ -72,7 +72,7 @@ const workshop = computed(() => {
 <template>
   <PageRoot
     name="course.content-reader"
-    class="pb-6! flex flex-col gap-6 flex-1"
+    class="pb-6! flex flex-col gap-6 flex-1 px-6"
   >
     <div
       v-if="loading.specific.activity && !content"
@@ -82,18 +82,36 @@ const workshop = computed(() => {
     </div>
 
     <template v-else-if="content">
-      <header class="w-full max-w-4xl mx-auto pb-6 md:pt-8 lg:pt-12 xl:pt-16 2xl:pt-20 border-b flex flex-col gap-6">
+      <header class="w-full max-w-4xl mx-auto pb-0 pt-6 md:pt-8 lg:pt-12 xl:pt-16 2xl:pt-20 flex flex-col gap-3">
         <div class="flex items-center justify-between">
           <div class="flex items-center gap-3">
             <NuxtImg
-              class="block aspect-square size-10 rounded-md bg-primary"
+              class="block aspect-square size-14 rounded-md bg-primary"
               :src="content.picture"
             />
 
-            <div class="grid">
+            <div class="grid gap-1.5">
               <h3 class="text-2xl font-bold leading-none truncate">
                 {{ content!.name }}
               </h3>
+
+              <ul
+                v-if="content!.duration"
+                class="flex items-center gap-3"
+              >
+                <ContentDetailItem
+                  v-if="content!.duration"
+                  :icon="Clock"
+                  tooltip="labels.duration"
+                  :value="$t('labels.time.long.minutes', content!.duration, { named: { value: content!.duration } })"
+                />
+                <ContentDetailItem
+                  v-if="workshop"
+                  :icon="Calendar"
+                  tooltip="labels.workshop-date"
+                  :value="workshop"
+                />
+              </ul>
             </div>
           </div>
 
@@ -102,24 +120,6 @@ const workshop = computed(() => {
             :model-value="content!.progress.value * 100"
           />
         </div>
-
-        <ul
-          v-if="content!.duration"
-          class="grid gap-2"
-        >
-          <ContentDetailItem
-            v-if="content!.duration"
-            :icon="Clock"
-            tooltip="labels.duration"
-            :value="$t('labels.time.long.minutes', content!.duration, { named: { value: content!.duration } })"
-          />
-          <ContentDetailItem
-            v-if="workshop"
-            :icon="Calendar"
-            tooltip="labels.workshop-date"
-            :value="workshop"
-          />
-        </ul>
       </header>
 
       <ContentGraphsSlider

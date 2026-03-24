@@ -6,21 +6,32 @@ import {
   HelpCircle,
   Newspaper,
   Users,
+  PanelLeftClose,
   Zap,
 } from "lucide-vue-next";
 import ReaderStage from "~/components/reader/elements/stage/ReaderStage.vue";
-import type { Content, Contents } from "~/types/entities/course";
+import type { Content, Contents, Stage } from "~/types/entities/course";
+import { useSidebar } from "~/components/ui/sidebar";
 
 const { alias } = useWorkspaceUtils();
+const { isMobile, setOpen } = useSidebar();
 
 const store = useCoursesStore();
 const { selectedCourse: course, availableStages: stages, loading } = storeToRefs(store);
+
 const selectedContent = inject("content") as Ref<Content>;
 watch(selectedContent, async (val) => {
   if (!val) return;
   await nextTick();
   document.getElementById(`content-${val.id}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-});
+}, { immediate: true });
+
+const selectedStage = inject("stage") as Ref<Stage>;
+watch(selectedStage, async (val) => {
+  if (!val) return;
+  await nextTick();
+  document.getElementById(`stage-${val.id}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+}, { immediate: true });
 
 const courseProgress = computed(() => {
   const contents = course.value?.stages.map(s => s.contents).reduce((acc, contents) => {
@@ -36,45 +47,59 @@ const courseProgress = computed(() => {
 
 <template>
   <UiSidebar class="overflow-y-auto">
-    <UiSidebarHeader class="px-4! pt-5! pb-4! flex flex-col items-start gap-4">
-      <UiButton
-        variant="ghost"
-        size="sm"
-        as-child
-      >
-        <NuxtLinkLocale :to="`/${alias}/courses/${course?.id}`">
-          <ArrowLeft />
-          {{ $t("btn.back") }}
-        </NuxtLinkLocale>
-      </UiButton>
-
-      <p class="font-bold line-clamp-2 leading-none">
-        {{ course?.name }}
-      </p>
-
-      <div
-        v-if="!loading.specific.stages && !loading.specific.stageContents.length"
-        class="w-full flex items-center gap-2"
-      >
-        <span class="text-xs font-bold text-primary">{{ Math.round(courseProgress * 100) }} %</span>
-
-        <UiProgress
-          class="flex-1"
-          :model-value="courseProgress * 100"
-        />
+    <UiSidebarHeader class="p-0 flex flex-col gap-4">
+      <div class="w-full h-12.25 border-b flex items-center justify-between px-2">
+        <UiButton
+          variant="ghost"
+          size="sm"
+          class="text-xs py-1.5 px-2"
+          as-child
+        >
+          <NuxtLinkLocale :to="`/${alias}/courses/${course?.id}`">
+            <ArrowLeft />
+            {{ $t("btn.back") }}
+          </NuxtLinkLocale>
+        </UiButton>
+        <UiButton
+          v-if="!isMobile"
+          size="icon-sm"
+          variant="ghost"
+          class="size-6"
+          @click="setOpen(false)"
+        >
+          <PanelLeftClose />
+        </UiButton>
       </div>
-      <div
-        v-else
-        class="flex items-center gap-2 w-full"
-      >
-        <UiSkeleton class="h-2 w-[3ch]" />
-        <UiSkeleton
-          class="h-2 flex-1"
-        />
+
+      <div class="flex flex-col items-start gap-4 px-3 pb-4">
+        <p class="font-bold line-clamp-2 leading-none">
+          {{ course?.name }}
+        </p>
+
+        <div
+          v-if="!loading.specific.stages && !loading.specific.stageContents.length"
+          class="w-full flex items-center gap-2"
+        >
+          <span class="text-xs font-bold text-primary">{{ Math.round(courseProgress * 100) }} %</span>
+
+          <UiProgress
+            class="flex-1"
+            :model-value="courseProgress * 100"
+          />
+        </div>
+        <div
+          v-else
+          class="flex items-center gap-2 w-full"
+        >
+          <UiSkeleton class="h-2 w-[3ch]" />
+          <UiSkeleton
+            class="h-2 flex-1"
+          />
+        </div>
       </div>
     </UiSidebarHeader>
 
-    <UiSidebarContent class="isolate">
+    <UiSidebarContent class="isolate pb-3">
       <template v-if="loading.specific.stages">
         <UiSidebarGroup
           v-for="i in (Math.floor(Math.random() * 3) + 1)"

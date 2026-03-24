@@ -51,6 +51,10 @@
   },
   "labels": {
     "you": "Vous",
+    "sidebar": {
+      "expand": "Ouvrir la navigation",
+      "collapse": "Réduire la navigation"
+    },
     "next-activity": "Activité suivante",
     "other-workspaces": "Autres espaces de travail",
     "other-products": "Autres produits",
@@ -470,6 +474,16 @@
           "description": "Ci-dessous, l'ensemble des scores liées à la formation."
         }
       }
+    },
+    "loading": {
+      "title": "Chargement...",
+      "description": "Veuillez patienter, nous sommes en train de charger votre formation.",
+      "steps": {
+        "course": "Récupération de votre programme...",
+        "people": "Récupération des participants...",
+        "stages": "Récupération des modules...",
+        "contents": "Récupération des contenus... ({count} / {total})"
+      }
     }
   },
   "calendar": {
@@ -717,11 +731,11 @@
     "intro": {
       "title": "Mon coach IA",
       "greetings": [
-        "Bonjour {name}, comment puis-je t'aider aujourd'hui ?",
-        "Hey {name}, comment puis-je t'être utile ?",
-        "Holà! Comment puis-je t'aider aujourd'hui, {name} ?"
+        "Bonjour, {name}",
+        "Bon après-midi, {name}",
+        "Bonsoir, {name}"
       ],
-      "ask-question": "Posez-moi votre question (Shift+Entrer pour une nouvelle ligne)"
+      "ask-question": "Posez-moi une question..."
     },
     "history": {
       "title": "Historique",
@@ -749,6 +763,6 @@
       }
     },
     "message-placeholder": "Message...",
-    "warning": "L'IA peut commettre des erreurs et ne remplace pas un avis professionnel. Vérifiez les informations générées et évitez de partager des données sensibles."
+    "warning": "L'IA peut commettre des erreurs. Vérifiez les informations importantes."
   }
 }

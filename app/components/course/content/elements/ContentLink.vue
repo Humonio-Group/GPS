@@ -30,7 +30,7 @@ async function handleOpen(value: boolean) {
     <UiDialogTrigger as-child>
       <UiButton
         class="@md:self-center"
-        size="lg"
+        size="xl"
       >
         {{ $t("btn.open.link") }}
         <Eye />

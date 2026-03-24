@@ -149,6 +149,10 @@ function buildStageEntity(stages: Stages, data: any, included: any): Stage {
     locked: data.attributes.isLocked,
     hidden: data.attributes.isHidden,
     conditions: graphics.filter((g: any) => g.type === 2).map(buildCondition),
+    duration: existing?.contents.reduce((acc, curr) => {
+      acc += curr.duration ?? 0;
+      return acc;
+    }, 0) ?? 0,
     contents: existing?.contents ?? [],
   };
 }
@@ -858,7 +862,11 @@ export const useCoursesStore = defineStore("courses", {
         const included = response.included;
 
         const contents: Contents = data.map((content: any): Content => buildContentEntity(content, included, stage!));
-        this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, contents: contents.sort((a, b) => a.order - b.order) } : s);
+        const duration = contents.reduce((acc, curr) => {
+          acc += curr.duration ?? 0;
+          return acc;
+        }, 0);
+        this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.reference === stageId ? { ...s, duration, contents: contents.sort((a, b) => a.order - b.order) } : s);
 
         const courseId = this.selectedCourse!.id;
         contents.forEach(content =>
@@ -1431,6 +1439,14 @@ export const useCoursesStore = defineStore("courses", {
           },
         });
 
+        const stage = this.selectedCourse.stages.find(s => s.id === stageId);
+        if (!stage) {
+          this.logger.error("Stage not found");
+          toast.error(this.t("toasts.error.default", { code: 422 }));
+          return;
+        }
+
+        const content = buildContentEntity(response.data, response.included, stage);
         this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
           ? {
               ...s,
@@ -1438,7 +1454,8 @@ export const useCoursesStore = defineStore("courses", {
                 ...s.progress,
                 total: s.progress.total + 1,
               },
-              contents: [...s.contents, buildContentEntity(response.data, response.included, s)].sort((a, b) => a.order - b.order),
+              duration: (s.duration ?? 0) + (content.duration ?? 0),
+              contents: [...s.contents, content].sort((a, b) => a.order - b.order),
             }
           : s);
       }
@@ -1515,7 +1532,7 @@ export const useCoursesStore = defineStore("courses", {
       });
     },
 
-    addStage(courseId: number, stageId: number) {
+    async addStage(courseId: number, stageId: number) {
       if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;
       this.selectedCourse.stages = this.selectedCourse.stages.map(s => s.id === stageId
         ? {
@@ -1523,6 +1540,7 @@ export const useCoursesStore = defineStore("courses", {
             hidden: false,
           }
         : s);
+      await this.loadContents(stageId);
     },
     removeStage(courseId: number, stageId: number) {
       if (!this.selectedCourse || this.selectedCourse.id !== courseId) return;

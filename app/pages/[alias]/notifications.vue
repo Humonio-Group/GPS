@@ -17,7 +17,7 @@ store.loadNotifications();
 <template>
   <PageRoot
     name="notifications"
-    class="grid gap-6 mx-auto w-full max-w-3xl"
+    class="grid gap-6 mx-auto w-full max-w-3xl px-6 py-6 md:py-10"
   >
     <header class="flex flex-col gap-3 @2xl:flex-row flex-start @2xl:items-center @2xl:justify-between overflow-hidden">
       <h1 class="text-3xl font-bold">

@@ -5,6 +5,7 @@ import CommentsDialog from "~/components/course/content/comments/CommentsDialog.
 import ContentRating from "~/components/course/content/comments/ContentRating.vue";
 import type { Content } from "~/types/entities/course";
 import StarFill from "~/components/icons/StarFill.vue";
+import ReaderContentTableTrigger from "~/components/reader/ReaderContentTableTrigger.vue";
 
 const store = useCoursesStore();
 const { selectedCourse: course, allContents } = storeToRefs(store);
@@ -19,6 +20,7 @@ const commentsOpen = ref<boolean>(false);
 const activeContent = computed(() => allContents.value.find(c => c.id === Number(contentId.value)));
 const activeStage = computed(() => course.value!.stages.find(s => s.contents.map(c => c.id).includes(Number(activeContent.value?.id ?? -1))));
 provide("content", activeContent);
+provide("stage", activeStage);
 
 const { progress: scrollProgress } = useScrollIsland();
 
@@ -55,12 +57,10 @@ const next = computed<Content | undefined>(() => {
           />
         </div>
 
-        <main
-          class="flex flex-col flex-1 p-6 pt-0"
-        >
-          <nav class="sticky top-0 z-20 pb-2 pt-3 flex items-center gap-6 justify-between bg-background">
-            <div class="flex items-center gap-2">
-              <UiSidebarTrigger />
+        <main class="flex flex-col flex-1 pt-0 pb-18 md:pb-24">
+          <nav class="sticky top-0 z-20 px-6 pb-2 pt-3 h-12.25 flex items-center gap-6 justify-between bg-background border-b">
+            <div class="flex items-center gap-4">
+              <ReaderContentTableTrigger />
 
               <UiBreadcrumb>
                 <UiBreadcrumbList>
@@ -164,7 +164,10 @@ const next = computed<Content | undefined>(() => {
               </div>
             </UiButton>
 
-            <section v-if="next">
+            <section
+              v-if="next"
+              class="px-6"
+            >
               <NuxtLinkLocale
                 :to="`/${alias}/reader/${course!.id}/${next.id}`"
                 class="group"
@@ -177,21 +180,24 @@ const next = computed<Content | undefined>(() => {
                       class="size-10 rounded-lg bg-primary object-cover"
                     />
 
-                    <div class="grid gap-1">
-                      <p class="text-xs leading-none uppercase font-medium text-primary">
-                        {{ $t("labels.next-activity") }}
-                      </p>
+                    <div class="grid gap-1 auto-rows-min">
+                      <div class="flex items-center gap-1">
+                        <p class="text-xs leading-none uppercase font-medium text-primary">
+                          {{ $t("labels.next-activity") }}
+                        </p>
+
+                        <div
+                          v-if="next.duration"
+                          class="flex items-center gap-2 text-xs text-muted-foreground"
+                        >
+                          <p>
+                            · {{ fromMinutes(next.duration, "short") }}
+                          </p>
+                        </div>
+                      </div>
                       <p class="text-lg leading-tight font-semibold truncate">
                         {{ next.name }}
                       </p>
-                      <div
-                        v-if="next.duration"
-                        class="mt-1 flex items-center gap-2 text-xs text-muted-foreground"
-                      >
-                        <p v-if="next.duration">
-                          {{ fromMinutes(next.duration, "short") }}
-                        </p>
-                      </div>
                     </div>
 
                     <ArrowRight class="shrink-0 ml-auto size-5 text-primary" />

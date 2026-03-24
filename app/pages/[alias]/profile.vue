@@ -3,5 +3,7 @@
 </script>
 
 <template>
-  <NuxtPage />
+  <div class="p-6 md:py-10">
+    <NuxtPage />
+  </div>
 </template>

@@ -24,7 +24,7 @@ watch(course, val => useHead({
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.results`"
-    class="w-full"
+    class="w-full p-6"
     wrapper
     wrapper-class="text-sm @container/results grid gap-4 max-w-7xl w-full mx-auto"
   >

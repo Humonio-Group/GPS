@@ -11,8 +11,6 @@ const props = defineProps<PeopleSectionProps>();
 
 const store = useCoursesStore();
 const { selectedCourse: course } = storeToRefs(store);
-
-store.loadPeople();
 </script>
 
 <template>

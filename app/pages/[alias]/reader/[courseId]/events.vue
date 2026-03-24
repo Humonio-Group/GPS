@@ -13,7 +13,7 @@ store.loadEvents();
 <template>
   <PageRoot
     name="course.specific.events"
-    class="min-h-0 flex-1 h-full flex flex-col"
+    class="min-h-0 flex-1 h-full flex flex-col p-6"
   >
     <CalendarView
       class="flex-1 min-h-0"

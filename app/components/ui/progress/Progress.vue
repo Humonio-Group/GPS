@@ -9,9 +9,10 @@ import {
 import { cn } from "@/lib/utils";
 
 const props = withDefaults(
-  defineProps<ProgressRootProps & { class?: HTMLAttributes["class"] }>(),
+  defineProps<ProgressRootProps & { useUnit?: boolean; class?: HTMLAttributes["class"] }>(),
   {
     modelValue: 0,
+    useUnit: false,
   },
 );
 
@@ -32,7 +33,7 @@ const delegatedProps = reactiveOmit(props, "class");
     <ProgressIndicator
       data-slot="progress-indicator"
       class="bg-current h-full w-full rounded-full flex-1 transition-all"
-      :style="`transform: translateX(-${100 - (props.modelValue ?? 0)}%);`"
+      :style="`transform: translateX(-${100 - ((props.modelValue ?? 0) * (useUnit ? 100 : 1))}%);`"
     />
   </ProgressRoot>
 </template>
