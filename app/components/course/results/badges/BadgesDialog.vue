@@ -16,7 +16,7 @@ const badges = computed(() => [...(course.value?.badges ?? [])].sort((a, b) => {
     <UiDialogTrigger as-child>
       <slot />
     </UiDialogTrigger>
-    <UiDialogContent class="@container/badges-dialog max-w-4xl!">
+    <UiDialogContent class="@container/badges-dialog w-[calc(100dvh-3rem)] max-w-4xl! max-h-[calc(100dvh-3rem)] overflow-y-auto">
       <UiDialogHeader>
         <UiDialogTitle>
           {{ $t("courses.specimen.results.badges.all-badges") }}
