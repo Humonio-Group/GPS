@@ -7,11 +7,7 @@ interface ReaderStageTriggerProps {
   active?: boolean;
 }
 
-const props = defineProps<ReaderStageTriggerProps>();
-const progress = computed(() => {
-  const { completed, total } = props.stage.progress;
-  return (completed / total) * 100;
-});
+defineProps<ReaderStageTriggerProps>();
 
 const open = inject("open") as Ref<boolean>;
 const { alias } = useWorkspaceUtils();
