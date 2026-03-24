@@ -137,7 +137,7 @@ onMounted(async () => {
       <div
         v-if="loadingProgress < 1"
         key="loadingCourse"
-        class="flex-1 grid place-items-center"
+        class="flex-1 grid place-items-center px-4"
       >
         <div class="flex flex-col w-full max-w-xl gap-16">
           <UiIconCloud
