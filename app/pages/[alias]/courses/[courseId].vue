@@ -137,7 +137,7 @@ onMounted(async () => {
       <div
         v-if="loadingProgress < 1"
         key="loadingCourse"
-        class="flex-1 grid place-items-center"
+        class="flex-1 grid place-items-center px-6"
       >
         <div class="flex flex-col w-full max-w-xl gap-16">
           <UiIconCloud
@@ -236,7 +236,7 @@ onMounted(async () => {
           </section>
         </header>
 
-        <main class="@container max-w-4xl w-full mx-auto px-4 grid grid-cols-1 gap-12 @xl:grid-cols-2">
+        <main class="@container max-w-4xl w-full mx-auto px-6 grid grid-cols-1 gap-12 @xl:grid-cols-2">
           <section class="@xl:col-span-2 grid gap-2">
             <h3 class="text-xs text-muted-foreground uppercase font-semibold">
               {{ $t("courses.specimen.overview.sections.objectives") }}
