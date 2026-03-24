@@ -51,7 +51,7 @@ const views = computed((): { value: CalendarViewType; labelKey: string }[] => {
   <div class="sticky top-0 grid gap-2 pb-4">
     <div class="flex items-center justify-between">
       <h1
-        class="text-2xl font-bold capitalize mb-2"
+        class="text-3xl font-extrabold capitalize mb-2"
         :class="{ 'sm:mr-0': views.length > 1 }"
       >
         {{ label }}

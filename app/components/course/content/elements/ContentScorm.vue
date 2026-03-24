@@ -113,7 +113,7 @@ const debugInfo = computed(() => {
   <div class="w-full mx-auto max-w-4xl flex items-center gap-2 justify-center">
     <UiDialog>
       <UiDialogTrigger as-child>
-        <UiButton>
+        <UiButton size="xl">
           {{ typeof content.activity.scorm!.button.label === "string" ? content.activity.scorm!.button.label : content.activity.scorm!.button.label[locale] }}
           <Play />
         </UiButton>
@@ -213,6 +213,7 @@ const debugInfo = computed(() => {
       <UiButton
         v-if="content.activity.results.length === 1"
         variant="outline"
+        size="xl"
       >
         {{ content.activity.results[0]!.label }}
       </UiButton>

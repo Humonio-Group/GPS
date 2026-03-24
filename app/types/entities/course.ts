@@ -41,6 +41,7 @@ export interface Stage {
   name: string;
   description: Nullable<string>;
   picture: Nullable<string>;
+  duration?: number;
   locked: boolean;
   hidden: boolean;
   conditions: Conditions;

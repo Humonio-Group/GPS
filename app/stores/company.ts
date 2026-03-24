@@ -29,6 +29,7 @@ function bindCompanyColors(company: Company) {
 
   cssRules += `:root { --primary: #${company.colors.first}; }\n`;
   cssRules += `.dark { --primary: #${company.colors.second}; }\n`;
+  cssRules += `.dark { --primary-foreground: white; }\n`;
   cssRules += `:root { --sidebar-primary: #${company.colors.first}; }\n`;
   cssRules += `.dark { --sidebar-primary: #${company.colors.second}; }\n`;
 

@@ -55,7 +55,8 @@ const { id } = useCourseUtils();
   >
     <NuxtLinkLocale
       :to="`/${alias}/reader/${id}/${content.id}`"
-      active-class="bg-sidebar-primary! text-sidebar-primary-foreground! *:text-sidebar-primary-foreground!"
+      active-class="opacity-100! bg-sidebar-primary! text-sidebar-primary-foreground! *:text-sidebar-primary-foreground!"
+      :class="{ 'opacity-60': content.progress.value >= 1 }"
     >
       <NuxtImg
         class="size-6 rounded-sm bg-primary aspect-square object-cover"

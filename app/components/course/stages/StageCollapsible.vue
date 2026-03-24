@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import StageItemCompletionBadge from "~/components/course/stages/stage-elements/StageItemCompletionBadge.vue";
 import type { Stage } from "~/types/entities/course";
 import StageContentItem from "~/components/course/stages/StageContentItem.vue";
 import StageItemConditions from "~/components/course/stages/stage-elements/StageItemConditions.vue";
@@ -24,28 +23,32 @@ onMounted(() => {
   <UiCollapsible>
     <UiCard class="p-0 gap-0 cursor-pointer">
       <UiCollapsibleTrigger as-child>
-        <UiCardHeader class="flex flex-col @md:flex-row @md:items-center gap-2 @md:gap-4 p-6 justify-between">
-          <div class="grid">
-            <UiCardTitle class="truncate">
+        <UiCardHeader class="flex flex-col @md:flex-row @md:items-center gap-2 @md:gap-4 p-4 justify-between">
+          <div class="grid gap-1">
+            <UiCardTitle class="truncate max-w-xl">
               {{ stage.name }}
             </UiCardTitle>
+            <UiCardDescription class="text-xs">
+              {{ $t("courses.specimen.overview.contents-progress", { current: stage.progress.completed, max: stage.progress.total }) }}{{ stage.duration ? ` · ${$t("labels.time.short.minutes", { value: stage.duration })}` : '' }}
+            </UiCardDescription>
           </div>
 
           <div class="flex items-center gap-2">
-            <StageItemCompletionBadge :contents="stage.progress" />
             <StageItemConditions
               v-if="stage.locked"
               :stage="stage"
             />
             <UiCircularProgress
               v-else
+              filled
+              class="size-7"
               :model-value="(stage.progress.completed / stage.progress.total) * 100"
             />
           </div>
         </UiCardHeader>
       </UiCollapsibleTrigger>
       <UiCollapsibleContent as-child>
-        <UiCardContent class="p-6 pt-0 grid gap-2 overflow-hidden">
+        <UiCardContent class="p-4 pt-0 grid gap-2 overflow-hidden">
           <div
             v-if="(stage.description || stage.picture) && false"
             class="flex flex-col @lg:flex-row @lg:items-center gap-2 @lg:gap-4 mb-2"

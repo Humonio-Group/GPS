@@ -17,14 +17,12 @@ store.loadTickets();
 <template>
   <PageRoot
     name="support.home"
-    class="rounded-lg border overflow-hidden flex flex-1 max-h-full!"
+    class="overflow-hidden flex flex-1 max-h-full!"
   >
-    <TicketsNavigation v-model:open="open" />
-
     <main class="flex-1 flex flex-col">
       <header
         v-if="isMobile || ticket"
-        class="bg-background shrink-0 pl-5 pr-3 border-b flex items-center gap-2 h-16"
+        class="bg-background shrink-0 pl-5 pr-3 border-b flex items-center gap-2 h-14"
       >
         <UiButton
           v-if="isMobile"
@@ -113,5 +111,7 @@ store.loadTickets();
 
       <NuxtPage />
     </main>
+
+    <TicketsNavigation v-model:open="open" />
   </PageRoot>
 </template>

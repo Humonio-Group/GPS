@@ -33,7 +33,7 @@ async function handleOpen(value: boolean) {
     >
       <UiDialogTrigger as-child>
         <UiButton
-          size="lg"
+          size="xl"
           class="truncate w-full @md:w-auto"
           :variant="content.activity.embed!.main ? 'default' : 'outline'"
           :disabled="content.activity.embed!.disabled"
@@ -70,7 +70,7 @@ async function handleOpen(value: boolean) {
     </UiDialog>
     <UiButton
       v-else
-      size="lg"
+      size="xl"
       class="truncate"
       :variant="content.activity.embed!.main ? 'default' : 'outline'"
       :as-child="!content.activity.embed!.disabled"
@@ -94,7 +94,7 @@ async function handleOpen(value: boolean) {
     <template v-if="content.activity.results.length">
       <UiButton
         v-if="content.activity.results.length === 1"
-        size="lg"
+        size="xl"
         class="truncate"
         variant="outline"
         as-child

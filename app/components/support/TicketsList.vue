@@ -19,7 +19,7 @@ const open = defineModel<boolean>("open", { default: false });
     v-model:open="open"
   >
     <UiSheetContent
-      side="left"
+      side="right"
       class=""
     >
       <UiSheetHeader>
@@ -33,7 +33,7 @@ const open = defineModel<boolean>("open", { default: false });
   </UiSheet>
   <nav
     v-else
-    :class="cn('shrink-0 w-70! border-r p-2 bg-sidebar text-sidebar-foreground grid gap-2', props.class)"
+    :class="cn('shrink-0 w-70! border-l p-2 bg-sidebar text-sidebar-foreground grid gap-2', props.class)"
   >
     <slot />
   </nav>

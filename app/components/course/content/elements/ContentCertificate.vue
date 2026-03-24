@@ -15,6 +15,7 @@ const activity = computed(() => props.content.activity.certificate!);
     <UiDialog>
       <UiDialogTrigger as-child>
         <UiButton
+          size="xl"
           :variant="activity.main ? 'default' : 'outline'"
           :disabled="activity.disabled"
         >

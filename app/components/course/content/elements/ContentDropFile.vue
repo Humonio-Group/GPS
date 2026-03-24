@@ -159,7 +159,7 @@ defineExpose({
     <UiDialog v-if="content.activity.dropFile!.link">
       <UiDialogTrigger as-child>
         <UiButton
-          size="lg"
+          size="xl"
           class="mx-auto"
         >
           {{ $t("btn.open.file") }}
@@ -266,7 +266,7 @@ defineExpose({
                 v-if="canRemove"
                 size="icon"
                 variant="ghost"
-                class="flex-shrink-0 hover:bg-destructive/10 hover:text-destructive"
+                class="shrink-0 hover:bg-destructive/10 hover:text-destructive"
                 @click.stop="removeFile(index)"
               >
                 <X :size="18" />

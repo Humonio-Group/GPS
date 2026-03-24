@@ -19,7 +19,7 @@ store.loadActions();
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.actions`"
-    class="w-full"
+    class="w-full p-6"
     wrapper
     wrapper-class="w-full max-w-7xl mx-auto grid gap-2"
   >
@@ -55,7 +55,7 @@ store.loadActions();
       >
         <UiButton :size="isMobile ? 'icon' : 'default'">
           <Plus />
-          {{ $t("btn.create.action") }}
+          <span v-if="!isMobile">{{ $t("btn.create.action") }}</span>
         </UiButton>
       </CreateActionFromTemplateDialog>
     </nav>

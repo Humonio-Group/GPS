@@ -50,7 +50,7 @@ store.loadPeople();
 <template>
   <PageRoot
     :name="`courses.specimen.${id}.peoples`"
-    class="w-full"
+    class="w-full p-6"
     wrapper
     wrapper-class="grid gap-4 max-w-7xl w-full mx-auto"
   >

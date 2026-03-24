@@ -54,7 +54,7 @@ function randomVariant() {
       <UiSpinner />
     </div>
     <template v-else-if="stage">
-      <div class="h-[55dvh] @md:h-[65dvh] w-full rounded-2xl overflow-hidden">
+      <div class="h-[55dvh] @md:h-[65dvh] w-full overflow-hidden">
         <NuxtImg
           v-if="stage.picture"
           class="size-full object-cover"
@@ -67,7 +67,7 @@ function randomVariant() {
         />
       </div>
 
-      <main class="px-8">
+      <main class="px-8 max-w-4xl mx-auto">
         <header class="flex gap-8 py-8 flex-col @md:flex-row @md:items-start @md:justify-between">
           <div class="flex flex-col">
             <div>

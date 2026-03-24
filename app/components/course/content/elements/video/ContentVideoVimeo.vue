@@ -94,8 +94,8 @@ const onDurationChange = (event: any) => {
 
 <template>
   <ScriptVimeoPlayer
-    ref="scriptPlayerRef"
     :id="Number(code)"
+    ref="scriptPlayerRef"
     :key="`vimeo-${code}`"
     class="aspect-video rounded-lg overflow-hidden"
     trigger="visible"

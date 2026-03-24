@@ -2,11 +2,12 @@
 import LayoutRoot from "~/components/primitives/composing/LayoutRoot.vue";
 import DefaultSidebar from "~/components/navigation/DefaultSidebar.vue";
 import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
-import { Bell, BellDot, MoreVertical, Plus, Send, History } from "lucide-vue-next";
+import { Bell, BellDot, MoreVertical, Plus, Send, History, Edit } from "lucide-vue-next";
 import CompanionActions from "~/components/companion/CompanionActions.vue";
 import HistoryDialog from "~/components/companion/HistoryDialog.vue";
 
 const { alias } = useWorkspaceUtils();
+const { isMobile } = useResponsive();
 const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificationStore());
 
 const store = useCompanionStore();
@@ -31,56 +32,75 @@ async function sendMessage() {
     <UiSidebarProvider>
       <DefaultSidebar show-search />
 
-      <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh overflow-y-auto">
-        <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
-          <UiSidebarTrigger />
-          <div>
-            <h1 class="font-bold">
-              {{ conversation?.title }}
-            </h1>
-            <div
-              v-if="conversation"
-              class="flex items-center gap-1 5"
-            >
-              <UiAvatar class="size-5 rounded-sm">
-                <UiAvatarImage
-                  v-if="conversation.agent.avatar"
-                  :src="conversation.agent.avatar"
-                />
-                <UiAvatarFallback>{{ conversation.agent.name.substring(0, 2) }}</UiAvatarFallback>
-              </UiAvatar>
+      <UiSidebarInset class="relative flex flex-col max-h-dvh overflow-y-auto">
+        <header
+          class="top-0 py-3 px-4 flex items-center gap-2 bg-background z-50"
+          :class="{ 'shrink-0 sticky border-b': !!conversation, 'absolute top-0 inset-x-0': !conversation }"
+        >
+          <UiSidebarTrigger v-if="isMobile" />
 
-              <p class="text-sm text-muted-foreground">
-                {{ conversation.agent.name }}
-              </p>
-            </div>
-          </div>
-
-          <div class="ml-auto flex items-center">
+          <div
+            v-if="conversation"
+            class="flex items-center gap-2 overflow-hidden"
+          >
             <UiTooltip>
               <UiTooltipTrigger as-child>
-                <UiButton
-                  size="icon-sm"
-                  variant="ghost"
-                  as-child
-                >
-                  <NuxtLinkLocale :to="`/${alias}/notifications`">
-                    <UiSpinner v-if="!notifications.length && loading.list" />
-                    <BellDot v-else-if="hasNewNotifications" />
-                    <Bell v-else />
-                  </NuxtLinkLocale>
-                </UiButton>
+                <UiAvatar class="size-6 rounded-full">
+                  <UiAvatarImage
+                    v-if="conversation.agent.avatar"
+                    :src="conversation.agent.avatar"
+                  />
+                  <UiAvatarFallback>{{ conversation.agent.name.substring(0, 2) }}</UiAvatarFallback>
+                </UiAvatar>
               </UiTooltipTrigger>
-              <UiTooltipContent>
-                <p>{{ $t("navigation.actions.notifications") }}</p>
+              <UiTooltipContent side="right">
+                <p>{{ conversation.agent.name }}</p>
               </UiTooltipContent>
             </UiTooltip>
 
-            <GettingHelp />
+            <h1 class="font-medium truncate min-w-0">
+              {{ conversation.title }}
+            </h1>
+          </div>
+
+          <div class="ml-auto flex items-center">
+            <template v-if="isMobile">
+              <UiTooltip>
+                <UiTooltipTrigger as-child>
+                  <UiButton
+                    size="icon-sm"
+                    variant="ghost"
+                    as-child
+                  >
+                    <NuxtLinkLocale :to="`/${alias}/notifications`">
+                      <UiSpinner v-if="!notifications.length && loading.list" />
+                      <BellDot v-else-if="hasNewNotifications" />
+                      <Bell v-else />
+                    </NuxtLinkLocale>
+                  </UiButton>
+                </UiTooltipTrigger>
+                <UiTooltipContent>
+                  <p>{{ $t("navigation.actions.notifications") }}</p>
+                </UiTooltipContent>
+              </UiTooltip>
+
+              <GettingHelp />
+            </template>
+
+            <UiButton
+              v-if="conversation"
+              size="icon-sm"
+              variant="ghost"
+              as-child
+            >
+              <NuxtLinkLocale :to="`/${alias}/companion`">
+                <Edit />
+              </NuxtLinkLocale>
+            </UiButton>
 
             <HistoryDialog>
               <UiButton
-                size="icon"
+                size="icon-sm"
                 variant="ghost"
               >
                 <History />
@@ -111,7 +131,7 @@ async function sendMessage() {
             <div class="relative flex-1">
               <UiButton
                 v-if="false"
-                size="icon-sm"
+                size="icon"
                 variant="ghost"
                 class="absolute bottom-0.75 left-0.75"
               >
@@ -120,21 +140,21 @@ async function sendMessage() {
               <UiTextarea
                 v-model="message"
                 :placeholder="$t('companion.message-placeholder')"
-                class="min-h-9 max-h-32 resize-none pr-9 appearance-none"
+                class="min-h-9 py-3 px-4 max-h-32 resize-none rounded-xl pr-14 appearance-none bg-background!"
                 rows="1"
                 submit-on-enter
                 @submit="sendMessage"
               />
               <UiButton
-                size="icon-sm"
-                class="absolute bottom-0.75 right-0.75"
+                size="icon"
+                class="absolute bottom-1.75 right-1.75"
                 :disabled="!canWrite"
                 @click="sendMessage"
               >
                 <Send />
               </UiButton>
             </div>
-            <p class="text-muted-foreground text-xs px-2">
+            <p class="text-muted-foreground text-center text-xs px-2">
               {{ $t("companion.warning") }}
             </p>
           </footer>

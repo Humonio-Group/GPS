@@ -108,7 +108,7 @@ async function initializeH5PPlayer() {
     <UiDialog v-model:open="isDialogOpen">
       <UiDialogTrigger as-child>
         <UiButton
-          size="lg"
+          size="xl"
           class="truncate w-full @md:w-auto"
           :variant="h5pActivity!.main ? 'default' : 'outline'"
           :disabled="h5pActivity!.disabled"
@@ -171,7 +171,7 @@ async function initializeH5PPlayer() {
     <template v-if="content.activity.results.length">
       <UiButton
         v-if="content.activity.results.length === 1"
-        size="lg"
+        size="xl"
         class="truncate"
         variant="outline"
         as-child

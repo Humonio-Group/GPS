@@ -23,11 +23,12 @@ const active = computed(() => (stages.value.find(s => s.contents.some(c => c.id 
 
 <template>
   <div
-    class="rounded-lg"
+    :id="`stage-${stage.id}`"
+    class="rounded-lg border border-primary/20"
     :class="{ 'bg-primary/15': active }"
   >
     <UiCollapsible v-model:open="open">
-      <div class="px-2">
+      <div class="">
         <ReaderStageTrigger
           :active
           :stage

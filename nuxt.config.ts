@@ -16,6 +16,7 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   app: {
     baseURL: process.env.APP_BASE_URL || "/",
+    pageTransition: { name: "page", mode: "out-in" },
   },
   css: ["./tailwind.css"],
   colorMode: {

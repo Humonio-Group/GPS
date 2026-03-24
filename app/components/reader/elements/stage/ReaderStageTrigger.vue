@@ -20,8 +20,8 @@ const { id } = useCourseUtils();
 
 <template>
   <div
-    class="group/stage relative flex items-center gap-2 p-2 rounded-lg bg-transparent transition-colors duration-75"
-    :class="{ 'hover:bg-primary/15': !active, 'rounded-b-none! border-b border-b-primary/20': active && open }"
+    class="group/stage relative flex items-center gap-2 px-4 py-2 rounded-lg bg-transparent transition-colors duration-75"
+    :class="{ 'hover:bg-primary/15': !active, 'rounded-b-none!': active && open, 'rounded-b-none! border-b border-b-primary/20': open, 'opacity-60': stage.progress.completed === stage.progress.total && !active }"
   >
     <div class="grid *:leading-tight">
       <p class="font-semibold text-sm truncate">
@@ -33,46 +33,36 @@ const { id } = useCourseUtils();
     </div>
 
     <div class="shrink-0 ml-auto z-10 flex items-center gap-1">
-      <div class=" md:group-hover/stage:hidden">
-        <UiPopover v-if="stage.locked">
-          <UiPopoverTrigger>
-            <Lock class="size-3 text-muted-foreground" />
-          </UiPopoverTrigger>
-          <UiPopoverContent class="grid gap-2">
-            <div
-              v-for="(condition, i) in stage.conditions"
-              :key="`stage#${stage.id}-condition#${i}`"
-              class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
-            >
-              <component
-                :is="condition.icon"
-                class="shrink-0"
-              />
-              <p class="text-sm">
-                {{ condition.label }}
-              </p>
-            </div>
-          </UiPopoverContent>
-        </UiPopover>
-        <UiCircularProgress
-          v-else
-          :model-value="progress"
-          class="block size-6"
-          filled
-        />
-      </div>
-      <div class="z-10 md:hidden md:group-hover/stage:flex">
-        <UiButton
-          variant="ghost"
-          size="icon-sm"
-          class="-mr-1 hover:bg-transparent! text-primary!"
-          as-child
-        >
-          <NuxtLinkLocale :to="`/${alias}/reader/${id}/stages/${stage.id}`">
-            <Info class="size-5" />
-          </NuxtLinkLocale>
-        </UiButton>
-      </div>
+      <UiPopover v-if="stage.locked">
+        <UiPopoverTrigger>
+          <Lock class="size-3 text-muted-foreground" />
+        </UiPopoverTrigger>
+        <UiPopoverContent class="grid gap-2">
+          <div
+            v-for="(condition, i) in stage.conditions"
+            :key="`stage#${stage.id}-condition#${i}`"
+            class="flex items-center gap-2 [&_>svg]:size-4 [&_>svg]:text-muted-foreground"
+          >
+            <component
+              :is="condition.icon"
+              class="shrink-0"
+            />
+            <p class="text-sm">
+              {{ condition.label }}
+            </p>
+          </div>
+        </UiPopoverContent>
+      </UiPopover>
+      <UiButton
+        variant="ghost"
+        size="icon-sm"
+        class="-mr-1 hover:bg-transparent! text-primary!"
+        as-child
+      >
+        <NuxtLinkLocale :to="`/${alias}/reader/${id}/stages/${stage.id}`">
+          <Info class="size-5" />
+        </NuxtLinkLocale>
+      </UiButton>
     </div>
 
     <span

@@ -5,6 +5,7 @@ import DefaultSidebar from "~/components/navigation/DefaultSidebar.vue";
 import GettingHelp from "~/components/navigation/entities/GettingHelp.vue";
 
 const { alias } = useWorkspaceUtils();
+const { isMobile } = useResponsive();
 
 const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificationStore());
 </script>
@@ -14,11 +15,12 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
     <UiSidebarProvider>
       <DefaultSidebar show-search />
 
-      <UiSidebarInset class="px-4 md:pl-2 flex flex-col max-h-dvh! overflow-y-auto">
-        <header class="shrink-0 sticky top-0 py-4 flex items-center gap-2 bg-background z-50">
+      <UiSidebarInset class="flex flex-col max-h-dvh! overflow-y-auto">
+        <header
+          v-if="isMobile"
+          class="shrink-0 sticky top-0 px-4 py-3 flex items-center gap-2 bg-background z-50"
+        >
           <UiSidebarTrigger />
-
-          <!-- todo: breadcrumbs - loic -->
 
           <div class="ml-auto flex items-center">
             <UiTooltip>
@@ -43,7 +45,7 @@ const { notifications, hasNewNotifications, loading } = storeToRefs(useNotificat
           </div>
         </header>
 
-        <main class="p-2 pt-0 flex-1 flex flex-col min-h-0">
+        <main class="flex-1 flex flex-col min-h-0">
           <NuxtPage />
         </main>
       </UiSidebarInset>

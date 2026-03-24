@@ -115,7 +115,9 @@ store.fetchTerms();
 <template>
   <PageRoot
     name="profile.settings"
-    class="@container/profile-settings grid gap-8"
+    class="@container/profile-settings"
+    wrapper
+    wrapper-class="max-w-5xl mx-auto grid gap-8"
   >
     <header class="flex items-center justify-between gap-4">
       <h1 class="text-3xl font-bold">
