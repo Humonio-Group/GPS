@@ -135,7 +135,7 @@ onMounted(async () => {
       mode="out-in"
     >
       <div
-        v-if="loadingProgress !== 1"
+        v-if="loadingProgress < 1"
         key="loadingCourse"
         class="flex-1 grid place-items-center"
       >
