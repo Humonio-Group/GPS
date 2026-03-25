@@ -16,7 +16,7 @@ export const useFancyLeaveTitle = () => {
     originalTitle = document.title;
 
     useHead({
-      title: t("labels.miss-you"),
+      title: `${t("labels.miss-you")} - ${originalTitle}`,
     });
   });
 };
