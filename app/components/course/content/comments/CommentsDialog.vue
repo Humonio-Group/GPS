@@ -96,6 +96,7 @@ async function submit() {
           />
           <UiButton
             size="icon"
+            class="mt-0.5"
             :disabled="!comment?.trim().length"
             @click="submit"
           >

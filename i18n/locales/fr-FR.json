@@ -715,7 +715,7 @@
     },
     "comments": {
       "label": "Commentaires",
-      "placeholder": "Rédiger un commentaire... (Maj+Entrer pour aller à la ligne)",
+      "placeholder": "Votre commentaire...",
       "helper": "Posez vos questions ou échangez avec vos pairs sur cette activité",
       "empty": "Aucun commentaire pour l'instant. Soyez le premier.",
       "reply": "Répondre",
