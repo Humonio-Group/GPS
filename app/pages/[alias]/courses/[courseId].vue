@@ -28,7 +28,7 @@ const isLoading = computed<{
   const loadingProgram = specific.specimen;
   const loadingPeople = specific.people;
   const loadingStages = specific.stages;
-  const loadingContents = !!specific.stageContents.length;
+  const loadingContents = !!specific.stageContents.length && loadedContents.value.progress < 1;
 
   return {
     loadingProgram,
@@ -48,11 +48,12 @@ const loadedContents = computed<{
     progress: 0,
   };
 
-  const total = course.value.stages.map(s => s.progress.total).reduce((acc, curr) => {
+  const stages = course.value.stages.filter(stage => !stage.hidden);
+  const total = stages.map(s => s.progress.total).reduce((acc, curr) => {
     acc += curr;
     return acc;
   }, 0);
-  const loaded = course.value.stages.map(s => s.contents.length).reduce((acc, curr) => {
+  const loaded = stages.map(s => s.contents.length).reduce((acc, curr) => {
     acc += curr;
     return acc;
   }, 0);
@@ -60,7 +61,7 @@ const loadedContents = computed<{
   return {
     loaded,
     total,
-    progress: loaded / (total || 1),
+    progress: Math.round((loaded / (total || 1)) * 100) / 100,
   };
 });
 const loadedElementsImages = computed<string[]>(() => {
@@ -85,7 +86,8 @@ const loadingProgress = computed<number>(() => {
   const contents = loadedContents.value.progress * 4;
   const people = (course.value.participants.length || course.value.facilitators.length || !!course.value.manager) ? 1 : 0;
 
-  return (stages + contents + people + 1) / 7;
+  const count = (stages + contents + people + 1) / 7;
+  return Math.round(count * 100) / 100;
 });
 
 const scrollContainer = ref<HTMLElement | null>(null);

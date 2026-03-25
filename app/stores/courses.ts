@@ -338,7 +338,7 @@ function buildTasklistActivity(data: any): Nullable<ContentActivity["tasks"]> {
 }
 function buildDropFileActivity(data: any): ContentActivity["dropFile"] {
   const upload = data.attributes.specific.links.container.embedContent[0]!.specific.upload;
-  const extensions = upload?.extensions.split(",") as string[];
+  const extensions = upload?.extensions ? upload.extensions.split(",") as string[] : [];
   const type = upload?.type as number;
 
   return {
@@ -390,7 +390,8 @@ function buildH5PActivity(data: any): ContentActivity["h5p"] {
   };
 }
 function buildCertificateActivity(data: any): ContentActivity["certificate"] {
-  const embed = data.attributes.specific.links.container.embedContent[0]!;
+  const container = data.attributes.specific.links.container;
+  const embed = data.attributes.specific.links.container.embedContent[0] ?? container;
 
   return {
     main: embed.isMain,
