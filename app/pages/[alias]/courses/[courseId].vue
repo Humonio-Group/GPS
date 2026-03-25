@@ -332,12 +332,12 @@ onMounted(async () => {
           </template>
         </main>
 
-        <footer class="@container/footer fixed left-0 bottom-10 w-full px-3 flex justify-end">
+        <footer class="@container/footer fixed left-0 bottom-3 w-full px-3 flex justify-end">
           <div class="bg-background rounded-full w-full @2xl/footer:w-min">
             <UiButton
               v-if="nextContent"
               variant="outline"
-              class="w-full @2xl/footer:w-min h-auto gap-8 justify-between p-4 pl-6 rounded-full! border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
+              class="w-full @2xl/footer:w-min h-auto gap-8 justify-between p-4 pl-8 rounded-full! border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
               as-child
             >
               <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent.id}`">
