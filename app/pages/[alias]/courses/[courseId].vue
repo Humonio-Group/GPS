@@ -337,7 +337,7 @@ onMounted(async () => {
             <UiButton
               v-if="nextContent"
               variant="outline"
-              class="w-full @2xl/footer:w-min h-auto gap-8 justify-between p-4 pl-8 rounded-full! border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
+              class="group/btn w-full @2xl/footer:w-min h-auto gap-8 justify-between p-4 pl-8 rounded-full! border-primary/50! shadow-2xl bg-primary/10 dark:bg-primary/20 hover:bg-primary/15 dark:hover:bg-primary/25"
               as-child
             >
               <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent.id}`">
@@ -365,7 +365,7 @@ onMounted(async () => {
                 </div>
 
                 <div class="grid aspect-square w-10 place-items-center bg-primary text-primary-foreground rounded-full">
-                  <Play />
+                  <Play class="transition-transform duration-100 group-hover/btn:scale-110 group-hover/btn:-rotate-7" />
                 </div>
               </NuxtLinkLocale>
             </UiButton>
