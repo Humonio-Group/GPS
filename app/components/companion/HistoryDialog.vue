@@ -74,7 +74,7 @@ function unselectAllAgents() {
     </UiTooltip>
     <UiSheetContent
       side="right"
-      class="max-w-xl! gap-0"
+      class="max-w-lg! gap-0"
     >
       <UiSheetHeader>
         <UiSheetTitle>

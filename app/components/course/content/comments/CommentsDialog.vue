@@ -45,7 +45,7 @@ async function submit() {
         <MessageCircle />
       </UiButton>
     </UiSheetTrigger>
-    <UiSheetContent class="max-w-2xl!">
+    <UiSheetContent class="max-w-lg!">
       <UiSheetHeader class="flex flex-col pb-0">
         <UiSheetTitle>
           {{ $t("reader.comments.label") }} <span class="text-muted-foreground font-normal">({{ content.topic.comments.length >= 100 ? "99+" : content.topic.comments.length }})</span>
