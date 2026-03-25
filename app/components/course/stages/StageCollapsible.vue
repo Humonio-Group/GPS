@@ -23,7 +23,7 @@ onMounted(() => {
   <UiCollapsible>
     <UiCard class="p-0 gap-0 cursor-pointer">
       <UiCollapsibleTrigger as-child>
-        <UiCardHeader class="flex flex-col @md:flex-row @md:items-center gap-2 @md:gap-4 p-4 justify-between">
+        <UiCardHeader class="flex items-center gap-4 p-4 justify-between">
           <div class="grid gap-1">
             <UiCardTitle class="truncate max-w-xl">
               {{ stage.name }}
