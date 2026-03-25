@@ -47,8 +47,8 @@ async function send() {
 </script>
 
 <template>
-  <PageRoot class="w-full max-w-7xl mx-auto flex-1 py-2 px-6 grid place-items-center">
-    <div class="relative w-full md:w-3/5 flex flex-col items-center gap-2">
+  <PageRoot class="w-full max-w-7xl mx-auto flex-1 py-2 px-3 grid place-items-center">
+    <div class="relative w-full lg:w-3/5 flex flex-col items-center gap-2">
       <div class="absolute w-full top-0 left-1/2 -translate-x-1/2 -translate-y-[160%] flex items-center justify-center gap-4">
         <div class="relative size-min">
           <UiAvatar class="size-11 md:size-13">
@@ -75,7 +75,7 @@ async function send() {
         </h1>
       </div>
 
-      <div class="rounded-2xl border grid gap-1 w-full p-1 pt-2 shadow-lg/7">
+      <div class="rounded-2xl border grid gap-1 w-full p-1 pt-2 shadow-lg/7 overflow-hidden">
         <div class="relative">
           <UiTextarea
             v-model="message"
@@ -90,48 +90,47 @@ async function send() {
             src="/assets/images/halloween.png"
           />
         </div>
-        <div
-          class="flex justify-end gap-2 md:gap-4 p-2"
-        >
-          <UiSelect
-            v-model="agent"
-            :disabled="loading.creating"
-          >
-            <UiSelectTrigger
-              size="sm"
-              class="border-none! shadow-none! bg-accent! text-accent-foreground! mr-auto pl-1.5 pr-2"
+        <div class="flex items-center justify-between gap-2 md:gap-4 p-2 min-w-0">
+          <div class="min-w-0">
+            <UiSelect
+              v-model="agent"
+              :disabled="loading.creating"
             >
-              <UiAvatar class="size-5 rounded-full!">
-                <UiAvatarImage
-                  v-if="selectedAgent?.avatar"
-                  :src="selectedAgent.avatar"
-                />
-                <UiAvatarFallback class="text-xs text-foreground!">
-                  {{ selectedAgent?.name }}
-                </UiAvatarFallback>
-              </UiAvatar>
-              {{ selectedAgent?.name }}
-            </UiSelectTrigger>
-            <UiSelectContent>
-              <UiSelectItem
-                v-for="_agent in agents"
-                :key="_agent.key"
-                :value="_agent.id"
+              <UiSelectTrigger
+                size="sm"
+                class="w-full! border-none! shadow-none! bg-accent! text-accent-foreground! pl-1.5 pr-2"
               >
-                <UiAvatar class="size-5 rounded-full!">
+                <UiAvatar class="shrink-0 size-5 rounded-full!">
                   <UiAvatarImage
-                    v-if="_agent.avatar"
-                    :src="_agent.avatar"
+                    v-if="selectedAgent?.avatar"
+                    :src="selectedAgent.avatar"
                   />
-                  <UiAvatarFallback class="text-xs">
-                    {{ _agent.name[0] }}
-                  </UiAvatarFallback>
+                  <UiAvatarFallback />
                 </UiAvatar>
+                <UiSelectValue />
+              </UiSelectTrigger>
+              <UiSelectContent class="max-w-(--reka-select-trigger-width)">
+                <UiSelectItem
+                  v-for="_agent in agents"
+                  :key="_agent.key"
+                  :value="_agent.id"
+                  class="whitespace-normal"
+                >
+                  <UiAvatar class="size-5 shrink-0 rounded-full!">
+                    <UiAvatarImage
+                      v-if="_agent.avatar"
+                      :src="_agent.avatar"
+                    />
+                    <UiAvatarFallback />
+                  </UiAvatar>
 
-                {{ _agent.name }}
-              </UiSelectItem>
-            </UiSelectContent>
-          </UiSelect>
+                  <span class="line-clamp-2">
+                    {{ _agent.name }}
+                  </span>
+                </UiSelectItem>
+              </UiSelectContent>
+            </UiSelect>
+          </div>
 
           <UiButton
             size="icon"
