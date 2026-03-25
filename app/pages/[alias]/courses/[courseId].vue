@@ -179,7 +179,7 @@ onMounted(async () => {
       <div
         v-else-if="course"
         key="courseContent"
-        class="pb-10 gap-10 flex flex-col relative"
+        class="pb-10 gap-10 flex flex-col relative @container"
       >
         <header class="grid gap-4 mb-6">
           <section class="flex flex-col gap-6">
@@ -223,7 +223,7 @@ onMounted(async () => {
           </section>
         </header>
 
-        <main class="@container max-w-4xl w-full mx-auto grid grid-cols-1 px-6 gap-12 @xl:grid-cols-2">
+        <main class="max-w-4xl w-full mx-auto grid grid-cols-1 px-6 gap-12 @xl:grid-cols-2">
           <section class="@xl:col-span-2 grid gap-2">
             <h3 class="text-xs text-muted-foreground uppercase font-semibold">
               {{ $t("courses.specimen.overview.sections.objectives") }}
@@ -332,12 +332,12 @@ onMounted(async () => {
           </template>
         </main>
 
-        <footer class="fixed left-0 bottom-10 w-full px-3 flex @xl:justify-end">
-          <div class="bg-background rounded-full w-full @xl:w-min">
+        <footer class="@container/footer fixed left-0 bottom-10 w-full px-3 flex justify-end">
+          <div class="bg-background rounded-full w-full @2xl/footer:w-min">
             <UiButton
               v-if="nextContent"
               variant="outline"
-              class="w-full @xl:w-min h-auto gap-8 justify-between p-4 pl-6 rounded-full! border-1 border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
+              class="w-full @2xl/footer:w-min h-auto gap-8 justify-between p-4 pl-6 rounded-full! border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
               as-child
             >
               <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent.id}`">
