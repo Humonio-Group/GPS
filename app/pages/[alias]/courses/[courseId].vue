@@ -141,14 +141,17 @@ onMounted(async () => {
         key="loadingCourse"
         class="flex-1 grid place-items-center px-6"
       >
-        <div class="flex flex-col w-full max-w-xl gap-16">
+        <div class="flex flex-col w-full max-w-lg gap-16">
           <UiIconCloud
-            v-if="loadedElementsImages.length > 0"
             :images="loadedElementsImages"
             class="max-w-sm mx-auto"
           />
 
           <div class="flex flex-col gap-2">
+            <h3 class="text-lg font-semibold truncate">
+              {{ course?.name }}
+            </h3>
+
             <UiProgress
               :model-value="loadingProgress"
               use-unit
