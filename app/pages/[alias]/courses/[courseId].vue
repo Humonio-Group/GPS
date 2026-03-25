@@ -179,9 +179,9 @@ onMounted(async () => {
       <div
         v-else-if="course"
         key="courseContent"
-        class="pb-10"
+        class="pb-10 gap-10 flex flex-col relative"
       >
-        <header class="grid gap-4">
+        <header class="grid gap-4 mb-6">
           <section class="flex flex-col gap-6">
             <aside class="relative w-full overflow-hidden">
               <Motion
@@ -209,8 +209,8 @@ onMounted(async () => {
               </footer> <!-- todo: program categories - loic -->
             </aside>
 
-            <article class=" max-w-4xl w-full mx-auto px-4 shrink-0 gap-4 flex items-start justify-between py-3">
-              <header class="max-w-2xl">
+            <article class=" max-w-4xl w-full mx-auto px-6 shrink-0 gap-4 flex items-start justify-between py-3">
+              <header class="max-w-2xl grid gap-1.5">
                 <h1 class="text-2xl font-black line-clamp-1">
                   {{ course!.name }}
                 </h1>
@@ -219,29 +219,11 @@ onMounted(async () => {
                   class="text-muted-foreground text-sm *:mx-0! *:max-w-auto! line-clamp-4"
                 />
               </header>
-
-              <UiButton
-                v-if="nextContent"
-                as-child
-              >
-                <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent?.id}`">
-                  <template v-if="completed">
-                    {{ $t("btn.see-again") }}
-                  </template>
-                  <template v-else-if="started">
-                    {{ $t("btn.resume") }}
-                  </template>
-                  <template v-else>
-                    {{ $t("btn.start") }}
-                  </template>
-                  <Play />
-                </NuxtLinkLocale>
-              </UiButton>
             </article>
           </section>
         </header>
 
-        <main class="@container max-w-4xl w-full mx-auto px-6 grid grid-cols-1 gap-12 @xl:grid-cols-2">
+        <main class="@container max-w-4xl w-full mx-auto grid grid-cols-1 px-6 gap-12 @xl:grid-cols-2">
           <section class="@xl:col-span-2 grid gap-2">
             <h3 class="text-xs text-muted-foreground uppercase font-semibold">
               {{ $t("courses.specimen.overview.sections.objectives") }}
@@ -299,23 +281,10 @@ onMounted(async () => {
             </h3>
 
             <main class="grid gap-3">
-              <template v-if="!stages.length && loading.specific.stages">
-                <UiSkeleton
-                  v-for="i in (Math.floor(Math.random() * 4) + 1)"
-                  :key="i"
-                  class="h-18 w-full"
-                />
-              </template>
               <StageCollapsible
                 v-for="stage in stages"
-                v-else
                 :key="`stage-${stage.id}`"
                 :stage="stage"
-              />
-
-              <UiSkeleton
-                v-if="loading.specific.stages"
-                class="h-18 w-full"
               />
             </main>
           </section>
@@ -361,14 +330,54 @@ onMounted(async () => {
               </h3>
             </section>
           </template>
-
-          <p
-            v-if="course"
-            class="@xl:col-span-2 text-xs text-muted-foreground text-center"
-          >
-            {{ $t("labels.date-time.last-update-at", { date: format(course!.program.dates.updatedAt, "d MMM yyyy", { locale: locales[locale]! }) }) }}
-          </p>
         </main>
+
+        <footer class="fixed left-0 bottom-10 w-full px-3 flex @xl:justify-end">
+          <div class="bg-background rounded-full w-full @xl:w-min">
+            <UiButton
+              v-if="nextContent"
+              variant="outline"
+              class="w-full @xl:w-min h-auto gap-8 justify-between p-4 pl-6 rounded-full! border-1 border-primary/50! shadow-2xl bg-primary/10 hover:bg-primary/15"
+              as-child
+            >
+              <NuxtLinkLocale :to="`/${alias}/reader/${id}/${nextContent.id}`">
+                <div class="flex flex-col *:leading-none gap-1">
+                  <span class="text-primary uppercase text-xs! opacity-40">
+                    <template v-if="completed">
+                      {{ $t("btn.see-again") }}
+                    </template>
+                    <template v-else-if="started">
+                      {{ $t("btn.resume") }}
+                    </template>
+                    <template v-else>
+                      {{ $t("btn.start") }}
+                    </template>
+                  </span>
+
+                  <p class="text-base!">
+                    {{ nextContent.name }}
+                  </p>
+
+                  <span
+                    v-if="nextContent.duration"
+                    class="text-xs opacity-50"
+                  >{{ $t("labels.time.short.minutes", { value: nextContent.duration }) }}</span>
+                </div>
+
+                <div class="grid aspect-square w-10 place-items-center bg-primary text-primary-foreground rounded-full">
+                  <Play />
+                </div>
+              </NuxtLinkLocale>
+            </UiButton>
+          </div>
+        </footer>
+
+        <p
+          v-if="course"
+          class="@xl:col-span-2 text-xs text-muted-foreground text-center"
+        >
+          {{ $t("labels.date-time.last-update-at", { date: format(course!.program.dates.updatedAt, "d MMM yyyy", { locale: locales[locale]! }) }) }}
+        </p>
       </div>
     </Transition>
   </PageRoot>
