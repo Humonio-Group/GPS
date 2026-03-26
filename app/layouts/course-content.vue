@@ -57,7 +57,7 @@ const next = computed<Content | undefined>(() => {
           />
         </div>
 
-        <main class="flex flex-col flex-1 pt-0 pb-18 md:pb-24">
+        <main class="@container flex flex-col flex-1 pt-0 pb-18 md:pb-24">
           <nav class="sticky top-0 z-20 px-6 pb-2 pt-3 h-12.25 flex items-center gap-6 justify-between bg-background border-b">
             <div class="flex items-center gap-4">
               <ReaderContentTableTrigger />
@@ -123,7 +123,7 @@ const next = computed<Content | undefined>(() => {
 
           <section
             v-if="activeContent"
-            class="max-w-4xl mx-auto w-full flex flex-col gap-4"
+            class="max-w-4xl mx-auto w-full flex flex-col gap-4 mt-10 px-6 @2xl:px-0"
           >
             <section
               v-if="activeContent?.permissions.rateable"
@@ -143,31 +143,32 @@ const next = computed<Content | undefined>(() => {
               </div> <!-- todo: bind content rating stats - loic -->
             </section>
 
-            <UiSeparator v-if="activeContent?.permissions.commentable && activeContent?.permissions.rateable" />
+            <section v-if="activeContent?.permissions.commentable && activeContent?.permissions.rateable">
+              <UiSeparator />
+            </section>
 
-            <UiButton
-              v-if="activeContent?.permissions.commentable"
-              variant="ghost"
-              class="h-auto text-muted-foreground! justify-between -mx-4"
-              @click="commentsOpen = true"
-            >
-              <div class="flex items-center gap-2">
-                <MessageCircle />
-                <span>{{ $t("reader.comments.label") }}</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span
-                  v-if="activeContent.topic.comments.length"
-                  class="text-xs"
-                >{{ $t("labels.comments", activeContent.topic.comments.length, { named: { count: activeContent.topic.comments.length } }) }}</span>
-                <ChevronRight />
-              </div>
-            </UiButton>
+            <section>
+              <UiButton
+                v-if="activeContent?.permissions.commentable"
+                variant="ghost"
+                class="h-auto text-muted-foreground! justify-between -mx-4"
+                @click="commentsOpen = true"
+              >
+                <div class="flex items-center gap-2">
+                  <MessageCircle />
+                  <span>{{ $t("reader.comments.label") }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span
+                    v-if="activeContent.topic.comments.length"
+                    class="text-xs"
+                  >{{ $t("labels.comments", activeContent.topic.comments.length, { named: { count: activeContent.topic.comments.length } }) }}</span>
+                  <ChevronRight />
+                </div>
+              </UiButton>
+            </section>
 
-            <section
-              v-if="next"
-              class="px-6"
-            >
+            <section v-if="next">
               <NuxtLinkLocale
                 :to="`/${alias}/reader/${course!.id}/${next.id}`"
                 class="group"
